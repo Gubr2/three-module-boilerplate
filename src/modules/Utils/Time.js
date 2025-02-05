@@ -16,8 +16,7 @@ export default class Time extends EventEmitter {
   }
 
   tick() {
-    const currentTime = Date.now()
-    this.delta = this.clock.getDelta()
+    this.delta = Math.min(this.clock.getDelta(), 1 / 30) * 100 // Prevent long frame jump when tab change in browser - limited to 30fps
     this.elapsed = this.clock.getElapsedTime()
 
     this.trigger('tick')

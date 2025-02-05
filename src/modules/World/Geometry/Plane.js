@@ -21,7 +21,5 @@ export default class Plane {
     this.gl.scene.add(this.instance)
   }
 
-  update() {
-    this.mouseEasedMovement.update(this.gl.time.delta)
-  }
+  update() {}
 }

@@ -1,7 +1,6 @@
 import { Vector2, MathUtils } from 'three'
 
 import Gl from '../Gl'
-import { distance } from 'three/tsl'
 
 export default class Mouse {
   constructor() {
