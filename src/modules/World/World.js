@@ -24,6 +24,8 @@ export default class World {
     this.lighting = new Lighting()
   }
 
+  resize() {}
+
   update() {
     this.suzanne.update()
     this.plane.update()
