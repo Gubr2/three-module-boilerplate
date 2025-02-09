@@ -1,33 +1,59 @@
-import Plane from './Geometry/Plane'
-import Suzanne from './Geometry/Suzanne'
+import Gl from '../Gl'
 
-import Environment from './Environment/Environment'
-
-import Lighting from './Lighting/Lighting'
+import SceneObjects from './Scenes/SceneObjects'
 
 export default class World {
   constructor() {
-    /* 
-      Models
-    */
-    this.plane = new Plane()
-    this.suzanne = new Suzanne()
+    this.gl = new Gl()
 
     /* 
-      Environment
+      Scenes
     */
-    this.environment = new Environment()
-
-    /* 
-      Lighting
-    */
-    this.lighting = new Lighting()
+    this.selectors = []
+    this.scenes = []
   }
 
-  resize() {}
+  add() {
+    this.selectors = document.querySelectorAll('[data-gl]')
+
+    this.selectors.forEach((_scene, _index) => {
+      if (_scene.dataset.gl === 'objects') {
+        this.scenes.push(new SceneObjects())
+      }
+    })
+
+    for (const key in this.scenes) {
+      this.gl.scene.add(this.scenes[key].renderPlane.mesh)
+    }
+  }
+
+  setScenePlanesDimensions() {
+    this.selectors.forEach((_selector, _index) => {
+      let bounds = _selector.getBoundingClientRect()
+
+      this.scenes[_index].renderPlane.bounds = bounds
+
+      // Mesh
+      this.scenes[_index].renderPlane.mesh.position.set(bounds.left - this.gl.sizes.width / 2 + bounds.width / 2, -bounds.top + this.gl.sizes.height / 2 - bounds.height / 2, 0)
+      this.scenes[_index].renderPlane.mesh.scale.set(bounds.width, bounds.height)
+
+      // Camera
+      this.scenes[_index].camera.aspect = bounds.width / bounds.height
+      this.scenes[_index].camera.updateProjectionMatrix()
+    })
+  }
+
+  resize() {
+    for (const key in this.scenes) {
+      this.scenes[key].resize()
+    }
+  }
 
   update() {
-    this.suzanne.update()
-    this.plane.update()
+    for (const key in this.scenes) {
+      this.scenes[key].update()
+    }
+
+    this.setScenePlanesDimensions()
   }
 }

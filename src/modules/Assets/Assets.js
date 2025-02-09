@@ -35,6 +35,7 @@ export default class Assets {
     */
     this.rgbeLoader.load('./hdri/studio_small_08_1k.hdr', (_texture) => {
       this.hdri = _texture
+      this.hdri.mapping = THREE.EquirectangularReflectionMapping
     })
   }
 }

@@ -13,7 +13,7 @@ export default class Suzanne {
 
     this.gl.assets.models.suzanne.position.x = 1.5
 
-    this.gl.scene.add(this.gl.assets.models.suzanne)
+    this.instance = this.gl.assets.models.suzanne
   }
 
   update() {}

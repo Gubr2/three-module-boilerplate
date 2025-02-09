@@ -1,5 +1,24 @@
 @import 'shared/reset';
 
 html {
-  overflow: hidden;
+  // overflow: hidden;
+}
+
+body {
+  height: 200vh !important;
+}
+
+canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  display: block;
+  z-index: 9;
+}
+
+[data-gl='objects'] {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  // background-color: lightcoral;
 }

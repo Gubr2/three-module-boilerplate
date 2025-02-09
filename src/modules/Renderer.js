@@ -9,6 +9,9 @@ export default class Rendered {
     this.instance = new THREE.WebGLRenderer({
       canvas: this.gl.canvas,
       powerPreference: 'high-performance',
+      alpha: true,
+      antialias: true,
+      precision: 'lowp',
     })
 
     this.instance.setPixelRatio(this.gl.sizes.pixelRatio)
@@ -17,6 +20,17 @@ export default class Rendered {
   }
 
   update() {
+    for (const key in this.gl.world.scenes) {
+      this.instance.setRenderTarget(this.gl.world.scenes[key].renderTarget)
+      this.instance.render(this.gl.world.scenes[key].scene, this.gl.world.scenes[key].camera)
+
+      this.gl.world.scenes[key].renderPlane.mesh.material.uniforms.tDiffuse.value = this.gl.world.scenes[key].renderTarget.texture
+    }
+
+    // // // // // // // // // //
+    this.instance.setRenderTarget(null)
+
+    // this.composer.render()
     this.instance.render(this.gl.scene, this.gl.camera.instance)
   }
 

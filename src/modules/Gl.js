@@ -60,6 +60,8 @@ export default class Gl {
       this.renderer = new Renderer()
       this.renderer.instance.setAnimationLoop(this.update.bind(this))
 
+      this.world.add()
+
       this.isLoaded = true
 
       if (this.isDebug) this.debug = new Debug()
