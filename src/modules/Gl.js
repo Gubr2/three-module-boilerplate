@@ -49,11 +49,6 @@ export default class Gl {
     // Assets
     this.assets = new Assets()
 
-    // Update
-    this.time.on('tick', () => {
-      this.update()
-    })
-
     // Resize
     this.sizes.on('resize', () => {
       this.resize()
@@ -63,6 +58,7 @@ export default class Gl {
     Promise.all([this.loadDOM(), this.loadAssets()]).then(() => {
       this.world = new World()
       this.renderer = new Renderer()
+      this.renderer.instance.setAnimationLoop(this.update.bind(this))
 
       this.isLoaded = true
 
