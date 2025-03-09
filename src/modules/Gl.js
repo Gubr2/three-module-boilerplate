@@ -56,6 +56,8 @@ export default class Gl {
 
     // After Load
     Promise.all([this.loadDOM(), this.loadAssets()]).then(() => {
+      if (this.isDebug) this.debug = new Debug()
+
       this.world = new World()
       this.renderer = new Renderer()
       this.renderer.instance.setAnimationLoop(this.update.bind(this))
@@ -63,8 +65,6 @@ export default class Gl {
       this.world.add()
 
       this.isLoaded = true
-
-      if (this.isDebug) this.debug = new Debug()
     })
   }
 

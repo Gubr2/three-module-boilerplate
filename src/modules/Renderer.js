@@ -21,10 +21,7 @@ export default class Rendered {
 
   update() {
     for (const key in this.gl.world.scenes) {
-      this.instance.setRenderTarget(this.gl.world.scenes[key].renderTarget)
-      this.instance.render(this.gl.world.scenes[key].scene, this.gl.world.scenes[key].camera)
-
-      this.gl.world.scenes[key].renderPlane.mesh.material.uniforms.tDiffuse.value = this.gl.world.scenes[key].renderTarget.texture
+      this.gl.world.scenes[key].renderPipeline()
     }
 
     // // // // // // // // // //

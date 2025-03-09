@@ -91,6 +91,13 @@ export default class SceneObjects {
     this.camera.updateProjectionMatrix()
   }
 
+  renderPipeline() {
+    this.gl.renderer.instance.setRenderTarget(this.renderTarget)
+    this.gl.renderer.instance.render(this.scene, this.camera)
+
+    this.renderPlane.mesh.material.uniforms.tDiffuse.value = this.renderTarget.texture
+  }
+
   update() {
     this.suzanne.update()
     this.plane.update()
