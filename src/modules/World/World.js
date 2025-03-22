@@ -33,13 +33,7 @@ export default class World {
 
       this.scenes[_index].renderPlane.bounds = bounds
 
-      // Mesh
-      this.scenes[_index].renderPlane.mesh.position.set(bounds.left - this.gl.sizes.width / 2 + bounds.width / 2, -bounds.top + this.gl.sizes.height / 2 - bounds.height / 2, 0)
-      this.scenes[_index].renderPlane.mesh.scale.set(bounds.width, bounds.height)
-
-      // Camera
-      this.scenes[_index].camera.aspect = bounds.width / bounds.height
-      this.scenes[_index].camera.updateProjectionMatrix()
+      this.scenes[_index].setScenePlaneDimensions()
     })
   }
 

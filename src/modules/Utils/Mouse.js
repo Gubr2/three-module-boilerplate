@@ -3,14 +3,25 @@ import { Vector2, MathUtils } from 'three'
 import Gl from '../Gl'
 
 export default class Mouse {
-  constructor() {
+  constructor(_dom) {
     this.gl = new Gl()
+
+    /* 
+      DOM
+    */
+    this.dom = _dom
 
     /* 
       Flags
     */
     this.isMouseHolding = false
     this.isMouseMoved = false
+
+    /* 
+      Sizes
+    */
+    this.width = this.dom == document ? window.innerWidth : this.dom.offsetWidth
+    this.height = this.dom == document ? window.innerHeight : this.dom.offsetHeight
 
     /* 
       Default
@@ -60,28 +71,28 @@ export default class Mouse {
     // EVENTS
 
     // Move
-    document.addEventListener('mousemove', this.mousemove.bind(this))
-    document.addEventListener('touchmove', this.touchmove.bind(this))
+    this.dom.addEventListener('mousemove', this.mousemove.bind(this))
+    this.dom.addEventListener('touchmove', this.touchmove.bind(this))
 
     // Down
-    document.addEventListener('mousedown', this.down.bind(this))
-    document.addEventListener('touchstart', this.down.bind(this))
+    this.dom.addEventListener('mousedown', this.down.bind(this))
+    this.dom.addEventListener('touchstart', this.down.bind(this))
 
     // Up
-    document.addEventListener('mouseup', this.up.bind(this))
-    document.addEventListener('touchend', this.up.bind(this))
+    this.dom.addEventListener('mouseup', this.up.bind(this))
+    this.dom.addEventListener('touchend', this.up.bind(this))
   }
 
   mousemove(_event) {
     this.isMouseMoved = true
 
     // Set Default
-    this.default.x = _event.clientX
-    this.default.y = _event.clientY
+    this.default.x = _event.offsetX
+    this.default.y = _event.offsetY
 
     // Set Normalized
-    this.normalized.current.x = (_event.clientX / this.gl.sizes.width) * 2 - 1
-    this.normalized.current.y = -(_event.clientY / this.gl.sizes.height) * 2 + 1
+    this.normalized.current.x = (_event.offsetX / this.width) * 2 - 1
+    this.normalized.current.y = -(_event.offsetY / this.height) * 2 + 1
 
     // Set Drag
     if (this.isMouseHolding) {
@@ -101,8 +112,8 @@ export default class Mouse {
       this.isMouseMoved = true
 
       // Set Normalized
-      this.normalized.current.x = (_event.touches[0].pageX / this.gl.sizes.width) * 2 - 1
-      this.normalized.current.y = -(_event.touches[0].pageY / this.gl.sizes.height) * 2 + 1
+      this.normalized.current.x = (_event.touches[0].pageX / this.width) * 2 - 1
+      this.normalized.current.y = -(_event.touches[0].pageY / this.height) * 2 + 1
     }
   }
 
@@ -115,13 +126,18 @@ export default class Mouse {
     // Set for mobile
     if (_event.touches) {
       // Set Normalized
-      this.normalized.current.x = (_event.touches[0].pageX / this.gl.sizes.width) * 2 - 1
-      this.normalized.current.y = -(_event.touches[0].pageY / this.gl.sizes.height) * 2 + 1
+      this.normalized.current.x = (_event.touches[0].pageX / this.width) * 2 - 1
+      this.normalized.current.y = -(_event.touches[0].pageY / this.height) * 2 + 1
     }
   }
 
   up(_event) {
     this.isMouseHolding = false
+  }
+
+  resize() {
+    this.width = this.dom == document ? window.innerWidth : this.dom.offsetWidth
+    this.height = this.dom == document ? window.innerHeight : this.dom.offsetHeight
   }
 
   update() {

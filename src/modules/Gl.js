@@ -36,7 +36,7 @@ export default class Gl {
     // Utils
     this.time = new Time()
     this.sizes = new Sizes()
-    this.mouse = new Mouse()
+    this.mouse = new Mouse(document)
     this.scroll = new Scroll()
 
     // Default
@@ -103,6 +103,8 @@ export default class Gl {
   }
 
   resize() {
+    this.mouse.resize()
+
     if (this.isLoaded) {
       this.camera.resize()
       this.renderer.resize()

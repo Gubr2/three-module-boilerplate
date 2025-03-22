@@ -86,8 +86,15 @@ export default class SceneObjects {
 
   resize() {
     this.renderTarget.setSize(this.gl.sizes.width * this.gl.sizes.pixelRatio, this.gl.sizes.height * this.gl.sizes.pixelRatio)
+  }
 
-    this.camera.aspect = this.gl.sizes.width / this.gl.sizes.height
+  setScenePlaneDimensions() {
+    // Mesh
+    this.renderPlane.mesh.position.set(this.renderPlane.bounds.left - this.gl.sizes.width / 2 + this.renderPlane.bounds.width / 2, -this.renderPlane.bounds.top + this.gl.sizes.height / 2 - this.renderPlane.bounds.height / 2, 0)
+    this.renderPlane.mesh.scale.set(this.renderPlane.bounds.width, this.renderPlane.bounds.height)
+
+    // Camera
+    this.camera.aspect = this.renderPlane.bounds.width / this.renderPlane.bounds.height
     this.camera.updateProjectionMatrix()
   }
 
