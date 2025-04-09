@@ -1,7 +1,6 @@
 import * as THREE from 'three'
 import gsap from 'gsap'
 
-import Camera from './Camera'
 import Renderer from './Renderer'
 
 import World from './World/World'
@@ -58,7 +57,7 @@ export default class Gl {
       Scene & Camera
     */
     this.scene = new THREE.Scene()
-    this.camera = new Camera()
+    this.camera = new THREE.Camera()
 
     /* 
       Assets
@@ -127,7 +126,6 @@ export default class Gl {
     this.mouse.resize()
 
     if (this.isLoaded) {
-      this.camera.resize()
       this.renderer.resize()
       this.world.resize()
     }

@@ -48,12 +48,34 @@ export default class SceneObjects {
         //
         new THREE.PlaneGeometry(1, 1),
         new THREE.ShaderMaterial({
+          uniforms: {
+            tDiffuse: new THREE.Uniform(null),
+
+            uScale: new THREE.Uniform(new THREE.Vector2(this.gl.sizes.width, this.gl.sizes.height)),
+            uPosition: new THREE.Uniform(new THREE.Vector2(0, 0)),
+            uResolution: new THREE.Uniform(new THREE.Vector2(this.gl.sizes.width, this.gl.sizes.height)),
+          },
           vertexShader: /* glsl */ `
             varying vec2 vUv;
 
+            uniform vec2 uPosition;
+            uniform vec2 uScale;
+            uniform vec2 uResolution;
+
             void main() {
-              gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+              vec2 pos = position.xy * 2.0;
+
+              // Scale
+              pos.x *= uScale.x / uResolution.x;
+              pos.y *= uScale.y / uResolution.y;
+
+              // Position
+              pos.x += - 1.0 + uPosition.x / uResolution.x * 2. + uScale.x / uResolution.x;
+              pos.y -= uPosition.y / uResolution.y * 2.0;
+              
+              gl_Position = vec4(pos.xy, 0.0, 1.0);
             
+              // Varyings
               vUv = uv;
             }
           `,
@@ -66,23 +88,18 @@ export default class SceneObjects {
               vec4 textureDiffuse = texture(tDiffuse, vUv);
             
               gl_FragColor = textureDiffuse;
+              
+              // Debug
               // gl_FragColor.rgb += vec3(vUv.x, vUv.y, 0.0);
               // gl_FragColor.a = 1.0;
             }
           `,
-          transparent: true,
-          uniforms: {
-            tDiffuse: new THREE.Uniform(null),
-          },
         })
       ),
-      bounds: {
-        top: 0,
-        left: 0,
-        width: this.gl.sizes.width,
-        height: this.gl.sizes.height,
-      },
     }
+
+    this.renderPlane.mesh.frustumCulled = false
+    this.renderPlane.mesh.matrixAutoUpdate = false
 
     /* 
       Render Target
@@ -133,22 +150,20 @@ export default class SceneObjects {
     this.renderTarget.setSize(this.gl.sizes.width * this.gl.sizes.pixelRatio, this.gl.sizes.height * this.gl.sizes.pixelRatio)
   }
 
-  setScenePlaneDimensions() {
+  updateCameraAspect() {
     // Mesh
-    this.renderPlane.mesh.position.set(
-      //
-      this.renderPlane.bounds.left - this.gl.sizes.width / 2 + this.renderPlane.bounds.width / 2,
-      -this.renderPlane.bounds.top,
-      0
-    )
-    this.renderPlane.mesh.scale.set(
-      //
-      this.renderPlane.bounds.width,
-      this.renderPlane.bounds.height
-    )
+    // this.renderPlane.mesh.position.set(
+    //   //
+    //   ((this.renderPlane.bounds.left - this.gl.sizes.width / 2 + this.renderPlane.bounds.width / 2) / this.gl.sizes.width) * 2,
+    //   (-this.renderPlane.bounds.top / this.gl.sizes.height) * 2,
+    //   // 0,
+    //   // 0,
+    //   0
+    // )
+    // this.renderPlane.mesh.material.uniforms.uPosition.value.y = (-this.renderPlane.bounds.top / this.gl.sizes.height) * 2
 
     // Camera
-    this.camera.aspect = this.renderPlane.bounds.width / this.renderPlane.bounds.height
+    this.camera.aspect = this.renderPlane.mesh.material.uniforms.uScale.value.x / this.renderPlane.mesh.material.uniforms.uScale.value.y
     this.camera.updateProjectionMatrix()
   }
 
@@ -178,9 +193,9 @@ export default class SceneObjects {
   getBounds() {
     const bounds = this.params.dom.getBoundingClientRect()
 
-    this.renderPlane.bounds.left = bounds.left
-    this.renderPlane.bounds.width = bounds.width
-    this.renderPlane.bounds.height = bounds.height
+    this.renderPlane.mesh.material.uniforms.uResolution.value.set(this.gl.sizes.width, this.gl.sizes.height)
+    this.renderPlane.mesh.material.uniforms.uPosition.value.x = bounds.left
+    this.renderPlane.mesh.material.uniforms.uScale.value.set(bounds.width, bounds.height)
   }
 
   setScroll() {
@@ -188,12 +203,12 @@ export default class SceneObjects {
       Basic
     */
     gsap.fromTo(
-      this.renderPlane.bounds,
+      this.renderPlane.mesh.material.uniforms.uPosition.value,
       {
-        top: () => this.gl.sizes.height,
+        y: () => this.gl.sizes.height,
       },
       {
-        top: () => -this.gl.sizes.height,
+        y: () => -this.gl.sizes.height,
         ease: 'none',
         scrollTrigger: {
           invalidateOnRefresh: true,
@@ -206,12 +221,12 @@ export default class SceneObjects {
 
           onRefresh: () => {
             this.getBounds()
-            this.setScenePlaneDimensions()
+            this.updateCameraAspect()
           },
           // markers: true,
         },
         onUpdate: (_self) => {
-          this.setScenePlaneDimensions()
+          this.updateCameraAspect()
         },
       }
     )
@@ -236,13 +251,13 @@ export default class SceneObjects {
     //       end: () => `top top`,
     //       onRefresh: () => {
     //         // this.getBounds();
-    //         this.setScenePlaneDimensions();
+    //         this.updateCameraAspect();
     //       },
     //       refreshPriority: -99,
     //       // markers: true,
     //     },
     //     onUpdate: (_self) => {
-    //       this.setScenePlaneDimensions();
+    //       this.updateCameraAspect();
     //     },
     //   }
     // );
@@ -264,13 +279,13 @@ export default class SceneObjects {
     //       end: () => `bottom+=${this.gl.sizes.height} bottom`,
     //       onRefresh: () => {
     //         // this.getBounds();
-    //         this.setScenePlaneDimensions();
+    //         this.updateCameraAspect();
     //       },
     //       refreshPriority: -99,
     //       // markers: true,
     //     },
     //     onUpdate: (_self) => {
-    //       this.setScenePlaneDimensions();
+    //       this.updateCameraAspect();
     //     },
     //   }
     // );

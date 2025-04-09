@@ -23,8 +23,10 @@ export default class Suzanne {
       Instance
     */
     this.instance = new THREE.Mesh(this.geometry, this.material)
+    this.instance.matrixAutoUpdate = false
     this.instance.position.x = 1.5
     this.instance.scale.set(0.5, 0.5, 0.5)
+    this.instance.updateMatrix()
   }
 
   update() {}

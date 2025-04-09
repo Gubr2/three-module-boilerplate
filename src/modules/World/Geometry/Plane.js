@@ -25,6 +25,7 @@ export default class Plane {
     })
 
     this.instance = new THREE.Mesh(this.geometry, this.material)
+    this.instance.matrixAutoUpdate = false
   }
 
   update() {}
