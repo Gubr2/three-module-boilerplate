@@ -26,8 +26,6 @@ export default class Rendered {
 
     // // // // // // // // // //
     this.instance.setRenderTarget(null)
-
-    // this.composer.render()
     this.instance.render(this.gl.scene, this.gl.camera.instance)
   }
 

@@ -66,8 +66,8 @@ export default class SceneObjects {
               vec4 textureDiffuse = texture(tDiffuse, vUv);
             
               gl_FragColor = textureDiffuse;
-              gl_FragColor.rgb += vec3(vUv.x, vUv.y, 0.0);
-              gl_FragColor.a = 1.0;
+              // gl_FragColor.rgb += vec3(vUv.x, vUv.y, 0.0);
+              // gl_FragColor.a = 1.0;
             }
           `,
           transparent: true,
@@ -184,7 +184,9 @@ export default class SceneObjects {
   }
 
   setScroll() {
-    // Enter
+    /* 
+      Basic
+    */
     gsap.fromTo(
       this.renderPlane.bounds,
       {
@@ -213,6 +215,65 @@ export default class SceneObjects {
         },
       }
     )
+
+    /* 
+      Sticky
+    */
+    // Enter
+    // gsap.fromTo(
+    //   this.renderPlane.bounds,
+    //   {
+    //     top: () => this.gl.sizes.height,
+    //   },
+    //   {
+    //     top: 0,
+    //     ease: 'none',
+    //     scrollTrigger: {
+    //       invalidateOnRefresh: true,
+    //       scrub: true,
+    //       trigger: '[data-gl-track=""]',
+    //       start: () => `top-=${this.gl.sizes.height} top`,
+    //       end: () => `top top`,
+    //       onRefresh: () => {
+    //         // this.getBounds();
+    //         this.setScenePlaneDimensions();
+    //       },
+    //       refreshPriority: -99,
+    //       // markers: true,
+    //     },
+    //     onUpdate: (_self) => {
+    //       this.setScenePlaneDimensions();
+    //     },
+    //   }
+    // );
+
+    // // Leave
+    // gsap.fromTo(
+    //   this.renderPlane.bounds,
+    //   {
+    //     top: 0,
+    //   },
+    //   {
+    //     top: () => -this.gl.sizes.height,
+    //     ease: 'none',
+    //     scrollTrigger: {
+    //       invalidateOnRefresh: true,
+    //       scrub: true,
+    //       trigger: '[data-gl-track=""]',
+    //       start: () => `bottom bottom`,
+    //       end: () => `bottom+=${this.gl.sizes.height} bottom`,
+    //       onRefresh: () => {
+    //         // this.getBounds();
+    //         this.setScenePlaneDimensions();
+    //       },
+    //       refreshPriority: -99,
+    //       // markers: true,
+    //     },
+    //     onUpdate: (_self) => {
+    //       this.setScenePlaneDimensions();
+    //     },
+    //   }
+    // );
   }
 
   renderPipeline() {

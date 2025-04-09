@@ -84,12 +84,14 @@ export default class Gl {
 
     this.world.add()
 
-    this.isLoaded = true
+    console.log('[WebGL] [ █ █ █ █ █ █ ] -', 'Initialized')
   }
 
   load() {
     return new Promise((_resolve) => {
       Promise.all([this.loadDOM(), this.assets.load()]).then(() => {
+        this.isLoaded = true
+
         _resolve()
       })
     })
@@ -98,11 +100,11 @@ export default class Gl {
   loadDOM() {
     return new Promise((_resolve) => {
       if (document.readyState === 'complete') {
-        if (this.isDebug) console.log('-------------------- [WebGL]', 'loaded DOM')
+        console.log('[WebGL] [ █ █         ] -', 'DOM loaded')
         _resolve()
       } else {
         window.addEventListener('load', () => {
-          if (this.isDebug) console.log('-------------------- [WebGL]', 'loaded DOM')
+          console.log('[WebGL] [ █ █         ] -', 'DOM loaded')
           _resolve()
         })
       }

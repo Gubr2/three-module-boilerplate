@@ -34,6 +34,8 @@ export default class Assets {
           _resolve()
 
           _target(_result)
+
+          if (this.gl.isDebug) this.logProgress(_path)
         },
         undefined,
         (_error) => {
@@ -51,6 +53,8 @@ export default class Assets {
           _resolve()
 
           _target(_result)
+
+          if (this.gl.isDebug) this.logProgress(_path)
         },
         undefined,
         (_error) => {
@@ -68,6 +72,8 @@ export default class Assets {
           _resolve()
 
           _target(_result)
+
+          if (this.gl.isDebug) this.logProgress(_path)
         },
         undefined,
         (_error) => {
@@ -85,6 +91,8 @@ export default class Assets {
           _resolve()
 
           _target(_result)
+
+          if (this.gl.isDebug) this.logProgress(_path)
         },
         undefined,
         (_error) => {
@@ -94,8 +102,15 @@ export default class Assets {
     })
   }
 
+  logProgress(_path) {
+    this.promisesProgress++
+
+    console.info(`[WebGL] [ ${this.promisesProgress}/${this.promises.length} asset loaded ] -`, _path)
+  }
+
   load() {
     this.promises = []
+    this.promisesProgress = 0
 
     return new Promise(async (_resolve) => {
       /*
@@ -124,7 +139,7 @@ export default class Assets {
 
       _resolve()
 
-      if (this.isDebug) console.log('-------------------- [WebGL]', 'loaded assets')
+      console.log('[WebGL] [ █ █ █ █     ] -', 'Assets loaded')
     })
   }
 }
