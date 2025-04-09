@@ -1,6 +1,7 @@
 import * as THREE from 'three'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
-import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader'
+import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader.js'
+import { FontLoader } from 'three/examples/jsm/loaders/FontLoader.js'
 
 import Gl from '../Gl'
 
@@ -8,34 +9,122 @@ export default class Assets {
   constructor() {
     this.gl = new Gl()
 
-    // Loaders
-    this.rgbeLoader = new RGBELoader(this.gl.loadingManager)
-    this.gltfLoader = new GLTFLoader(this.gl.loadingManager)
+    /* 
+      Loaders
+    */
+    this.gltfLoader = new GLTFLoader()
+    this.rgbeLoader = new RGBELoader()
+    this.textureLoader = new THREE.TextureLoader()
+    this.fontLoader = new FontLoader()
 
-    // Assets
-    this.models = {
-      suzanne: null,
-    }
+    /* 
+      Assets
+    */
+    this.models = {}
+    this.textures = {}
+    this.hdris = {}
+    this.fonts = {}
+  }
 
-    this.hdri = null
+  customTextureLoader(_path, _target) {
+    return new Promise((_resolve) => {
+      this.textureLoader.load(
+        _path,
+        (_result) => {
+          _resolve()
 
-    this.load()
+          _target(_result)
+        },
+        undefined,
+        (_error) => {
+          console.error(_error)
+        }
+      )
+    })
+  }
+
+  customModelLoader(_path, _target) {
+    return new Promise((_resolve) => {
+      this.gltfLoader.load(
+        _path,
+        (_result) => {
+          _resolve()
+
+          _target(_result)
+        },
+        undefined,
+        (_error) => {
+          console.error(_error)
+        }
+      )
+    })
+  }
+
+  customHdriLoader(_path, _target) {
+    return new Promise((_resolve) => {
+      this.rgbeLoader.load(
+        _path,
+        (_result) => {
+          _resolve()
+
+          _target(_result)
+        },
+        undefined,
+        (_error) => {
+          console.error(_error)
+        }
+      )
+    })
+  }
+
+  customFontLoader(_path, _target) {
+    return new Promise((_resolve) => {
+      this.fontLoader.load(
+        _path,
+        (_result) => {
+          _resolve()
+
+          _target(_result)
+        },
+        undefined,
+        (_error) => {
+          console.error(_error)
+        }
+      )
+    })
   }
 
   load() {
-    /*
-      Models
-    */
-    this.gltfLoader.load('/models/suzanne.glb', (_gltf) => {
-      this.models.suzanne = _gltf.scene.children[0]
-    })
+    this.promises = []
 
-    /*
-      HDRI
-    */
-    this.rgbeLoader.load('/hdri/studio_small_08_1k.hdr', (_texture) => {
-      this.hdri = _texture
-      this.hdri.mapping = THREE.EquirectangularReflectionMapping
+    return new Promise(async (_resolve) => {
+      /*
+        Models
+      */
+      this.promises.push(
+        this.customModelLoader('/models/suzanne.glb', (_result) => {
+          this.models.suzanne = _result.scene.children[0]
+        })
+      )
+
+      /* 
+        HDRIs
+      */
+      this.promises.push(
+        this.customHdriLoader('/hdri/studio_small_08_1k.hdr', (_result) => {
+          this.hdris.studio = _result
+          this.hdris.studio.mapping = THREE.EquirectangularReflectionMapping
+        })
+      )
+
+      /* 
+        Await
+      */
+      await Promise.all(this.promises)
+
+      _resolve()
+
+      if (this.isDebug) console.log('-------------------- [WebGL]', 'loaded assets')
     })
   }
 }

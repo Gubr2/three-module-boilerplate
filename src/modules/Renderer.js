@@ -10,7 +10,7 @@ export default class Rendered {
       canvas: this.gl.canvas,
       powerPreference: 'high-performance',
       alpha: true,
-      antialias: true,
+      // antialias: true,
       precision: 'lowp',
     })
 

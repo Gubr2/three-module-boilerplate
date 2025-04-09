@@ -5,7 +5,12 @@ import Gl from './modules/Gl'
 const gl = document.querySelector('canvas.gl')
 
 if (WebGL.isWebGL2Available()) {
-  new Gl(gl)
+  const gl = new Gl({
+    canvas: 'canvas.gl',
+  })
+  gl.load().then(() => {
+    gl.init()
+  })
 } else {
   console.log('WebGL 2.0 is not available - initializing fallback.')
 

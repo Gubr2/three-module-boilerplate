@@ -1,15 +1,26 @@
 import * as THREE from 'three'
 
-import planeVertex from '../../Shaders/Vertex/vertex.glsl'
-import planeFragment from '../../Shaders/Fragment/fragment.glsl'
-
 export default class Plane {
   constructor() {
     this.geometry = new THREE.PlaneGeometry(1, 1)
     this.material = new THREE.ShaderMaterial({
       //
-      fragmentShader: planeFragment,
-      vertexShader: planeVertex,
+      vertexShader: /* glsl */ `
+        varying vec2 vUv;
+
+        void main() {
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        
+          vUv = uv;
+        }
+      `,
+      fragmentShader: /* glsl */ `
+        varying vec2 vUv;
+        
+        void main() {        
+          gl_FragColor = vec4(vec3(vUv.x, vUv.y, 0.0), 1.0);
+        }
+      `,
       side: THREE.DoubleSide,
     })
 

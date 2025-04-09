@@ -1,4 +1,5 @@
 import * as THREE from 'three'
+import gsap from 'gsap'
 
 import Camera from './Camera'
 import Renderer from './Renderer'
@@ -9,88 +10,106 @@ import Time from './Utils/Time'
 import Sizes from './Utils/Sizes'
 import Debug from './Utils/Debug'
 import Mouse from './Utils/Mouse'
-import Scroll from './Utils/Scroll'
 
 import Assets from './Assets/Assets'
 
 let instance = null
 
 export default class Gl {
-  constructor(_canvas) {
-    // Singleton
+  constructor(_params) {
+    /* 
+      Singleton
+    */
     if (instance) {
       return instance
     }
 
     instance = this
 
+    /* 
+      Get Debug 
+    */
     this.urlParams = new URLSearchParams(window.location.search)
-
-    // Flags
-    this.isLoaded = false
     this.isDebug = this.urlParams.has('debug')
 
-    // Canvas
-    this.canvas = _canvas
+    /* 
+      Params
+    */
+    this.params = _params
 
-    // Utils
+    /* 
+      Flags
+    */
+    this.isLoaded = false
+
+    /* 
+      Canvas
+    */
+    this.canvas = null
+
+    /* 
+      Utils
+    */
     this.time = new Time()
     this.sizes = new Sizes()
     this.mouse = new Mouse(document)
-    this.scroll = new Scroll()
 
-    // Default
+    /* 
+      Scene & Camera
+    */
     this.scene = new THREE.Scene()
     this.camera = new Camera()
 
-    // Loading Manager
-    this.loadingManager = new THREE.LoadingManager()
-
-    // Assets
+    /* 
+      Assets
+    */
     this.assets = new Assets()
 
-    // Resize
+    /* 
+      Functions
+    */
     this.sizes.on('resize', () => {
       this.resize()
     })
-
-    // After Load
-    Promise.all([this.loadDOM(), this.loadAssets()]).then(() => {
-      if (this.isDebug) this.debug = new Debug()
-
-      this.world = new World()
-      this.renderer = new Renderer()
-      this.renderer.instance.setAnimationLoop(this.update.bind(this))
-
-      this.world.add()
-
-      this.isLoaded = true
-    })
   }
 
-  loadAssets() {
-    return new Promise((_resolve) => {
-      this.loadingManager.onProgress = (url, itemsLoaded, itemsTotal) => {
-        if (this.isDebug) console.log('Loading file: ' + url + '.\nLoaded ' + itemsLoaded + ' of ' + itemsTotal + ' files.')
-      }
+  init() {
+    if (this.isDebug) this.debug = new Debug()
 
-      this.loadingManager.onLoad = () => {
-        _resolve()
-      }
-    })
+    this.canvas = document.querySelector(this.params.canvas)
+
+    this.world = new World()
+    this.renderer = new Renderer()
+    gsap.ticker.add(this.update.bind(this))
+
+    this.world.add()
+
+    this.isLoaded = true
   }
 
-  loadDOM() {
+  load() {
     return new Promise((_resolve) => {
-      window.addEventListener('load', () => {
+      Promise.all([this.loadDOM(), this.assets.load()]).then(() => {
         _resolve()
       })
     })
   }
 
-  update() {
-    this.scroll.update()
+  loadDOM() {
+    return new Promise((_resolve) => {
+      if (document.readyState === 'complete') {
+        if (this.isDebug) console.log('-------------------- [WebGL]', 'loaded DOM')
+        _resolve()
+      } else {
+        window.addEventListener('load', () => {
+          if (this.isDebug) console.log('-------------------- [WebGL]', 'loaded DOM')
+          _resolve()
+        })
+      }
+    })
+  }
 
+  update() {
     if (this.isLoaded) {
       if (this.isDebug) this.debug.stats.begin()
 

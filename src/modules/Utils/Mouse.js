@@ -84,6 +84,8 @@ export default class Mouse {
   }
 
   mousemove(_event) {
+    if (_event.target != this.dom && this.dom != document) return
+
     this.isMouseMoved = true
 
     // Set Default
