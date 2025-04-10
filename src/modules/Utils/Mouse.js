@@ -9,7 +9,7 @@ export default class Mouse {
     /* 
       DOM
     */
-    this.dom = _dom
+    this.dom = _dom ? _dom : document
 
     /* 
       Flags
@@ -84,27 +84,51 @@ export default class Mouse {
   }
 
   mousemove(_event) {
-    if (_event.target != this.dom && this.dom != document) return
+    if (this.dom == document) {
+      this.isMouseMoved = true
 
-    this.isMouseMoved = true
+      // Set Default
+      this.default.x = _event.clientX
+      this.default.y = _event.clientY
 
-    // Set Default
-    this.default.x = _event.offsetX
-    this.default.y = _event.offsetY
+      // Set Normalized
+      this.normalized.current.x = (_event.clientX / this.width) * 2 - 1
+      this.normalized.current.y = -(_event.clientY / this.height) * 2 + 1
 
-    // Set Normalized
-    this.normalized.current.x = (_event.offsetX / this.width) * 2 - 1
-    this.normalized.current.y = -(_event.offsetY / this.height) * 2 + 1
+      // Set Drag
+      if (this.isMouseHolding) {
+        // Set Drag Distance
+        this.drag.distance = this.drag.start.distanceTo(this.default)
 
-    // Set Drag
-    if (this.isMouseHolding) {
-      // Set Drag Distance
-      this.drag.distance = this.drag.start.distanceTo(this.default)
+        if (this.drag.start.x < this.default.x) {
+          this.drag.side = 'right'
+        } else {
+          this.drag.side = 'left'
+        }
+      }
+    } else {
+      if (_event.target != this.dom) return
 
-      if (this.drag.start.x < this.default.x) {
-        this.drag.side = 'right'
-      } else {
-        this.drag.side = 'left'
+      this.isMouseMoved = true
+
+      // Set Default
+      this.default.x = _event.offsetX
+      this.default.y = _event.offsetY
+
+      // Set Normalized
+      this.normalized.current.x = (_event.offsetX / this.width) * 2 - 1
+      this.normalized.current.y = -(_event.offsetY / this.height) * 2 + 1
+
+      // Set Drag
+      if (this.isMouseHolding) {
+        // Set Drag Distance
+        this.drag.distance = this.drag.start.distanceTo(this.default)
+
+        if (this.drag.start.x < this.default.x) {
+          this.drag.side = 'right'
+        } else {
+          this.drag.side = 'left'
+        }
       }
     }
   }

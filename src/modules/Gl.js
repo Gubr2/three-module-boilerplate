@@ -51,7 +51,7 @@ export default class Gl {
     */
     this.time = new Time()
     this.sizes = new Sizes()
-    this.mouse = new Mouse(document)
+    this.mouse = new Mouse()
 
     /* 
       Scene & Camera
