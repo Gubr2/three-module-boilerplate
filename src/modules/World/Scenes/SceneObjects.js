@@ -102,6 +102,11 @@ export default class SceneObjects {
     this.renderPlane.mesh.matrixAutoUpdate = false
 
     /* 
+      Bounds
+    */
+    this.bounds = {}
+
+    /* 
       Render Target
     */
     this.renderTarget = new THREE.WebGLRenderTarget(this.gl.sizes.width * this.gl.sizes.pixelRatio, this.gl.sizes.height * this.gl.sizes.pixelRatio, {
@@ -191,11 +196,11 @@ export default class SceneObjects {
   }
 
   getBounds() {
-    const bounds = this.params.dom.getBoundingClientRect()
+    this.bounds = this.params.dom.getBoundingClientRect()
 
     this.renderPlane.mesh.material.uniforms.uResolution.value.set(this.gl.sizes.width, this.gl.sizes.height)
-    this.renderPlane.mesh.material.uniforms.uPosition.value.x = bounds.left
-    this.renderPlane.mesh.material.uniforms.uScale.value.set(bounds.width, bounds.height)
+    this.renderPlane.mesh.material.uniforms.uPosition.value.x = this.bounds.left
+    this.renderPlane.mesh.material.uniforms.uScale.value.set(this.bounds.width, this.bounds.height)
   }
 
   setScroll() {
@@ -205,17 +210,17 @@ export default class SceneObjects {
     gsap.fromTo(
       this.renderPlane.mesh.material.uniforms.uPosition.value,
       {
-        y: () => this.gl.sizes.height,
+        y: () => Math.max(this.gl.sizes.height, this.bounds.height),
       },
       {
-        y: () => -this.gl.sizes.height,
+        y: () => -Math.max(this.gl.sizes.height, this.bounds.height),
         ease: 'none',
         scrollTrigger: {
           invalidateOnRefresh: true,
           scrub: true,
           trigger: this.params.dom,
-          start: () => `center-=${this.gl.sizes.height} top+=${this.gl.sizes.height / 2}`,
-          end: () => `center+=${this.gl.sizes.height} top+=${this.gl.sizes.height / 2}`,
+          start: () => `center-=${Math.max(this.gl.sizes.height, this.bounds.height)} top+=${this.gl.sizes.height / 2}`,
+          end: () => `center+=${Math.max(this.gl.sizes.height, this.bounds.height)} top+=${this.gl.sizes.height / 2}`,
           refreshPriority: -99,
           // markers: true,
 
