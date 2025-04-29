@@ -44,7 +44,7 @@ export default class Gl {
     /* 
       Canvas
     */
-    this.canvas = null
+    this.canvas = document.querySelector(this.params.canvas)
 
     /* 
       Utils
@@ -52,6 +52,11 @@ export default class Gl {
     this.time = new Time()
     this.sizes = new Sizes()
     this.mouse = new Mouse()
+
+    /* 
+      Renderer
+    */
+    this.renderer = new Renderer()
 
     /* 
       Scene & Camera
@@ -75,10 +80,7 @@ export default class Gl {
   init() {
     if (this.isDebug) this.debug = new Debug()
 
-    this.canvas = document.querySelector(this.params.canvas)
-
     this.world = new World()
-    this.renderer = new Renderer()
     gsap.ticker.add(this.update.bind(this))
 
     this.world.add()
@@ -98,11 +100,11 @@ export default class Gl {
 
   loadDOM() {
     return new Promise((_resolve) => {
-      if (document.readyState === 'complete') {
+      if (document.readyState === 'interactive') {
         console.log('[WebGL] [ █ █         ] -', 'DOM loaded')
         _resolve()
       } else {
-        window.addEventListener('load', () => {
+        document.addEventListener('DOMContentLoaded', () => {
           console.log('[WebGL] [ █ █         ] -', 'DOM loaded')
           _resolve()
         })

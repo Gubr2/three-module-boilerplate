@@ -152,8 +152,8 @@ export default class Mouse {
     // Set for mobile
     if (_event.touches) {
       // Set Normalized
-      this.normalized.current.x = (_event.touches[0].pageX / this.width) * 2 - 1
-      this.normalized.current.y = -(_event.touches[0].pageY / this.height) * 2 + 1
+      this.normalized.current.x = (_event.touches[0].clientX / this.width) * 2 - 1
+      this.normalized.current.y = -(_event.touches[0].clientY / this.height) * 2 + 1
     }
   }
 
