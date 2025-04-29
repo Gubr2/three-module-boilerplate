@@ -1,3 +1,4 @@
+import WebGL from 'three/addons/capabilities/WebGL.js'
 import * as THREE from 'three'
 import gsap from 'gsap'
 
@@ -25,6 +26,20 @@ export default class Gl {
 
     instance = this
 
+    /* 
+      Check if WebGL 2.0 is available
+    */
+    if (WebGL.isWebGL2Available()) {
+      this.setup(_params)
+    } else {
+      // Fallback
+      console.log('[WebGL] [   (╯︵╰,)   ] -', 'WebGL 2.0 is not available - initializing fallback.')
+
+      document.documentElement.classList.add('webgl-not-available')
+    }
+  }
+
+  setup(_params) {
     /* 
       Get Debug 
     */
@@ -77,6 +92,23 @@ export default class Gl {
     })
   }
 
+  load() {
+    return new Promise((_resolve) => {
+      if (WebGL.isWebGL2Available()) {
+        Promise.all([this.loadDOM(), this.assets.load()]).then(() => {
+          this.isLoaded = true
+
+          this.init()
+
+          _resolve()
+        })
+      } else {
+        // Fallback
+        _resolve()
+      }
+    })
+  }
+
   init() {
     if (this.isDebug) this.debug = new Debug()
 
@@ -86,16 +118,6 @@ export default class Gl {
     this.world.add()
 
     console.log('[WebGL] [ █ █ █ █ █ █ ] -', 'Initialized')
-  }
-
-  load() {
-    return new Promise((_resolve) => {
-      Promise.all([this.loadDOM(), this.assets.load()]).then(() => {
-        this.isLoaded = true
-
-        _resolve()
-      })
-    })
   }
 
   loadDOM() {
