@@ -49,7 +49,7 @@ export default class SceneObjects {
         //
         new THREE.PlaneGeometry(1, 1),
         new THREE.MeshBasicNodeMaterial({
-          color: 'red',
+          color: 'green',
         })
         // new THREE.ShaderMaterial({
         //   uniforms: {
@@ -106,15 +106,16 @@ export default class SceneObjects {
       uScale: uniform(new THREE.Vector2(this.gl.sizes.width, this.gl.sizes.height)),
       uPosition: uniform(new THREE.Vector2(0, 0)),
       uResolution: uniform(new THREE.Vector2(this.gl.sizes.width, this.gl.sizes.height)),
+      uTime: uniform(0),
     }
 
     this.calculateVertexPosition = Fn(() => {
-      const position = positionLocal.mul(2).toVar()
-      position.x.mulAssign(float(this.uniforms.uScale.value.x).div(this.uniforms.uResolution.value.x))
-      position.y.mulAssign(float(this.uniforms.uScale.value.y).div(this.uniforms.uResolution.value.y))
+      const position = positionLocal.mul(2).sub(float(this.uniforms.uPosition.value.y).div(this.uniforms.uResolution.value.y)).add(this.uniforms.uTime)
+      // position.x.mulAssign(float(this.uniforms.uScale.value.x).div(this.uniforms.uResolution.value.x))
+      // position.y.mulAssign(float(this.uniforms.uScale.value.y).div(this.uniforms.uResolution.value.y))
 
-      // position.x.addAssign(float(-1.0).add(this.uniforms.uPosition.value.x.div()) /  * 2.0 + this.uniforms.uScale.value.x / this.uniforms.uResolution.value.x)
-      position.y.subAssign(float(this.uniforms.uPosition.value.y).div(this.uniforms.uResolution.value.y))
+      // // position.x.addAssign(float(-1.0).add(this.uniforms.uPosition.value.x.div()) /  * 2.0 + this.uniforms.uScale.value.x / this.uniforms.uResolution.value.x)
+      // position.y.subAssign(float(this.uniforms.uPosition.value.y).div(this.uniforms.uResolution.value.y))
 
       // position.add(1)
 
@@ -128,12 +129,12 @@ export default class SceneObjects {
 
       // gl_Position = vec4(pos.xy, 0.0, 1.0);
 
-      return vec4(position, 1.0)
+      return vec4(positionLocal.xy.add(this.uniforms.uTime), positionLocal.z, 1.0)
     })
 
     this.renderPlane.mesh.material.positionNode = this.calculateVertexPosition()
 
-    this.renderPlane.mesh.frustumCulled = false
+    // this.renderPlane.mesh.frustumCulled = false
     // this.renderPlane.mesh.matrixAutoUpdate = false
 
     /* 
@@ -347,7 +348,7 @@ export default class SceneObjects {
 
     this.suzanne.update()
 
-    // this.uniforms.uTime = this.gl.time.elapsed
+    this.uniforms.uTime = this.gl.time.elapsed
 
     // this.plane.update()
   }
