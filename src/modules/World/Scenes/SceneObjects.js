@@ -1,5 +1,5 @@
 import * as THREE from 'three/webgpu'
-import { Fn } from 'three/src/nodes/TSL.js'
+import { positionLocal, Fn, vec4 } from 'three/tsl'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
@@ -102,7 +102,9 @@ export default class SceneObjects {
       ),
     }
 
-    this.renderPlane.mesh.material.positionNode = Fn
+    this.renderPlane.mesh.material.positionNode = Fn(() => {
+      return vec4(1.0, 1.0, 1.0, 1.0)
+    })
 
     this.renderPlane.mesh.frustumCulled = false
     this.renderPlane.mesh.matrixAutoUpdate = false
