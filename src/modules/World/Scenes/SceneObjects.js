@@ -247,33 +247,33 @@ export default class SceneObjects {
     /* 
       Basic
     */
-    // gsap.fromTo(
-    //   this.uniforms.uPosition.value,
-    //   {
-    //     y: () => Math.max(this.gl.sizes.height, this.bounds.height),
-    //   },
-    //   {
-    //     y: () => -Math.max(this.gl.sizes.height, this.bounds.height),
-    //     ease: 'none',
-    //     scrollTrigger: {
-    //       invalidateOnRefresh: true,
-    //       scrub: true,
-    //       trigger: this.params.dom,
-    //       start: () => `center-=${Math.max(this.gl.sizes.height, this.bounds.height)} top+=${this.gl.sizes.height / 2}`,
-    //       end: () => `center+=${Math.max(this.gl.sizes.height, this.bounds.height)} top+=${this.gl.sizes.height / 2}`,
-    //       refreshPriority: -99,
-    //       // markers: true,
-    //       onRefresh: () => {
-    //         this.getBounds()
-    //         this.updateCameraAspect()
-    //       },
-    //       // markers: true,
-    //     },
-    //     onUpdate: (_self) => {
-    //       this.updateCameraAspect()
-    //     },
-    //   }
-    // )
+    gsap.fromTo(
+      this.uniforms.uPosition.value,
+      {
+        y: () => Math.max(this.gl.sizes.height, this.bounds.height),
+      },
+      {
+        y: () => -Math.max(this.gl.sizes.height, this.bounds.height),
+        ease: 'none',
+        scrollTrigger: {
+          invalidateOnRefresh: true,
+          scrub: true,
+          trigger: this.params.dom,
+          start: () => `center-=${Math.max(this.gl.sizes.height, this.bounds.height)} top+=${this.gl.sizes.height / 2}`,
+          end: () => `center+=${Math.max(this.gl.sizes.height, this.bounds.height)} top+=${this.gl.sizes.height / 2}`,
+          refreshPriority: -99,
+          // markers: true,
+          onRefresh: () => {
+            this.getBounds()
+            this.updateCameraAspect()
+          },
+          // markers: true,
+        },
+        onUpdate: (_self) => {
+          this.updateCameraAspect()
+        },
+      }
+    )
     /* 
       Sticky
     */
@@ -347,9 +347,7 @@ export default class SceneObjects {
 
     this.suzanne.update()
 
-    this.uniforms.uPosition.value.y = this.gl.time.elapsed
-
-    // console.log(this.gl.time.elapsed)
+    // this.uniforms.uTime = this.gl.time.elapsed
 
     // this.plane.update()
   }
