@@ -138,8 +138,8 @@ export default class Gl {
     if (this.isLoaded) {
       if (this.isDebug) this.debug.stats.begin()
 
-      this.renderer.update()
       this.world.update()
+      this.renderer.update()
       this.mouse.update()
 
       if (this.isDebug) this.debug.stats.end()
