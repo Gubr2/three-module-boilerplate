@@ -1,5 +1,5 @@
 import * as THREE from 'three/webgpu'
-import { positionLocal, Fn, vec4 } from 'three/tsl'
+import { positionLocal, Fn, vec2, vec4, mul, add, float, Var } from 'three/tsl'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
@@ -102,9 +102,7 @@ export default class SceneObjects {
       ),
     }
 
-    this.renderPlane.mesh.material.positionNode = Fn(() => {
-      return vec4(1.0, 1.0, 1.0, 1.0)
-    })
+    this.renderPlane.mesh.material.positionNode = this.setVertexPosition()
 
     this.renderPlane.mesh.frustumCulled = false
     this.renderPlane.mesh.matrixAutoUpdate = false
@@ -178,6 +176,25 @@ export default class SceneObjects {
     // Camera
     this.camera.aspect = this.renderPlane.mesh.material.uniforms.uScale.value.x / this.renderPlane.mesh.material.uniforms.uScale.value.y
     this.camera.updateProjectionMatrix()
+  }
+
+  setVertexPosition() {
+    const position = float(1).mul(2).toVar()
+    position.addAssign(0.5)
+
+    // position.add(1)
+
+    // // Scale
+    // pos.x *= uScale.x / uResolution.x;
+    // pos.y *= uScale.y / uResolution.y;
+
+    // // Position
+    // pos.x += - 1.0 + uPosition.x / uResolution.x * 2. + uScale.x / uResolution.x;
+    // pos.y -= uPosition.y / uResolution.y * 2.0;
+
+    // gl_Position = vec4(pos.xy, 0.0, 1.0);
+
+    return vec4(position, 1.0)
   }
 
   setIsRendering() {
