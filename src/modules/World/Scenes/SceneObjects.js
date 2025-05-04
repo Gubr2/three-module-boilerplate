@@ -132,7 +132,8 @@ export default class SceneObjects {
       return vec4(positionLocal.xy.add(this.uniforms.uTime), positionLocal.z, 1.0)
     })
 
-    this.renderPlane.mesh.material.positionNode = this.calculateVertexPosition()
+    // this.renderPlane.mesh.material.positionNode = this.calculateVertexPosition()
+    this.renderPlane.mesh.material.colorNode = vec4(this.uniforms.uTime.value, 0.0, 0.0, 1.0)
 
     // this.renderPlane.mesh.frustumCulled = false
     // this.renderPlane.mesh.matrixAutoUpdate = false
