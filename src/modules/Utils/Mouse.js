@@ -1,4 +1,4 @@
-import { Vector2, MathUtils } from 'three'
+import { Vector2, MathUtils } from 'three/webgpu'
 
 import Gl from '../Gl'
 

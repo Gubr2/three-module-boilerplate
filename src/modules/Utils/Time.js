@@ -1,5 +1,5 @@
 import EventEmitter from './EventEmitter.js'
-import { Clock } from 'three'
+import { Clock } from 'three/webgpu'
 
 export default class Time extends EventEmitter {
   constructor() {

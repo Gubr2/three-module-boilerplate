@@ -1,4 +1,5 @@
-import * as THREE from 'three'
+import * as THREE from 'three/webgpu'
+
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader.js'
 import { FontLoader } from 'three/examples/jsm/loaders/FontLoader.js'

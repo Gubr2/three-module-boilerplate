@@ -1,5 +1,5 @@
 import WebGL from 'three/addons/capabilities/WebGL.js'
-import * as THREE from 'three'
+import * as THREE from 'three/webgpu'
 import gsap from 'gsap'
 
 import Renderer from './Renderer'

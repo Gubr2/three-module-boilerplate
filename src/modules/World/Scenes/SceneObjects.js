@@ -1,4 +1,4 @@
-import * as THREE from 'three'
+import * as THREE from 'three/webgpu'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
@@ -47,54 +47,57 @@ export default class SceneObjects {
       mesh: new THREE.Mesh(
         //
         new THREE.PlaneGeometry(1, 1),
-        new THREE.ShaderMaterial({
-          uniforms: {
-            tDiffuse: new THREE.Uniform(null),
-
-            uScale: new THREE.Uniform(new THREE.Vector2(this.gl.sizes.width, this.gl.sizes.height)),
-            uPosition: new THREE.Uniform(new THREE.Vector2(0, 0)),
-            uResolution: new THREE.Uniform(new THREE.Vector2(this.gl.sizes.width, this.gl.sizes.height)),
-          },
-          vertexShader: /* glsl */ `
-            varying vec2 vUv;
-
-            uniform vec2 uPosition;
-            uniform vec2 uScale;
-            uniform vec2 uResolution;
-
-            void main() {
-              vec2 pos = position.xy * 2.0;
-
-              // Scale
-              pos.x *= uScale.x / uResolution.x;
-              pos.y *= uScale.y / uResolution.y;
-
-              // Position
-              pos.x += - 1.0 + uPosition.x / uResolution.x * 2. + uScale.x / uResolution.x;
-              pos.y -= uPosition.y / uResolution.y * 2.0;
-              
-              gl_Position = vec4(pos.xy, 0.0, 1.0);
-            
-              // Varyings
-              vUv = uv;
-            }
-          `,
-          fragmentShader: /* glsl */ `
-            varying vec2 vUv;
-
-            uniform sampler2D tDiffuse;
-            
-            void main() {
-              vec4 textureDiffuse = texture(tDiffuse, vUv);
-            
-              gl_FragColor = textureDiffuse;
-              
-              // Debug
-              // gl_FragColor.rgb += vec3(vUv.x, vUv.y, 0.0);
-              // gl_FragColor.a = 1.0;
-            }
-          `,
+        new THREE.MeshStandardNodeMaterial({
+          color: 'red',
         })
+        // new THREE.ShaderMaterial({
+        //   uniforms: {
+        //     tDiffuse: new THREE.Uniform(null),
+
+        //     uScale: new THREE.Uniform(new THREE.Vector2(this.gl.sizes.width, this.gl.sizes.height)),
+        //     uPosition: new THREE.Uniform(new THREE.Vector2(0, 0)),
+        //     uResolution: new THREE.Uniform(new THREE.Vector2(this.gl.sizes.width, this.gl.sizes.height)),
+        //   },
+        //   vertexShader: /* glsl */ `
+        //     varying vec2 vUv;
+
+        //     uniform vec2 uPosition;
+        //     uniform vec2 uScale;
+        //     uniform vec2 uResolution;
+
+        //     void main() {
+        //       vec2 pos = position.xy * 2.0;
+
+        //       // Scale
+        //       pos.x *= uScale.x / uResolution.x;
+        //       pos.y *= uScale.y / uResolution.y;
+
+        //       // Position
+        //       pos.x += - 1.0 + uPosition.x / uResolution.x * 2. + uScale.x / uResolution.x;
+        //       pos.y -= uPosition.y / uResolution.y * 2.0;
+
+        //       gl_Position = vec4(pos.xy, 0.0, 1.0);
+
+        //       // Varyings
+        //       vUv = uv;
+        //     }
+        //   `,
+        //   fragmentShader: /* glsl */ `
+        //     varying vec2 vUv;
+
+        //     uniform sampler2D tDiffuse;
+
+        //     void main() {
+        //       vec4 textureDiffuse = texture(tDiffuse, vUv);
+
+        //       gl_FragColor = textureDiffuse;
+
+        //       // Debug
+        //       // gl_FragColor.rgb += vec3(vUv.x, vUv.y, 0.0);
+        //       // gl_FragColor.a = 1.0;
+        //     }
+        //   `,
+        // })
       ),
     }
 
@@ -109,7 +112,7 @@ export default class SceneObjects {
     /* 
       Render Target
     */
-    this.renderTarget = new THREE.WebGLRenderTarget(this.gl.sizes.width * this.gl.sizes.pixelRatio, this.gl.sizes.height * this.gl.sizes.pixelRatio, {
+    this.renderTarget = new THREE.RenderTarget(this.gl.sizes.width * this.gl.sizes.pixelRatio, this.gl.sizes.height * this.gl.sizes.pixelRatio, {
       samples: 1,
     })
 
@@ -122,10 +125,10 @@ export default class SceneObjects {
     /* 
       Models
     */
-    this.plane = new Plane()
+    // this.plane = new Plane()
     this.suzanne = new Suzanne()
 
-    this.scene.add(this.plane.instance)
+    // this.scene.add(this.plane.instance)
     this.scene.add(this.suzanne.instance)
 
     /* 
@@ -137,8 +140,8 @@ export default class SceneObjects {
       Functions
     */
     this.setIsRendering()
-    this.getBounds()
-    this.setScroll()
+    // this.getBounds()
+    // this.setScroll()
 
     if (this.gl.isDebug) {
       this.setOrbitControls()
@@ -166,10 +169,9 @@ export default class SceneObjects {
     //   0
     // )
     // this.renderPlane.mesh.material.uniforms.uPosition.value.y = (-this.renderPlane.bounds.top / this.gl.sizes.height) * 2
-
     // Camera
-    this.camera.aspect = this.renderPlane.mesh.material.uniforms.uScale.value.x / this.renderPlane.mesh.material.uniforms.uScale.value.y
-    this.camera.updateProjectionMatrix()
+    // this.camera.aspect = this.renderPlane.mesh.material.uniforms.uScale.value.x / this.renderPlane.mesh.material.uniforms.uScale.value.y
+    // this.camera.updateProjectionMatrix()
   }
 
   setIsRendering() {
@@ -302,13 +304,13 @@ export default class SceneObjects {
     this.gl.renderer.instance.setRenderTarget(this.renderTarget)
     this.gl.renderer.instance.render(this.scene, this.camera)
 
-    this.renderPlane.mesh.material.uniforms.tDiffuse.value = this.renderTarget.texture
+    // this.renderPlane.mesh.material.uniforms.tDiffuse.value = this.renderTarget.texture
   }
 
   update() {
     if (!this.isRendering) return
 
     this.suzanne.update()
-    this.plane.update()
+    // this.plane.update()
   }
 }
