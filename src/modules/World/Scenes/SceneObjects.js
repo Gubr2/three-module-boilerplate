@@ -134,7 +134,7 @@ export default class SceneObjects {
     this.renderPlane.mesh.material.positionNode = this.calculateVertexPosition()
 
     this.renderPlane.mesh.frustumCulled = false
-    this.renderPlane.mesh.matrixAutoUpdate = false
+    // this.renderPlane.mesh.matrixAutoUpdate = false
 
     /* 
       Bounds
@@ -347,7 +347,9 @@ export default class SceneObjects {
 
     this.suzanne.update()
 
-    this.uniforms.uTime = this.gl.time.elapsed
+    this.uniforms.uPosition.value.y = this.gl.time.elapsed
+
+    // console.log(this.gl.time.elapsed)
 
     // this.plane.update()
   }
