@@ -1,4 +1,5 @@
 import * as THREE from 'three/webgpu'
+import { Fn } from 'three/src/nodes/TSL.js'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
@@ -47,7 +48,7 @@ export default class SceneObjects {
       mesh: new THREE.Mesh(
         //
         new THREE.PlaneGeometry(1, 1),
-        new THREE.MeshStandardNodeMaterial({
+        new THREE.MeshBasicNodeMaterial({
           color: 'red',
         })
         // new THREE.ShaderMaterial({
@@ -100,6 +101,8 @@ export default class SceneObjects {
         // })
       ),
     }
+
+    this.renderPlane.mesh.material.positionNode = Fn
 
     this.renderPlane.mesh.frustumCulled = false
     this.renderPlane.mesh.matrixAutoUpdate = false
