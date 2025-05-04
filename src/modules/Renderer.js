@@ -22,6 +22,8 @@ export default class Rendered {
   update() {
     for (const key in this.gl.world.scenes) {
       this.gl.world.scenes[key].renderPipeline()
+
+      this.gl.world.scenes[key].renderPlane.mesh.rotation.z = this.gl.time.elapsed * 0.1
     }
 
     // // // // // // // // // //

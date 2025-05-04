@@ -1,5 +1,5 @@
 import * as THREE from 'three/webgpu'
-import { positionLocal, Fn, vec2, vec4, mul, add, float, Var } from 'three/tsl'
+import { positionLocal, Fn, vec2, vec4, mul, div, add, float, Var, uniform } from 'three/tsl'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
@@ -102,7 +102,36 @@ export default class SceneObjects {
       ),
     }
 
-    this.renderPlane.mesh.material.positionNode = this.setVertexPosition()
+    this.uniforms = {
+      uScale: uniform(new THREE.Vector2(this.gl.sizes.width, this.gl.sizes.height)),
+      uPosition: uniform(new THREE.Vector2(0, 0)),
+      uResolution: uniform(new THREE.Vector2(this.gl.sizes.width, this.gl.sizes.height)),
+    }
+
+    this.calculateVertexPosition = Fn(() => {
+      const position = positionLocal.mul(2).toVar()
+      position.x.mulAssign(float(this.uniforms.uScale.value.x).div(this.uniforms.uResolution.value.x))
+      position.y.mulAssign(float(this.uniforms.uScale.value.y).div(this.uniforms.uResolution.value.y))
+
+      // position.x.addAssign(float(-1.0).add(this.uniforms.uPosition.value.x.div()) /  * 2.0 + this.uniforms.uScale.value.x / this.uniforms.uResolution.value.x)
+      position.y.subAssign(float(this.uniforms.uPosition.value.y).div(this.uniforms.uResolution.value.y))
+
+      // position.add(1)
+
+      // // Scale
+      // pos.x *= uScale.x / uResolution.x;
+      // pos.y *= uScale.y / uResolution.y;
+
+      // // Position
+      // pos.x += - 1.0 + uPosition.x / uResolution.x * 2. + uScale.x / uResolution.x;
+      // pos.y -= uPosition.y / uResolution.y * 2.0;
+
+      // gl_Position = vec4(pos.xy, 0.0, 1.0);
+
+      return vec4(position, 1.0)
+    })
+
+    this.renderPlane.mesh.material.positionNode = this.calculateVertexPosition()
 
     this.renderPlane.mesh.frustumCulled = false
     this.renderPlane.mesh.matrixAutoUpdate = false
@@ -144,7 +173,7 @@ export default class SceneObjects {
     */
     this.setIsRendering()
     this.getBounds()
-    // this.setScroll()
+    this.setScroll()
 
     if (this.gl.isDebug) {
       this.setOrbitControls()
@@ -174,27 +203,8 @@ export default class SceneObjects {
     // this.renderPlane.mesh.material.uniforms.uPosition.value.y = (-this.renderPlane.bounds.top / this.gl.sizes.height) * 2
 
     // Camera
-    this.camera.aspect = this.renderPlane.mesh.material.uniforms.uScale.value.x / this.renderPlane.mesh.material.uniforms.uScale.value.y
+    this.camera.aspect = this.uniforms.uScale.value.x / this.uniforms.uScale.value.y
     this.camera.updateProjectionMatrix()
-  }
-
-  setVertexPosition() {
-    const position = float(1).mul(2).toVar()
-    position.addAssign(0.5)
-
-    // position.add(1)
-
-    // // Scale
-    // pos.x *= uScale.x / uResolution.x;
-    // pos.y *= uScale.y / uResolution.y;
-
-    // // Position
-    // pos.x += - 1.0 + uPosition.x / uResolution.x * 2. + uScale.x / uResolution.x;
-    // pos.y -= uPosition.y / uResolution.y * 2.0;
-
-    // gl_Position = vec4(pos.xy, 0.0, 1.0);
-
-    return vec4(position, 1.0)
   }
 
   setIsRendering() {
@@ -223,44 +233,47 @@ export default class SceneObjects {
   getBounds() {
     this.bounds = this.params.dom.getBoundingClientRect()
 
-    // this.renderPlane.mesh.material.uniforms.uResolution.value.set(this.gl.sizes.width, this.gl.sizes.height)
-    // this.renderPlane.mesh.material.uniforms.uPosition.value.x = this.bounds.left
-    // this.renderPlane.mesh.material.uniforms.uScale.value.set(this.bounds.width, this.bounds.height)
+    this.uniforms.uResolution.value.set(this.gl.sizes.width, this.gl.sizes.height)
+    this.uniforms.uPosition.value.x = this.bounds.left
+    this.uniforms.uScale.value.set(this.bounds.width, this.bounds.height)
+
+    setTimeout(() => {
+      // this.uniforms.uPosition.value.x = this.bounds.left
+      this.uniforms.uScale.value.set(10, this.bounds.height)
+    }, 1000)
   }
 
   setScroll() {
     /* 
       Basic
     */
-    gsap.fromTo(
-      this.renderPlane.mesh.material.uniforms.uPosition.value,
-      {
-        y: () => Math.max(this.gl.sizes.height, this.bounds.height),
-      },
-      {
-        y: () => -Math.max(this.gl.sizes.height, this.bounds.height),
-        ease: 'none',
-        scrollTrigger: {
-          invalidateOnRefresh: true,
-          scrub: true,
-          trigger: this.params.dom,
-          start: () => `center-=${Math.max(this.gl.sizes.height, this.bounds.height)} top+=${this.gl.sizes.height / 2}`,
-          end: () => `center+=${Math.max(this.gl.sizes.height, this.bounds.height)} top+=${this.gl.sizes.height / 2}`,
-          refreshPriority: -99,
-          // markers: true,
-
-          onRefresh: () => {
-            this.getBounds()
-            this.updateCameraAspect()
-          },
-          // markers: true,
-        },
-        onUpdate: (_self) => {
-          this.updateCameraAspect()
-        },
-      }
-    )
-
+    // gsap.fromTo(
+    //   this.uniforms.uPosition.value,
+    //   {
+    //     y: () => Math.max(this.gl.sizes.height, this.bounds.height),
+    //   },
+    //   {
+    //     y: () => -Math.max(this.gl.sizes.height, this.bounds.height),
+    //     ease: 'none',
+    //     scrollTrigger: {
+    //       invalidateOnRefresh: true,
+    //       scrub: true,
+    //       trigger: this.params.dom,
+    //       start: () => `center-=${Math.max(this.gl.sizes.height, this.bounds.height)} top+=${this.gl.sizes.height / 2}`,
+    //       end: () => `center+=${Math.max(this.gl.sizes.height, this.bounds.height)} top+=${this.gl.sizes.height / 2}`,
+    //       refreshPriority: -99,
+    //       // markers: true,
+    //       onRefresh: () => {
+    //         this.getBounds()
+    //         this.updateCameraAspect()
+    //       },
+    //       // markers: true,
+    //     },
+    //     onUpdate: (_self) => {
+    //       this.updateCameraAspect()
+    //     },
+    //   }
+    // )
     /* 
       Sticky
     */
@@ -291,7 +304,6 @@ export default class SceneObjects {
     //     },
     //   }
     // );
-
     // // Leave
     // gsap.fromTo(
     //   this.renderPlane.bounds,
@@ -334,6 +346,9 @@ export default class SceneObjects {
     if (!this.isRendering) return
 
     this.suzanne.update()
+
+    this.uniforms.uTime = this.gl.time.elapsed
+
     // this.plane.update()
   }
 }
