@@ -6,7 +6,7 @@ export default class Rendered {
   constructor() {
     this.gl = new Gl()
 
-    this.instance = new THREE.WebGLRenderer({
+    this.instance = new THREE.WebGPURenderer({
       canvas: this.gl.canvas,
       powerPreference: 'high-performance',
       alpha: true,
