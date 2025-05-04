@@ -26,7 +26,7 @@ export default class Rendered {
 
     // // // // // // // // // //
     this.instance.setRenderTarget(null)
-    this.instance.render(this.gl.scene, this.gl.camera)
+    this.instance.renderAsync(this.gl.scene, this.gl.camera)
   }
 
   resize() {

@@ -140,7 +140,7 @@ export default class SceneObjects {
       Functions
     */
     this.setIsRendering()
-    // this.getBounds()
+    this.getBounds()
     // this.setScroll()
 
     if (this.gl.isDebug) {
@@ -169,9 +169,10 @@ export default class SceneObjects {
     //   0
     // )
     // this.renderPlane.mesh.material.uniforms.uPosition.value.y = (-this.renderPlane.bounds.top / this.gl.sizes.height) * 2
+
     // Camera
-    // this.camera.aspect = this.renderPlane.mesh.material.uniforms.uScale.value.x / this.renderPlane.mesh.material.uniforms.uScale.value.y
-    // this.camera.updateProjectionMatrix()
+    this.camera.aspect = this.renderPlane.mesh.material.uniforms.uScale.value.x / this.renderPlane.mesh.material.uniforms.uScale.value.y
+    this.camera.updateProjectionMatrix()
   }
 
   setIsRendering() {
@@ -200,9 +201,9 @@ export default class SceneObjects {
   getBounds() {
     this.bounds = this.params.dom.getBoundingClientRect()
 
-    this.renderPlane.mesh.material.uniforms.uResolution.value.set(this.gl.sizes.width, this.gl.sizes.height)
-    this.renderPlane.mesh.material.uniforms.uPosition.value.x = this.bounds.left
-    this.renderPlane.mesh.material.uniforms.uScale.value.set(this.bounds.width, this.bounds.height)
+    // this.renderPlane.mesh.material.uniforms.uResolution.value.set(this.gl.sizes.width, this.gl.sizes.height)
+    // this.renderPlane.mesh.material.uniforms.uPosition.value.x = this.bounds.left
+    // this.renderPlane.mesh.material.uniforms.uScale.value.set(this.bounds.width, this.bounds.height)
   }
 
   setScroll() {

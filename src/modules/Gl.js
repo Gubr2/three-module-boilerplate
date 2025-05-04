@@ -77,7 +77,7 @@ export default class Gl {
       Scene & Camera
     */
     this.scene = new THREE.Scene()
-    this.camera = new THREE.Camera()
+    this.camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1)
 
     /* 
       Assets
@@ -138,8 +138,8 @@ export default class Gl {
     if (this.isLoaded) {
       if (this.isDebug) this.debug.stats.begin()
 
-      this.renderer.update()
       this.world.update()
+      this.renderer.update()
       this.mouse.update()
 
       if (this.isDebug) this.debug.stats.end()
