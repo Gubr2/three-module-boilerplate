@@ -147,11 +147,11 @@ export default class Gl {
   }
 
   resize() {
-    this.mouse.resize()
-
     if (this.isLoaded) {
       this.renderer.resize()
       this.world.resize()
     }
+
+    this.mouse.resize()
   }
 }
