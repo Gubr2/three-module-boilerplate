@@ -42,15 +42,30 @@ export default class SceneObjects {
     this.scene.environment = this.gl.assets.hdris.studio
 
     /* 
+      Uniforms
+    */
+    this.uTime = uniform(0)
+
+    this.uniforms = {
+      uScale: uniform(new THREE.Vector2(this.gl.sizes.width, this.gl.sizes.height)),
+      uPosition: uniform(new THREE.Vector2(0, 0)),
+      uResolution: uniform(new THREE.Vector2(this.gl.sizes.width, this.gl.sizes.height)),
+    }
+
+    /* 
       Render Plane
     */
+    this.material = new THREE.MeshBasicNodeMaterial({
+      color: 'green',
+    })
+
+    this.material.colorNode = vec4(this.uTime.value, 0.0, 0.0, 1.0)
+
     this.renderPlane = {
       mesh: new THREE.Mesh(
         //
         new THREE.PlaneGeometry(1, 1),
-        new THREE.MeshBasicNodeMaterial({
-          color: 'green',
-        })
+        this.material
         // new THREE.ShaderMaterial({
         //   uniforms: {
         //     tDiffuse: new THREE.Uniform(null),
@@ -102,13 +117,6 @@ export default class SceneObjects {
       ),
     }
 
-    this.uniforms = {
-      uScale: uniform(new THREE.Vector2(this.gl.sizes.width, this.gl.sizes.height)),
-      uPosition: uniform(new THREE.Vector2(0, 0)),
-      uResolution: uniform(new THREE.Vector2(this.gl.sizes.width, this.gl.sizes.height)),
-      uTime: uniform(0),
-    }
-
     this.calculateVertexPosition = Fn(() => {
       const position = positionLocal.mul(2).sub(float(this.uniforms.uPosition.value.y).div(this.uniforms.uResolution.value.y)).add(this.uniforms.uTime)
       // position.x.mulAssign(float(this.uniforms.uScale.value.x).div(this.uniforms.uResolution.value.x))
@@ -133,7 +141,6 @@ export default class SceneObjects {
     })
 
     // this.renderPlane.mesh.material.positionNode = this.calculateVertexPosition()
-    this.renderPlane.mesh.material.colorNode = vec4(this.uniforms.uTime.value, 0.0, 0.0, 1.0)
 
     // this.renderPlane.mesh.frustumCulled = false
     // this.renderPlane.mesh.matrixAutoUpdate = false
@@ -349,7 +356,7 @@ export default class SceneObjects {
 
     this.suzanne.update()
 
-    this.uniforms.uTime = this.gl.time.elapsed
+    this.uTime = this.gl.time.elapsed
 
     // this.plane.update()
   }
