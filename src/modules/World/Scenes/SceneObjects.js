@@ -1,5 +1,5 @@
 import * as THREE from 'three/webgpu'
-import { positionLocal, Fn, vec2, vec4, mul, div, add, float, Var, uniform } from 'three/tsl'
+import { positionLocal, Fn, vec2, vec4, mul, div, add, float, Var, uniform, fract } from 'three/tsl'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
@@ -59,7 +59,7 @@ export default class SceneObjects {
       color: 'green',
     })
 
-    this.material.colorNode = vec4(this.uTime.value, 0.0, 0.0, 1.0)
+    this.material.colorNode = vec4(fract(this.uTime), 0.0, 0.0, 1.0)
 
     this.renderPlane = {
       mesh: new THREE.Mesh(
@@ -118,12 +118,13 @@ export default class SceneObjects {
     }
 
     this.calculateVertexPosition = Fn(() => {
-      const position = positionLocal.mul(2).sub(float(this.uniforms.uPosition.value.y).div(this.uniforms.uResolution.value.y)).add(this.uniforms.uTime)
-      // position.x.mulAssign(float(this.uniforms.uScale.value.x).div(this.uniforms.uResolution.value.x))
-      // position.y.mulAssign(float(this.uniforms.uScale.value.y).div(this.uniforms.uResolution.value.y))
+      const position = positionLocal.mul(2)
+      position.x.mulAssign(float(this.uniforms.uScale.x).div(this.uniforms.uResolution.x))
+      position.y.mulAssign(float(this.uniforms.uScale.y).div(this.uniforms.uResolution.y))
 
-      // // position.x.addAssign(float(-1.0).add(this.uniforms.uPosition.value.x.div()) /  * 2.0 + this.uniforms.uScale.value.x / this.uniforms.uResolution.value.x)
-      // position.y.subAssign(float(this.uniforms.uPosition.value.y).div(this.uniforms.uResolution.value.y))
+      // pos.x += - 1.0 + uPosition.x / uResolution.x * 2. + uScale.x / uResolution.x;
+      position.x.addAssign(float(-1.0).add(this.uniforms.uPosition.x.div(this.uniforms.uResolution.x).mul(2)).add(this.uniforms.uScale.x.div(this.uniforms.uResolution.x)))
+      position.y.subAssign(float(this.uniforms.uPosition.y).div(this.uniforms.uResolution.y).mul(2))
 
       // position.add(1)
 
@@ -137,10 +138,10 @@ export default class SceneObjects {
 
       // gl_Position = vec4(pos.xy, 0.0, 1.0);
 
-      return vec4(positionLocal.xy.add(this.uniforms.uTime), positionLocal.z, 1.0)
+      return vec4(position, 1.0)
     })
 
-    // this.renderPlane.mesh.material.positionNode = this.calculateVertexPosition()
+    this.renderPlane.mesh.material.positionNode = this.calculateVertexPosition()
 
     // this.renderPlane.mesh.frustumCulled = false
     // this.renderPlane.mesh.matrixAutoUpdate = false
@@ -245,11 +246,6 @@ export default class SceneObjects {
     this.uniforms.uResolution.value.set(this.gl.sizes.width, this.gl.sizes.height)
     this.uniforms.uPosition.value.x = this.bounds.left
     this.uniforms.uScale.value.set(this.bounds.width, this.bounds.height)
-
-    setTimeout(() => {
-      // this.uniforms.uPosition.value.x = this.bounds.left
-      this.uniforms.uScale.value.set(10, this.bounds.height)
-    }, 1000)
   }
 
   setScroll() {
@@ -356,7 +352,7 @@ export default class SceneObjects {
 
     this.suzanne.update()
 
-    this.uTime = this.gl.time.elapsed
+    this.uTime.value = this.gl.time.elapsed
 
     // this.plane.update()
   }
