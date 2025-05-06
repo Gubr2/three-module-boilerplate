@@ -1,5 +1,5 @@
 import * as THREE from 'three/webgpu'
-import { positionLocal, Fn, vec2, vec4, mul, div, add, float, Var, uniform, fract, texture, uv } from 'three/tsl'
+import { positionLocal, positionGeometry, Fn, vec2, vec4, mul, div, add, float, Var, uniform, fract, texture, uv, oneMinus } from 'three/tsl'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
@@ -49,7 +49,8 @@ export default class SceneObjects {
         //
         new THREE.PlaneGeometry(1, 1),
         new THREE.MeshBasicNodeMaterial({
-          color: 'green',
+          // color: 'green',
+          transparent: true,
         })
       ),
     }
@@ -70,7 +71,7 @@ export default class SceneObjects {
       Nodes
     */
     this.calculateVertexPosition = Fn(() => {
-      const position = positionLocal.mul(2)
+      const position = positionGeometry.mul(2)
 
       // Scale
       position.x.mulAssign(float(this.uniforms.uScale.x).div(this.uniforms.uResolution.x))
@@ -86,12 +87,12 @@ export default class SceneObjects {
     this.renderPlane.mesh.material.positionNode = this.calculateVertexPosition()
 
     this.setTexture = Fn(() => {
-      const textureDiffuse = texture(this.renderTarget.texture, uv())
+      const textureDiffuse = texture(this.renderTarget.texture, vec2(uv().x, uv().y.oneMinus())).toVar()
 
       return textureDiffuse
     })
 
-    this.renderPlane.mesh.material.colorNode = this.setTexture()
+    this.renderPlane.mesh.material.outputNode = this.setTexture()
 
     /* 
       Bounds
@@ -114,10 +115,10 @@ export default class SceneObjects {
     /* 
       Models
     */
-    // this.plane = new Plane()
+    this.plane = new Plane()
     this.suzanne = new Suzanne()
 
-    // this.scene.add(this.plane.instance)
+    this.scene.add(this.plane.instance)
     this.scene.add(this.suzanne.instance)
 
     /* 
@@ -285,7 +286,6 @@ export default class SceneObjects {
     if (!this.isRendering) return
 
     this.suzanne.update()
-
-    // this.plane.update()
+    this.plane.update()
   }
 }
