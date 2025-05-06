@@ -42,10 +42,24 @@ export default class SceneObjects {
     this.scene.environment = this.gl.assets.hdris.studio
 
     /* 
+      Render Plane
+    */
+    this.renderPlane = {
+      mesh: new THREE.Mesh(
+        //
+        new THREE.PlaneGeometry(1, 1),
+        new THREE.MeshBasicNodeMaterial({
+          color: 'green',
+        })
+      ),
+    }
+
+    this.renderPlane.mesh.frustumCulled = false
+    this.renderPlane.mesh.matrixAutoUpdate = false
+
+    /* 
       Uniforms
     */
-    this.uTime = uniform(0)
-
     this.uniforms = {
       uScale: uniform(new THREE.Vector2(this.gl.sizes.width, this.gl.sizes.height)),
       uPosition: uniform(new THREE.Vector2(0, 0)),
@@ -53,98 +67,23 @@ export default class SceneObjects {
     }
 
     /* 
-      Render Plane
+      Nodes
     */
-    this.material = new THREE.MeshBasicNodeMaterial({
-      color: 'green',
-    })
-
-    this.material.colorNode = vec4(fract(this.uTime), 0.0, 0.0, 1.0)
-
-    this.renderPlane = {
-      mesh: new THREE.Mesh(
-        //
-        new THREE.PlaneGeometry(1, 1),
-        this.material
-        // new THREE.ShaderMaterial({
-        //   uniforms: {
-        //     tDiffuse: new THREE.Uniform(null),
-
-        //     uScale: new THREE.Uniform(new THREE.Vector2(this.gl.sizes.width, this.gl.sizes.height)),
-        //     uPosition: new THREE.Uniform(new THREE.Vector2(0, 0)),
-        //     uResolution: new THREE.Uniform(new THREE.Vector2(this.gl.sizes.width, this.gl.sizes.height)),
-        //   },
-        //   vertexShader: /* glsl */ `
-        //     varying vec2 vUv;
-
-        //     uniform vec2 uPosition;
-        //     uniform vec2 uScale;
-        //     uniform vec2 uResolution;
-
-        //     void main() {
-        //       vec2 pos = position.xy * 2.0;
-
-        //       // Scale
-        //       pos.x *= uScale.x / uResolution.x;
-        //       pos.y *= uScale.y / uResolution.y;
-
-        //       // Position
-        //       pos.x += - 1.0 + uPosition.x / uResolution.x * 2. + uScale.x / uResolution.x;
-        //       pos.y -= uPosition.y / uResolution.y * 2.0;
-
-        //       gl_Position = vec4(pos.xy, 0.0, 1.0);
-
-        //       // Varyings
-        //       vUv = uv;
-        //     }
-        //   `,
-        //   fragmentShader: /* glsl */ `
-        //     varying vec2 vUv;
-
-        //     uniform sampler2D tDiffuse;
-
-        //     void main() {
-        //       vec4 textureDiffuse = texture(tDiffuse, vUv);
-
-        //       gl_FragColor = textureDiffuse;
-
-        //       // Debug
-        //       // gl_FragColor.rgb += vec3(vUv.x, vUv.y, 0.0);
-        //       // gl_FragColor.a = 1.0;
-        //     }
-        //   `,
-        // })
-      ),
-    }
-
     this.calculateVertexPosition = Fn(() => {
       const position = positionLocal.mul(2)
+
+      // Scale
       position.x.mulAssign(float(this.uniforms.uScale.x).div(this.uniforms.uResolution.x))
       position.y.mulAssign(float(this.uniforms.uScale.y).div(this.uniforms.uResolution.y))
 
-      // pos.x += - 1.0 + uPosition.x / uResolution.x * 2. + uScale.x / uResolution.x;
+      // Position
       position.x.addAssign(float(-1.0).add(this.uniforms.uPosition.x.div(this.uniforms.uResolution.x).mul(2)).add(this.uniforms.uScale.x.div(this.uniforms.uResolution.x)))
       position.y.subAssign(float(this.uniforms.uPosition.y).div(this.uniforms.uResolution.y).mul(2))
-
-      // position.add(1)
-
-      // // Scale
-      // pos.x *= uScale.x / uResolution.x;
-      // pos.y *= uScale.y / uResolution.y;
-
-      // // Position
-      // pos.x += - 1.0 + uPosition.x / uResolution.x * 2. + uScale.x / uResolution.x;
-      // pos.y -= uPosition.y / uResolution.y * 2.0;
-
-      // gl_Position = vec4(pos.xy, 0.0, 1.0);
 
       return vec4(position, 1.0)
     })
 
     this.renderPlane.mesh.material.positionNode = this.calculateVertexPosition()
-
-    // this.renderPlane.mesh.frustumCulled = false
-    // this.renderPlane.mesh.matrixAutoUpdate = false
 
     /* 
       Bounds
@@ -201,17 +140,6 @@ export default class SceneObjects {
   }
 
   updateCameraAspect() {
-    // Mesh
-    // this.renderPlane.mesh.position.set(
-    //   //
-    //   ((this.renderPlane.bounds.left - this.gl.sizes.width / 2 + this.renderPlane.bounds.width / 2) / this.gl.sizes.width) * 2,
-    //   (-this.renderPlane.bounds.top / this.gl.sizes.height) * 2,
-    //   // 0,
-    //   // 0,
-    //   0
-    // )
-    // this.renderPlane.mesh.material.uniforms.uPosition.value.y = (-this.renderPlane.bounds.top / this.gl.sizes.height) * 2
-
     // Camera
     this.camera.aspect = this.uniforms.uScale.value.x / this.uniforms.uScale.value.y
     this.camera.updateProjectionMatrix()
@@ -351,8 +279,6 @@ export default class SceneObjects {
     if (!this.isRendering) return
 
     this.suzanne.update()
-
-    this.uTime.value = this.gl.time.elapsed
 
     // this.plane.update()
   }
