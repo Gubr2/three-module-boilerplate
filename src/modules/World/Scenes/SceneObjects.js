@@ -1,5 +1,5 @@
 import * as THREE from 'three/webgpu'
-import { positionLocal, Fn, vec2, vec4, mul, div, add, float, Var, uniform, fract } from 'three/tsl'
+import { positionLocal, Fn, vec2, vec4, mul, div, add, float, Var, uniform, fract, texture, uv } from 'three/tsl'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
@@ -84,6 +84,14 @@ export default class SceneObjects {
     })
 
     this.renderPlane.mesh.material.positionNode = this.calculateVertexPosition()
+
+    this.setTexture = Fn(() => {
+      const textureDiffuse = texture(this.renderTarget.texture, uv())
+
+      return textureDiffuse
+    })
+
+    this.renderPlane.mesh.material.colorNode = this.setTexture()
 
     /* 
       Bounds
@@ -271,8 +279,6 @@ export default class SceneObjects {
 
     this.gl.renderer.instance.setRenderTarget(this.renderTarget)
     this.gl.renderer.instance.render(this.scene, this.camera)
-
-    // this.renderPlane.mesh.material.uniforms.tDiffuse.value = this.renderTarget.texture
   }
 
   update() {
