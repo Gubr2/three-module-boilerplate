@@ -70,7 +70,7 @@ export default class SceneObjects {
     /* 
       Nodes
     */
-    this.calculateVertexPosition = Fn(() => {
+    this.renderPlane.mesh.material.positionNode = Fn(() => {
       const position = positionGeometry.mul(2)
 
       // Scale
@@ -82,17 +82,13 @@ export default class SceneObjects {
       position.y.subAssign(float(this.uniforms.uPosition.y).div(this.uniforms.uResolution.y).mul(2))
 
       return vec4(position, 1.0)
-    })
+    })()
 
-    this.renderPlane.mesh.material.positionNode = this.calculateVertexPosition()
-
-    this.setTexture = Fn(() => {
+    this.renderPlane.mesh.material.outputNode = Fn(() => {
       const textureDiffuse = texture(this.renderTarget.texture, vec2(uv().x, uv().y.oneMinus())).toVar()
 
       return textureDiffuse
-    })
-
-    this.renderPlane.mesh.material.outputNode = this.setTexture()
+    })()
 
     /* 
       Bounds
