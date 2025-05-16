@@ -1,5 +1,4 @@
-import * as THREE from 'three/webgpu'
-import { positionLocal, positionGeometry, Fn, vec2, vec4, mul, div, add, float, Var, uniform, fract, texture, uv, oneMinus } from 'three/tsl'
+import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
@@ -48,47 +47,61 @@ export default class SceneObjects {
       mesh: new THREE.Mesh(
         //
         new THREE.PlaneGeometry(1, 1),
-        new THREE.MeshBasicNodeMaterial({
-          // color: 'green',
-          transparent: true,
+        new THREE.ShaderMaterial({
+          uniforms: {
+            tDiffuse: new THREE.Uniform(null),
+
+            uScale: new THREE.Uniform(new THREE.Vector2(this.gl.sizes.width, this.gl.sizes.height)),
+            uPosition: new THREE.Uniform(new THREE.Vector2(0, 0)),
+            uResolution: new THREE.Uniform(new THREE.Vector2(this.gl.sizes.width, this.gl.sizes.height)),
+          },
+          vertexShader: /* glsl */ `
+            varying vec2 vUv;
+
+            uniform vec2 uPosition;
+            uniform vec2 uScale;
+            uniform vec2 uResolution;
+
+            void main() {
+              vec2 pos = position.xy * 2.0;
+
+              // Scale
+              pos.x *= uScale.x / uResolution.x;
+              pos.y *= uScale.y / uResolution.y;
+
+              // Position
+              pos.x += - 1.0 + uPosition.x / uResolution.x * 2. + uScale.x / uResolution.x;
+              pos.y -= uPosition.y / uResolution.y * 2.0;
+              
+              gl_Position = vec4(pos.xy, 0.0, 1.0);
+            
+              // Varyings
+              vUv = uv;
+            }
+          `,
+          fragmentShader: /* glsl */ `
+            varying vec2 vUv;
+
+            uniform sampler2D tDiffuse;
+            
+            void main() {
+              vec4 textureDiffuse = texture(tDiffuse, vUv);
+
+              // vec4 blendedColor = mix(texturePrevious, textureCurrent, 0.85);
+            
+              gl_FragColor = textureDiffuse;
+              
+              // Debug
+              // gl_FragColor.rgb += vec3(vUv.x, vUv.y, 0.0);
+              // gl_FragColor.a = 1.0;
+            }
+          `,
         })
       ),
     }
 
     this.renderPlane.mesh.frustumCulled = false
     this.renderPlane.mesh.matrixAutoUpdate = false
-
-    /* 
-      Uniforms
-    */
-    this.uniforms = {
-      uScale: uniform(new THREE.Vector2(this.gl.sizes.width, this.gl.sizes.height)),
-      uPosition: uniform(new THREE.Vector2(0, 0)),
-      uResolution: uniform(new THREE.Vector2(this.gl.sizes.width, this.gl.sizes.height)),
-    }
-
-    /* 
-      Nodes
-    */
-    this.renderPlane.mesh.material.positionNode = Fn(() => {
-      const position = positionGeometry.mul(2)
-
-      // Scale
-      position.x.mulAssign(float(this.uniforms.uScale.x).div(this.uniforms.uResolution.x))
-      position.y.mulAssign(float(this.uniforms.uScale.y).div(this.uniforms.uResolution.y))
-
-      // Position
-      position.x.addAssign(float(-1.0).add(this.uniforms.uPosition.x.div(this.uniforms.uResolution.x).mul(2)).add(this.uniforms.uScale.x.div(this.uniforms.uResolution.x)))
-      position.y.subAssign(float(this.uniforms.uPosition.y).div(this.uniforms.uResolution.y).mul(2))
-
-      return vec4(position, 1.0)
-    })()
-
-    this.renderPlane.mesh.material.outputNode = Fn(() => {
-      const textureDiffuse = texture(this.renderTarget.texture, vec2(uv().x, uv().y.oneMinus())).toVar()
-
-      return textureDiffuse
-    })()
 
     /* 
       Bounds
@@ -98,11 +111,11 @@ export default class SceneObjects {
     /* 
       Render Target
     */
-    this.renderTarget = new THREE.RenderTarget(this.gl.sizes.width * this.gl.sizes.pixelRatio, this.gl.sizes.height * this.gl.sizes.pixelRatio, {
+    this.renderTarget = new THREE.WebGLRenderTarget(this.gl.sizes.width * this.gl.sizes.pixelRatio, this.gl.sizes.height * this.gl.sizes.pixelRatio, {
       samples: 1,
     })
 
-    this.postProcessingRenderTarget = new THREE.WebGLRenderTarget(this.gl.sizes.width * this.gl.sizes.pixelRatio, this.gl.sizes.height * this.gl.sizes.pixelRatio, {
+    this.renderTargetPostProcessing = new THREE.WebGLRenderTarget(this.gl.sizes.width * this.gl.sizes.pixelRatio, this.gl.sizes.height * this.gl.sizes.pixelRatio, {
       samples: 1,
     })
 
@@ -131,6 +144,51 @@ export default class SceneObjects {
     */
     this.postProcessingScene = new THREE.Scene()
     this.postProcessingCamera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1)
+    /* 
+      Post-processing Plane
+    */
+    this.postProcessingPlane = {
+      mesh: new THREE.Mesh(
+        //
+        new THREE.PlaneGeometry(2, 2),
+        new THREE.ShaderMaterial({
+          //
+          uniforms: {
+            tCurrent: new THREE.Uniform(null),
+            tPrevious: new THREE.Uniform(null),
+          },
+          vertexShader: /* glsl */ `
+              varying vec2 vUv;
+      
+              void main() {
+                gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+              
+                vUv = uv;
+              }
+            `,
+          fragmentShader: /* glsl */ `
+              varying vec2 vUv;
+
+              uniform sampler2D tCurrent;
+              uniform sampler2D tPrevious;  
+              
+              void main() {        
+                vec4 textureCurrent = texture(tCurrent, vUv);
+                vec4 texturePrevious = texture(tPrevious, vUv);
+
+                // vec4 blendedColor = mix(texturePrevious, textureCurrent, 0.85);
+            
+                gl_FragColor = texturePrevious + textureCurrent * 0.9;
+                
+                
+              }
+            `,
+          side: THREE.DoubleSide,
+        })
+      ),
+    }
+
+    this.postProcessingScene.add(this.postProcessingPlane.mesh)
 
     /* 
       Functions
@@ -155,8 +213,19 @@ export default class SceneObjects {
   }
 
   updateCameraAspect() {
+    // Mesh
+    // this.renderPlane.mesh.position.set(
+    //   //
+    //   ((this.renderPlane.bounds.left - this.gl.sizes.width / 2 + this.renderPlane.bounds.width / 2) / this.gl.sizes.width) * 2,
+    //   (-this.renderPlane.bounds.top / this.gl.sizes.height) * 2,
+    //   // 0,
+    //   // 0,
+    //   0
+    // )
+    // this.renderPlane.mesh.material.uniforms.uPosition.value.y = (-this.renderPlane.bounds.top / this.gl.sizes.height) * 2
+
     // Camera
-    this.camera.aspect = this.uniforms.uScale.value.x / this.uniforms.uScale.value.y
+    this.camera.aspect = this.renderPlane.mesh.material.uniforms.uScale.value.x / this.renderPlane.mesh.material.uniforms.uScale.value.y
     this.camera.updateProjectionMatrix()
   }
 
@@ -186,9 +255,9 @@ export default class SceneObjects {
   getBounds() {
     this.bounds = this.params.dom.getBoundingClientRect()
 
-    this.uniforms.uResolution.value.set(this.gl.sizes.width, this.gl.sizes.height)
-    this.uniforms.uPosition.value.x = this.bounds.left
-    this.uniforms.uScale.value.set(this.bounds.width, this.bounds.height)
+    this.renderPlane.mesh.material.uniforms.uResolution.value.set(this.gl.sizes.width, this.gl.sizes.height)
+    this.renderPlane.mesh.material.uniforms.uPosition.value.x = this.bounds.left
+    this.renderPlane.mesh.material.uniforms.uScale.value.set(this.bounds.width, this.bounds.height)
   }
 
   setScroll() {
@@ -196,7 +265,7 @@ export default class SceneObjects {
       Basic
     */
     gsap.fromTo(
-      this.uniforms.uPosition.value,
+      this.renderPlane.mesh.material.uniforms.uPosition.value,
       {
         y: () => Math.max(this.gl.sizes.height, this.bounds.height),
       },
@@ -211,6 +280,7 @@ export default class SceneObjects {
           end: () => `center+=${Math.max(this.gl.sizes.height, this.bounds.height)} top+=${this.gl.sizes.height / 2}`,
           refreshPriority: -99,
           // markers: true,
+
           onRefresh: () => {
             this.getBounds()
             this.updateCameraAspect()
@@ -222,6 +292,7 @@ export default class SceneObjects {
         },
       }
     )
+
     /* 
       Sticky
     */
@@ -252,6 +323,7 @@ export default class SceneObjects {
     //     },
     //   }
     // );
+
     // // Leave
     // gsap.fromTo(
     //   this.renderPlane.bounds,
@@ -286,6 +358,13 @@ export default class SceneObjects {
 
     this.gl.renderer.instance.setRenderTarget(this.renderTarget)
     this.gl.renderer.instance.render(this.scene, this.camera)
+    this.postProcessingPlane.mesh.material.uniforms.tPrevious.value = this.renderTarget.texture
+
+    this.gl.renderer.instance.setRenderTarget(this.renderTargetPostProcessing)
+    this.gl.renderer.instance.render(this.postProcessingScene, this.postProcessingCamera)
+
+    this.renderPlane.mesh.material.uniforms.tDiffuse.value = this.renderTargetPostProcessing.texture
+    this.postProcessingPlane.mesh.material.uniforms.tCurrent.value = this.renderTargetPostProcessing.texture
   }
 
   update() {

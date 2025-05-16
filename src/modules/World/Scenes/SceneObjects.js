@@ -42,6 +42,19 @@ export default class SceneObjects {
     this.scene.environment = this.gl.assets.hdris.studio
 
     /* 
+      Render Target
+    */
+    this.renderTarget = new THREE.RenderTarget(this.gl.sizes.width * this.gl.sizes.pixelRatio, this.gl.sizes.height * this.gl.sizes.pixelRatio, {
+      samples: 1,
+      depthBuffer: false,
+    })
+
+    this.postProcessingRenderTarget = new THREE.RenderTarget(this.gl.sizes.width * this.gl.sizes.pixelRatio, this.gl.sizes.height * this.gl.sizes.pixelRatio, {
+      samples: 1,
+      depthBuffer: false,
+    })
+
+    /* 
       Render Plane
     */
     this.renderPlane = {
@@ -65,6 +78,8 @@ export default class SceneObjects {
       uScale: uniform(new THREE.Vector2(this.gl.sizes.width, this.gl.sizes.height)),
       uPosition: uniform(new THREE.Vector2(0, 0)),
       uResolution: uniform(new THREE.Vector2(this.gl.sizes.width, this.gl.sizes.height)),
+
+      tDiffuse: texture(new THREE.Texture(), vec2(uv().x, uv().y.oneMinus())),
     }
 
     /* 
@@ -85,7 +100,7 @@ export default class SceneObjects {
     })()
 
     this.renderPlane.mesh.material.outputNode = Fn(() => {
-      const textureDiffuse = texture(this.renderTarget.texture, vec2(uv().x, uv().y.oneMinus())).toVar()
+      const textureDiffuse = this.uniforms.tDiffuse
 
       return textureDiffuse
     })()
@@ -94,17 +109,6 @@ export default class SceneObjects {
       Bounds
     */
     this.bounds = {}
-
-    /* 
-      Render Target
-    */
-    this.renderTarget = new THREE.RenderTarget(this.gl.sizes.width * this.gl.sizes.pixelRatio, this.gl.sizes.height * this.gl.sizes.pixelRatio, {
-      samples: 1,
-    })
-
-    this.postProcessingRenderTarget = new THREE.WebGLRenderTarget(this.gl.sizes.width * this.gl.sizes.pixelRatio, this.gl.sizes.height * this.gl.sizes.pixelRatio, {
-      samples: 1,
-    })
 
     /* 
       Camera
@@ -129,8 +133,31 @@ export default class SceneObjects {
     /* 
       Post-processing
     */
+    this.postProcessingUniforms = {
+      tCurrent: texture(new THREE.Texture(), vec2(uv().x, uv().y.oneMinus())),
+      tPrevious: texture(new THREE.Texture(), vec2(uv().x, uv().y.oneMinus())),
+      // tPrevious: texture(this.postProcessingRenderTarget.texture),
+    }
+
     this.postProcessingScene = new THREE.Scene()
     this.postProcessingCamera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1)
+
+    this.postProcessingPlane = {
+      mesh: new THREE.Mesh(
+        //
+        new THREE.PlaneGeometry(2, 2),
+        new THREE.MeshBasicNodeMaterial({})
+      ),
+    }
+
+    this.postProcessingPlane.mesh.material.outputNode = Fn(() => {
+      const textureCurrent = this.postProcessingUniforms.tCurrent
+      const texturePrevious = this.postProcessingUniforms.tPrevious
+
+      return textureCurrent.add(texturePrevious.mul(0.5))
+    })()
+
+    this.postProcessingScene.add(this.postProcessingPlane.mesh)
 
     /* 
       Functions
@@ -284,8 +311,20 @@ export default class SceneObjects {
   renderPipeline() {
     if (!this.isRendering) return
 
+    // this.gl.renderer.instance.setRenderTarget(this.postProcessingRenderTarget)
+    // this.gl.renderer.instance.render(this.scene, this.camera)
     this.gl.renderer.instance.setRenderTarget(this.renderTarget)
     this.gl.renderer.instance.render(this.scene, this.camera)
+    // this.postProcessingPlane.mesh.material.uniforms.tPrevious.value = this.renderTarget.texture
+    this.postProcessingUniforms.tPrevious = texture(this.renderTarget.texture, vec2(uv().x, uv().y.oneMinus())).toVar()
+
+    this.gl.renderer.instance.setRenderTarget(this.postProcessingRenderTarget)
+    this.gl.renderer.instance.render(this.postProcessingScene, this.postProcessingCamera)
+
+    // this.renderPlane.mesh.material.uniforms.tDiffuse.value = this.renderTargetPostProcessing.texture
+    this.uniforms.tDiffuse = texture(this.postProcessingRenderTarget.texture, vec2(uv().x, uv().y.oneMinus())).toVar()
+    // this.postProcessingPlane.mesh.material.uniforms.tCurrent.value = this.renderTargetPostProcessing.texture
+    this.postProcessingUniforms.tCurrent = texture(this.postProcessingRenderTarget.texture, vec2(uv().x, uv().y.oneMinus())).toVar()
   }
 
   update() {
