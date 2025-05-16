@@ -113,6 +113,10 @@ export default class SceneObjects {
       samples: 1,
     })
 
+    this.renderTargetPostProcessing = new THREE.WebGLRenderTarget(this.gl.sizes.width * this.gl.sizes.pixelRatio, this.gl.sizes.height * this.gl.sizes.pixelRatio, {
+      samples: 1,
+    })
+
     /* 
       Camera
     */
@@ -132,6 +136,50 @@ export default class SceneObjects {
       Lighting
     */
     this.lighting = new Lighting()
+
+    /* 
+      Post-processing
+    */
+    this.postProcessingScene = new THREE.Scene()
+    this.postProcessingCamera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1)
+    /* 
+      Post-processing Plane
+    */
+    this.postProcessingPlane = {
+      mesh: new THREE.Mesh(
+        //
+        new THREE.PlaneGeometry(2, 2),
+        new THREE.ShaderMaterial({
+          //
+          uniforms: {
+            tDiffuse: new THREE.Uniform(null),
+          },
+          vertexShader: /* glsl */ `
+              varying vec2 vUv;
+      
+              void main() {
+                gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+              
+                vUv = uv;
+              }
+            `,
+          fragmentShader: /* glsl */ `
+              varying vec2 vUv;
+
+              uniform sampler2D tDiffuse;
+              
+              void main() {        
+                vec4 textureDiffuse = texture(tDiffuse, vUv);
+
+                gl_FragColor = textureDiffuse;
+              }
+            `,
+          side: THREE.DoubleSide,
+        })
+      ),
+    }
+
+    this.postProcessingScene.add(this.postProcessingPlane.mesh)
 
     /* 
       Functions
@@ -301,6 +349,10 @@ export default class SceneObjects {
 
     this.gl.renderer.instance.setRenderTarget(this.renderTarget)
     this.gl.renderer.instance.render(this.scene, this.camera)
+    this.postProcessingPlane.mesh.material.uniforms.tDiffuse.value = this.renderTarget.texture
+
+    this.gl.renderer.instance.setRenderTarget(this.renderTarget)
+    this.gl.renderer.instance.render(this.postProcessingScene, this.postProcessingCamera)
 
     this.renderPlane.mesh.material.uniforms.tDiffuse.value = this.renderTarget.texture
   }

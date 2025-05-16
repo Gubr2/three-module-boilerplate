@@ -1,7 +1,10 @@
 import * as THREE from 'three'
+import Gl from '../../Gl'
 
 export default class Plane {
   constructor() {
+    this.gl = new Gl()
+
     this.geometry = new THREE.PlaneGeometry(1, 1)
     this.material = new THREE.ShaderMaterial({
       //
@@ -25,8 +28,10 @@ export default class Plane {
     })
 
     this.instance = new THREE.Mesh(this.geometry, this.material)
-    this.instance.matrixAutoUpdate = false
+    // this.instance.matrixAutoUpdate = false
   }
 
-  update() {}
+  update() {
+    this.instance.position.y = Math.sin(this.gl.time.elapsed)
+  }
 }
