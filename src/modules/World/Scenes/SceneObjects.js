@@ -46,12 +46,10 @@ export default class SceneObjects {
     */
     this.renderTarget = new THREE.RenderTarget(this.gl.sizes.width * this.gl.sizes.pixelRatio, this.gl.sizes.height * this.gl.sizes.pixelRatio, {
       samples: 1,
-      depthBuffer: false,
     })
 
     this.postProcessingRenderTarget = new THREE.RenderTarget(this.gl.sizes.width * this.gl.sizes.pixelRatio, this.gl.sizes.height * this.gl.sizes.pixelRatio, {
       samples: 1,
-      depthBuffer: false,
     })
 
     /* 
@@ -78,8 +76,6 @@ export default class SceneObjects {
       uScale: uniform(new THREE.Vector2(this.gl.sizes.width, this.gl.sizes.height)),
       uPosition: uniform(new THREE.Vector2(0, 0)),
       uResolution: uniform(new THREE.Vector2(this.gl.sizes.width, this.gl.sizes.height)),
-
-      tDiffuse: texture(new THREE.Texture(), vec2(uv().x, uv().y.oneMinus())),
     }
 
     /* 
@@ -100,7 +96,7 @@ export default class SceneObjects {
     })()
 
     this.renderPlane.mesh.material.outputNode = Fn(() => {
-      const textureDiffuse = this.uniforms.tDiffuse
+      const textureDiffuse = texture(this.postProcessingRenderTarget.texture, vec2(uv().x, uv().y.oneMinus()))
 
       return textureDiffuse
     })()
@@ -134,9 +130,8 @@ export default class SceneObjects {
       Post-processing
     */
     this.postProcessingUniforms = {
-      tCurrent: texture(new THREE.Texture(), vec2(uv().x, uv().y.oneMinus())),
-      tPrevious: texture(new THREE.Texture(), vec2(uv().x, uv().y.oneMinus())),
-      // tPrevious: texture(this.postProcessingRenderTarget.texture),
+      tCurrent: texture(null, vec2(uv().x, uv().y.oneMinus())),
+      tPrevious: texture(null, vec2(uv().x, uv().y.oneMinus())),
     }
 
     this.postProcessingScene = new THREE.Scene()
@@ -151,10 +146,9 @@ export default class SceneObjects {
     }
 
     this.postProcessingPlane.mesh.material.outputNode = Fn(() => {
-      const textureCurrent = this.postProcessingUniforms.tCurrent
-      const texturePrevious = this.postProcessingUniforms.tPrevious
+      const textureDiffuse = texture(this.renderTarget.texture, vec2(uv().x, uv().y.oneMinus()))
 
-      return textureCurrent.add(texturePrevious.mul(0.5))
+      return textureDiffuse
     })()
 
     this.postProcessingScene.add(this.postProcessingPlane.mesh)
@@ -311,20 +305,16 @@ export default class SceneObjects {
   renderPipeline() {
     if (!this.isRendering) return
 
-    // this.gl.renderer.instance.setRenderTarget(this.postProcessingRenderTarget)
-    // this.gl.renderer.instance.render(this.scene, this.camera)
     this.gl.renderer.instance.setRenderTarget(this.renderTarget)
     this.gl.renderer.instance.render(this.scene, this.camera)
     // this.postProcessingPlane.mesh.material.uniforms.tPrevious.value = this.renderTarget.texture
-    this.postProcessingUniforms.tPrevious = texture(this.renderTarget.texture, vec2(uv().x, uv().y.oneMinus())).toVar()
 
     this.gl.renderer.instance.setRenderTarget(this.postProcessingRenderTarget)
     this.gl.renderer.instance.render(this.postProcessingScene, this.postProcessingCamera)
+    // this.afterImagePass = afterImage(this.postProcessingRenderTarget.texture, 0.96)
 
-    // this.renderPlane.mesh.material.uniforms.tDiffuse.value = this.renderTargetPostProcessing.texture
-    this.uniforms.tDiffuse = texture(this.postProcessingRenderTarget.texture, vec2(uv().x, uv().y.oneMinus())).toVar()
-    // this.postProcessingPlane.mesh.material.uniforms.tCurrent.value = this.renderTargetPostProcessing.texture
-    this.postProcessingUniforms.tCurrent = texture(this.postProcessingRenderTarget.texture, vec2(uv().x, uv().y.oneMinus())).toVar()
+    // this.renderPlane.mesh.material.uniforms.tDiffuse.value = this.postProcessingRenderTarget.texture
+    // this.postProcessingPlane.mesh.material.uniforms.tCurrent.value = this.postProcessingRenderTarget.texture
   }
 
   update() {

@@ -69,15 +69,15 @@ export default class Gl {
     this.mouse = new Mouse()
 
     /* 
-      Renderer
-    */
-    this.renderer = new Renderer()
-
-    /* 
       Scene & Camera
     */
     this.scene = new THREE.Scene()
     this.camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1)
+
+    /* 
+      Renderer
+    */
+    this.renderer = new Renderer()
 
     /* 
       Assets

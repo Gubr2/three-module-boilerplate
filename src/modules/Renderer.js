@@ -1,4 +1,7 @@
 import * as THREE from 'three/webgpu'
+import { afterImage } from 'three/examples/jsm/tsl/display/AfterImageNode.js'
+import { pass } from 'three/tsl'
+import { bloom } from 'three/addons/tsl/display/BloomNode.js'
 
 import Gl from './Gl'
 
@@ -17,6 +20,13 @@ export default class Rendered {
     this.instance.setPixelRatio(this.gl.sizes.pixelRatio)
     this.instance.setSize(this.gl.sizes.width, this.gl.sizes.height)
     // this.instance.toneMapping = THREE.ReinhardToneMapping
+
+    this.postProcessing = new THREE.PostProcessing(this.instance)
+    this.scenePass = pass(this.gl.scene, this.gl.camera)
+    this.afterImagePass = afterImage(this.scenePass, 0.96)
+    // const bloomPass = bloom(this.scenePass)
+
+    this.postProcessing.outputNode = this.afterImagePass
   }
 
   update() {
@@ -26,7 +36,8 @@ export default class Rendered {
 
     // // // // // // // // // //
     this.instance.setRenderTarget(null)
-    this.instance.renderAsync(this.gl.scene, this.gl.camera)
+    // this.instance.renderAsync(this.gl.scene, this.gl.camera)
+    this.postProcessing.renderAsync()
   }
 
   resize() {
