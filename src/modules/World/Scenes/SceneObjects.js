@@ -1,5 +1,6 @@
 import * as THREE from 'three/webgpu'
-import { positionLocal, positionGeometry, Fn, vec2, vec4, mul, div, add, float, Var, uniform, fract, texture, uv, oneMinus } from 'three/tsl'
+import { positionLocal, positionGeometry, Fn, vec2, vec4, mul, div, add, float, Var, uniform, fract, texture, uv, oneMinus, pass } from 'three/tsl'
+import { afterImage } from 'three/examples/jsm/tsl/display/AfterImageNode.js'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
@@ -96,7 +97,7 @@ export default class SceneObjects {
     })()
 
     this.renderPlane.mesh.material.outputNode = Fn(() => {
-      const textureDiffuse = texture(this.postProcessingRenderTarget.texture, vec2(uv().x, uv().y.oneMinus()))
+      const textureDiffuse = texture(this.renderTarget.texture, vec2(uv().x, uv().y.oneMinus()))
 
       return textureDiffuse
     })()
@@ -152,6 +153,13 @@ export default class SceneObjects {
     })()
 
     this.postProcessingScene.add(this.postProcessingPlane.mesh)
+
+    this.postProcessing = new THREE.PostProcessing(this.gl.renderer.instance)
+    this.scenePass = pass(this.scene, this.camera)
+    this.afterImagePass = afterImage(this.scenePass, 0.96)
+    // const bloomPass = bloom(this.scenePass)
+
+    this.postProcessing.outputNode = this.afterImagePass
 
     /* 
       Functions
@@ -306,11 +314,12 @@ export default class SceneObjects {
     if (!this.isRendering) return
 
     this.gl.renderer.instance.setRenderTarget(this.renderTarget)
-    this.gl.renderer.instance.render(this.scene, this.camera)
+    // this.gl.renderer.instance.render(this.scene, this.camera)
     // this.postProcessingPlane.mesh.material.uniforms.tPrevious.value = this.renderTarget.texture
 
-    this.gl.renderer.instance.setRenderTarget(this.postProcessingRenderTarget)
-    this.gl.renderer.instance.render(this.postProcessingScene, this.postProcessingCamera)
+    // this.gl.renderer.instance.setRenderTarget(this.postProcessingRenderTarget)
+    // this.gl.renderer.instance.render(this.postProcessingScene, this.postProcessingCamera)
+    this.postProcessing.renderAsync()
     // this.afterImagePass = afterImage(this.postProcessingRenderTarget.texture, 0.96)
 
     // this.renderPlane.mesh.material.uniforms.tDiffuse.value = this.postProcessingRenderTarget.texture

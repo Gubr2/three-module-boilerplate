@@ -1,8 +1,11 @@
 import * as THREE from 'three/webgpu'
 import { uv, vec4 } from 'three/tsl'
+import Gl from '../../Gl'
 
 export default class Plane {
   constructor() {
+    this.gl = new Gl()
+
     this.instance = new THREE.Mesh(
       //
       new THREE.PlaneGeometry(1, 1),
@@ -15,5 +18,6 @@ export default class Plane {
 
   update() {
     this.instance.rotation.y += 0.01
+    this.instance.position.y = Math.sin(this.gl.time.elapsed)
   }
 }
