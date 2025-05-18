@@ -1,5 +1,5 @@
 import * as THREE from 'three/webgpu'
-import { positionLocal, positionGeometry, Fn, vec2, vec4, mul, div, add, float, Var, uniform, fract, texture, uv, oneMinus, pass } from 'three/tsl'
+import { positionLocal, positionGeometry, Fn, sin, cos, vec2, vec3, vec4, mul, div, sub, add, float, Var, uniform, fract, texture, uv, oneMinus, pass, distance, time, smoothstep, passTexture } from 'three/tsl'
 import { afterImage } from 'three/examples/jsm/tsl/display/AfterImageNode.js'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import gsap from 'gsap'
@@ -40,16 +40,20 @@ export default class SceneObjects {
       Scene
     */
     this.scene = new THREE.Scene()
-    this.scene.environment = this.gl.assets.hdris.studio
+    // this.scene.environment = this.gl.assets.hdris.studio
 
     /* 
       Render Target
     */
-    this.renderTarget = new THREE.RenderTarget(this.gl.sizes.width * this.gl.sizes.pixelRatio, this.gl.sizes.height * this.gl.sizes.pixelRatio, {
+    this.renderTargetScene = new THREE.RenderTarget(this.gl.sizes.width * this.gl.sizes.pixelRatio, this.gl.sizes.height * this.gl.sizes.pixelRatio, {
       samples: 1,
     })
 
-    this.postProcessingRenderTarget = new THREE.RenderTarget(this.gl.sizes.width * this.gl.sizes.pixelRatio, this.gl.sizes.height * this.gl.sizes.pixelRatio, {
+    this.renderTargetA = new THREE.RenderTarget(this.gl.sizes.width * this.gl.sizes.pixelRatio, this.gl.sizes.height * this.gl.sizes.pixelRatio, {
+      samples: 1,
+    })
+
+    this.renderTargetB = new THREE.RenderTarget(this.gl.sizes.width * this.gl.sizes.pixelRatio, this.gl.sizes.height * this.gl.sizes.pixelRatio, {
       samples: 1,
     })
 
@@ -77,6 +81,8 @@ export default class SceneObjects {
       uScale: uniform(new THREE.Vector2(this.gl.sizes.width, this.gl.sizes.height)),
       uPosition: uniform(new THREE.Vector2(0, 0)),
       uResolution: uniform(new THREE.Vector2(this.gl.sizes.width, this.gl.sizes.height)),
+
+      tPrevious: texture(null),
     }
 
     /* 
@@ -97,9 +103,13 @@ export default class SceneObjects {
     })()
 
     this.renderPlane.mesh.material.outputNode = Fn(() => {
-      const textureDiffuse = texture(this.renderTarget.texture, vec2(uv().x, uv().y.oneMinus()))
+      const textureOld = texture(this.renderTargetA.texture, vec2(uv().x, uv().y.oneMinus()))
 
-      return textureDiffuse
+      const cursor = distance(uv().mul(2).sub(1), vec2(sin(time), cos(time))).toVar()
+      cursor.assign(smoothstep(0.0, 0.5, cursor))
+      cursor.addAssign(textureOld.rgb.mul(0.5))
+
+      return vec4(vec3(cursor), 1.0)
     })()
 
     /* 
@@ -110,8 +120,8 @@ export default class SceneObjects {
     /* 
       Camera
     */
-    this.camera = new THREE.PerspectiveCamera(75, this.gl.sizes.width / this.gl.sizes.height, 0.1, 1000)
-    this.camera.position.z = 2
+    this.camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1)
+    // this.camera.position.z = 2
 
     /* 
       Models
@@ -119,8 +129,8 @@ export default class SceneObjects {
     this.plane = new Plane()
     this.suzanne = new Suzanne()
 
-    this.scene.add(this.plane.instance)
-    this.scene.add(this.suzanne.instance)
+    // this.scene.add(this.plane.instance)
+    // this.scene.add(this.suzanne.instance)
 
     /* 
       Lighting
@@ -130,36 +140,37 @@ export default class SceneObjects {
     /* 
       Post-processing
     */
-    this.postProcessingUniforms = {
-      tCurrent: texture(null, vec2(uv().x, uv().y.oneMinus())),
-      tPrevious: texture(null, vec2(uv().x, uv().y.oneMinus())),
-    }
+    // this.postProcessingUniforms = {
+    //   tPrevious: texture(null),
+    // }
 
-    this.postProcessingScene = new THREE.Scene()
-    this.postProcessingCamera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1)
+    // this.postProcessingScene = new THREE.Scene()
+    // this.postProcessingCamera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1)
 
-    this.postProcessingPlane = {
-      mesh: new THREE.Mesh(
-        //
-        new THREE.PlaneGeometry(2, 2),
-        new THREE.MeshBasicNodeMaterial({})
-      ),
-    }
+    this.postProcessingPlane = new THREE.Mesh(
+      //
+      new THREE.PlaneGeometry(2, 2),
+      new THREE.MeshBasicNodeMaterial({})
+    )
 
-    this.postProcessingPlane.mesh.material.outputNode = Fn(() => {
-      const textureDiffuse = texture(this.renderTarget.texture, vec2(uv().x, uv().y.oneMinus()))
+    this.postProcessingPlane.material.outputNode = Fn(() => {
+      // const textureOld = texture(this.renderTargetB.texture, vec2(uv().x, uv().y.oneMinus()))
 
-      return textureDiffuse
+      const cursor = distance(uv().mul(2).sub(1), vec2(sin(time), cos(time))).toVar()
+      cursor.assign(smoothstep(0.0, 0.5, cursor))
+      // cursor.addAssign(textureOld.rgb.mul(0.95))
+
+      return vec4(vec3(cursor), 1.0)
     })()
 
-    this.postProcessingScene.add(this.postProcessingPlane.mesh)
+    this.scene.add(this.postProcessingPlane)
 
-    this.postProcessing = new THREE.PostProcessing(this.gl.renderer.instance)
-    this.scenePass = pass(this.scene, this.camera)
-    this.afterImagePass = afterImage(this.scenePass, 0.96)
-    // const bloomPass = bloom(this.scenePass)
+    // this.postProcessing = new THREE.PostProcessing(this.gl.renderer.instance)
+    // this.scenePass = pass(this.scene, this.camera)
+    // this.afterImagePass = afterImage(this.scenePass, 0.96)
+    // // const bloomPass = bloom(this.scenePass)
 
-    this.postProcessing.outputNode = this.afterImagePass
+    // this.postProcessing.outputNode = this.afterImagePass
 
     /* 
       Functions
@@ -180,7 +191,7 @@ export default class SceneObjects {
   }
 
   resize() {
-    this.renderTarget.setSize(this.gl.sizes.width * this.gl.sizes.pixelRatio, this.gl.sizes.height * this.gl.sizes.pixelRatio)
+    this.renderTargetA.setSize(this.gl.sizes.width * this.gl.sizes.pixelRatio, this.gl.sizes.height * this.gl.sizes.pixelRatio)
   }
 
   updateCameraAspect() {
@@ -313,13 +324,24 @@ export default class SceneObjects {
   renderPipeline() {
     if (!this.isRendering) return
 
-    this.gl.renderer.instance.setRenderTarget(this.renderTarget)
-    // this.gl.renderer.instance.render(this.scene, this.camera)
+    // this.postProcessingUniforms.tPrevious.value = passTexture
+
+    // this.gl.renderer.instance.setRenderTarget(this.renderTargetA)
+    // this.gl.renderer.instance.render(this.postProcessingScene, this.postProcessingCamera)
+
+    this.gl.renderer.instance.setRenderTarget(this.renderTargetA)
+    this.gl.renderer.instance.render(this.scene, this.camera)
+
+    // Swap
+    const temp = this.renderTargetA
+    this.renderTargetA = this.renderTargetB
+    this.renderTargetB = temp
+
     // this.postProcessingPlane.mesh.material.uniforms.tPrevious.value = this.renderTarget.texture
 
     // this.gl.renderer.instance.setRenderTarget(this.postProcessingRenderTarget)
     // this.gl.renderer.instance.render(this.postProcessingScene, this.postProcessingCamera)
-    this.postProcessing.renderAsync()
+    // this.postProcessing.renderAsync()
     // this.afterImagePass = afterImage(this.postProcessingRenderTarget.texture, 0.96)
 
     // this.renderPlane.mesh.material.uniforms.tDiffuse.value = this.postProcessingRenderTarget.texture
