@@ -9,6 +9,7 @@ import Gl from '../../Gl'
 
 import Plane from '../Geometry/Plane'
 import Suzanne from '../Geometry/Suzanne'
+import Particles from '../Geometry/Particles'
 
 import Lighting from '../Lighting/Lighting'
 
@@ -40,11 +41,6 @@ export default class SceneObjects {
       Scene
     */
     this.scene = new THREE.Scene()
-    // this.scene.environment = this.gl.assets.hdris.studio
-
-    /* 
-      Compute Vertex
-    */
 
     /* 
       Render Plane
@@ -62,6 +58,13 @@ export default class SceneObjects {
 
     this.renderPlane.mesh.frustumCulled = false
     this.renderPlane.mesh.matrixAutoUpdate = false
+
+    /* 
+      Render Target
+    */
+    this.renderTarget = new THREE.WebGLRenderTarget(this.gl.sizes.width * this.gl.sizes.pixelRatio, this.gl.sizes.height * this.gl.sizes.pixelRatio, {
+      samples: 1,
+    })
 
     /* 
       Uniforms
@@ -89,7 +92,11 @@ export default class SceneObjects {
       return vec4(position, 1.0)
     })()
 
-    this.renderPlane.mesh.material.colorNode = texture(this.computeTextures[this.currentTargetIndex])
+    this.renderPlane.mesh.material.colorNode = Fn(() => {
+      const color = texture(this.renderTarget.texture)
+
+      return color
+    })()
 
     /* 
       Bounds
@@ -100,16 +107,18 @@ export default class SceneObjects {
       Camera
     */
     this.camera = new THREE.PerspectiveCamera(65, 1, 0.1, 100)
-    // this.camera.position.z = 2
+    this.camera.position.z = 2
 
     /* 
       Models
     */
-    this.plane = new Plane()
-    this.suzanne = new Suzanne()
+    // this.plane = new Plane()
+    // this.suzanne = new Suzanne()
+    this.particles = new Particles()
 
     // this.scene.add(this.plane.instance)
     // this.scene.add(this.suzanne.instance)
+    this.scene.add(this.particles.instance)
 
     /* 
       Lighting
@@ -135,7 +144,7 @@ export default class SceneObjects {
   }
 
   resize() {
-    // this.renderTargetA.setSize(this.gl.sizes.width * this.gl.sizes.pixelRatio, this.gl.sizes.height * this.gl.sizes.pixelRatio)
+    this.renderTarget.setSize(this.gl.sizes.width * this.gl.sizes.pixelRatio, this.gl.sizes.height * this.gl.sizes.pixelRatio)
   }
 
   updateCameraAspect() {
@@ -267,6 +276,10 @@ export default class SceneObjects {
 
   renderPipeline() {
     if (!this.isRendering) return
+
+    this.gl.renderer.instance.setRenderTarget(this.renderTarget)
+    this.gl.renderer.instance.render(this.scene, this.camera)
+    // this.gl.renderer.instance.setRenderTarget(null)
   }
 
   update() {
