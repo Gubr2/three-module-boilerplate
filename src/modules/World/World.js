@@ -14,56 +14,6 @@ export default class World {
     */
     this.selectors = []
     this.scenes = []
-
-    /* 
-      Scene
-    */
-    this.scene = new THREE.Scene()
-
-    /*
-        Camera
-      */
-    this.camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1)
-
-    /* 
-      RTs
-    */
-    this.renderTargetA = new THREE.RenderTarget(this.gl.sizes.width * this.gl.sizes.pixelRatio, this.gl.sizes.height * this.gl.sizes.pixelRatio, {
-      samples: 1,
-    })
-
-    this.renderTargetB = new THREE.RenderTarget(this.gl.sizes.width * this.gl.sizes.pixelRatio, this.gl.sizes.height * this.gl.sizes.pixelRatio, {
-      samples: 1,
-    })
-
-    /* 
-      Uniforms
-    */
-    this.uniforms = {
-      tPingPong: texture(null),
-    }
-
-    /* 
-      Quad
-    */
-    this.quad = new THREE.Mesh(
-      //
-      new THREE.PlaneGeometry(2, 2),
-      new THREE.MeshBasicNodeMaterial({ color: 0x00ff00 })
-    )
-
-    this.quad.material.fragmentNode = Fn(() => {
-      // this.uniforms.tPingPong.uvNode = uv()
-      const tPingPong = this.uniforms.tPingPong.sample().toVar()
-
-      const cursor = distance(uv().mul(2).sub(1), vec2(sin(time), cos(time))).toVar()
-      cursor.assign(smoothstep(0.0, 0.5, cursor))
-      // cursor.addAssign(tPingPong.r.mul(0.1))
-
-      return vec4(vec3(cursor), 1.0)
-    })()
-
-    this.gl.scene.add(this.quad)
   }
 
   add() {
@@ -144,15 +94,5 @@ export default class World {
     }
   }
 
-  update() {
-    this.gl.renderer.instance.setRenderTarget(this.renderTargetA)
-    this.gl.renderer.instance.renderAsync(this.gl.scene, this.gl.camera)
-
-    this.uniforms.tPingPong.value = this.renderTargetA.texture
-
-    // Swap
-    let temp = this.renderTargetA
-    this.renderTargetA = this.renderTargetB
-    this.renderTargetB = temp
-  }
+  update() {}
 }

@@ -115,7 +115,7 @@ export default class Gl {
     this.world = new World()
     gsap.ticker.add(this.update.bind(this))
 
-    // this.world.add()
+    this.world.add()
 
     console.log('[WebGL] [ █ █ █ █ █ █ ] -', 'Initialized')
   }

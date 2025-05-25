@@ -1,5 +1,5 @@
 import * as THREE from 'three/webgpu'
-import { positionLocal, positionGeometry, Fn, sin, cos, vec2, vec3, vec4, mul, div, sub, add, float, Var, uniform, fract, texture, uv, oneMinus, pass, distance, time, smoothstep, passTexture } from 'three/tsl'
+import { positionLocal, positionGeometry, Fn, sin, cos, uvec2, vec2, vec3, vec4, mul, div, sub, add, float, Var, uniform, fract, texture, uv, oneMinus, pass, distance, time, smoothstep, passTexture, textureStore, instanceIndex, storageTexture, NodeAccess } from 'three/tsl'
 import { afterImage } from 'three/examples/jsm/tsl/display/AfterImageNode.js'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import gsap from 'gsap'
@@ -43,18 +43,28 @@ export default class SceneObjects {
     // this.scene.environment = this.gl.assets.hdris.studio
 
     /* 
-      Render Target
+      Compute Texture
     */
-    this.renderTargetScene = new THREE.RenderTarget(this.gl.sizes.width * this.gl.sizes.pixelRatio, this.gl.sizes.height * this.gl.sizes.pixelRatio, {
-      samples: 1,
-    })
+    this.currentTargetIndex = 0
 
-    this.renderTargetA = new THREE.RenderTarget(this.gl.sizes.width * this.gl.sizes.pixelRatio, this.gl.sizes.height * this.gl.sizes.pixelRatio, {
-      samples: 1,
-    })
+    this.computeTextures = [new THREE.StorageTexture(this.gl.sizes.width, this.gl.sizes.height), new THREE.StorageTexture(this.gl.sizes.width, this.gl.sizes.height)]
 
-    this.renderTargetB = new THREE.RenderTarget(this.gl.sizes.width * this.gl.sizes.pixelRatio, this.gl.sizes.height * this.gl.sizes.pixelRatio, {
-      samples: 1,
+    this.computeFn = Fn(({ readTexture, writeTexture }) => {
+      const posX = instanceIndex.mod(this.gl.sizes.width)
+      const posY = instanceIndex.div(this.gl.sizes.width)
+      const indexUV = vec2(posX, posY)
+
+      const texelUV = indexUV.add(0.5).div(vec2(this.gl.sizes.width, this.gl.sizes.height))
+
+      const prev = texture(readTexture, texelUV).toVar()
+
+      const cursor = distance(texelUV.mul(2).sub(1), vec2(0.0, cos(time))).toVar()
+      cursor.assign(smoothstep(0.1, 0.0, cursor))
+
+      const color = cursor.add(prev).mul(0.9)
+      // color.assign(smoothstep(0.0, 1.0, color))
+
+      textureStore(writeTexture, indexUV, color)
     })
 
     /* 
@@ -81,8 +91,6 @@ export default class SceneObjects {
       uScale: uniform(new THREE.Vector2(this.gl.sizes.width, this.gl.sizes.height)),
       uPosition: uniform(new THREE.Vector2(0, 0)),
       uResolution: uniform(new THREE.Vector2(this.gl.sizes.width, this.gl.sizes.height)),
-
-      tPrevious: texture(null),
     }
 
     /* 
@@ -102,15 +110,7 @@ export default class SceneObjects {
       return vec4(position, 1.0)
     })()
 
-    this.renderPlane.mesh.material.outputNode = Fn(() => {
-      const textureOld = texture(this.renderTargetA.texture, vec2(uv().x, uv().y.oneMinus()))
-
-      const cursor = distance(uv().mul(2).sub(1), vec2(sin(time), cos(time))).toVar()
-      cursor.assign(smoothstep(0.0, 0.5, cursor))
-      cursor.addAssign(textureOld.rgb.mul(0.5))
-
-      return vec4(vec3(cursor), 1.0)
-    })()
+    this.renderPlane.mesh.material.colorNode = texture(this.computeTextures[this.currentTargetIndex])
 
     /* 
       Bounds
@@ -138,41 +138,6 @@ export default class SceneObjects {
     this.lighting = new Lighting()
 
     /* 
-      Post-processing
-    */
-    // this.postProcessingUniforms = {
-    //   tPrevious: texture(null),
-    // }
-
-    // this.postProcessingScene = new THREE.Scene()
-    // this.postProcessingCamera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1)
-
-    this.postProcessingPlane = new THREE.Mesh(
-      //
-      new THREE.PlaneGeometry(2, 2),
-      new THREE.MeshBasicNodeMaterial({})
-    )
-
-    this.postProcessingPlane.material.outputNode = Fn(() => {
-      // const textureOld = texture(this.renderTargetB.texture, vec2(uv().x, uv().y.oneMinus()))
-
-      const cursor = distance(uv().mul(2).sub(1), vec2(sin(time), cos(time))).toVar()
-      cursor.assign(smoothstep(0.0, 0.5, cursor))
-      // cursor.addAssign(textureOld.rgb.mul(0.95))
-
-      return vec4(vec3(cursor), 1.0)
-    })()
-
-    this.scene.add(this.postProcessingPlane)
-
-    // this.postProcessing = new THREE.PostProcessing(this.gl.renderer.instance)
-    // this.scenePass = pass(this.scene, this.camera)
-    // this.afterImagePass = afterImage(this.scenePass, 0.96)
-    // // const bloomPass = bloom(this.scenePass)
-
-    // this.postProcessing.outputNode = this.afterImagePass
-
-    /* 
       Functions
     */
     this.setIsRendering()
@@ -191,7 +156,7 @@ export default class SceneObjects {
   }
 
   resize() {
-    this.renderTargetA.setSize(this.gl.sizes.width * this.gl.sizes.pixelRatio, this.gl.sizes.height * this.gl.sizes.pixelRatio)
+    // this.renderTargetA.setSize(this.gl.sizes.width * this.gl.sizes.pixelRatio, this.gl.sizes.height * this.gl.sizes.pixelRatio)
   }
 
   updateCameraAspect() {
@@ -324,28 +289,17 @@ export default class SceneObjects {
   renderPipeline() {
     if (!this.isRendering) return
 
-    // this.postProcessingUniforms.tPrevious.value = passTexture
+    const readIndex = this.currentTargetIndex
+    const writeIndex = 1 - this.currentTargetIndex
 
-    // this.gl.renderer.instance.setRenderTarget(this.renderTargetA)
-    // this.gl.renderer.instance.render(this.postProcessingScene, this.postProcessingCamera)
+    this.computeNode = this.computeFn({
+      readTexture: this.computeTextures[readIndex],
+      writeTexture: this.computeTextures[writeIndex],
+    }).compute(this.gl.sizes.width * this.gl.sizes.height)
 
-    this.gl.renderer.instance.setRenderTarget(this.renderTargetA)
-    this.gl.renderer.instance.render(this.scene, this.camera)
+    this.gl.renderer.instance.computeAsync(this.computeNode)
 
-    // Swap
-    const temp = this.renderTargetA
-    this.renderTargetA = this.renderTargetB
-    this.renderTargetB = temp
-
-    // this.postProcessingPlane.mesh.material.uniforms.tPrevious.value = this.renderTarget.texture
-
-    // this.gl.renderer.instance.setRenderTarget(this.postProcessingRenderTarget)
-    // this.gl.renderer.instance.render(this.postProcessingScene, this.postProcessingCamera)
-    // this.postProcessing.renderAsync()
-    // this.afterImagePass = afterImage(this.postProcessingRenderTarget.texture, 0.96)
-
-    // this.renderPlane.mesh.material.uniforms.tDiffuse.value = this.postProcessingRenderTarget.texture
-    // this.postProcessingPlane.mesh.material.uniforms.tCurrent.value = this.postProcessingRenderTarget.texture
+    this.currentTargetIndex = writeIndex
   }
 
   update() {
