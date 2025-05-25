@@ -43,29 +43,8 @@ export default class SceneObjects {
     // this.scene.environment = this.gl.assets.hdris.studio
 
     /* 
-      Compute Texture
+      Compute Vertex
     */
-    this.currentTargetIndex = 0
-
-    this.computeTextures = [new THREE.StorageTexture(this.gl.sizes.width, this.gl.sizes.height), new THREE.StorageTexture(this.gl.sizes.width, this.gl.sizes.height)]
-
-    this.computeFn = Fn(({ readTexture, writeTexture }) => {
-      const posX = instanceIndex.mod(this.gl.sizes.width)
-      const posY = instanceIndex.div(this.gl.sizes.width)
-      const indexUV = vec2(posX, posY)
-
-      const texelUV = indexUV.add(0.5).div(vec2(this.gl.sizes.width, this.gl.sizes.height))
-
-      const prev = texture(readTexture, texelUV).toVar()
-
-      const cursor = distance(texelUV.mul(2).sub(1), vec2(0.0, cos(time))).toVar()
-      cursor.assign(smoothstep(0.1, 0.0, cursor))
-
-      const color = cursor.add(prev).mul(0.9)
-      // color.assign(smoothstep(0.0, 1.0, color))
-
-      textureStore(writeTexture, indexUV, color)
-    })
 
     /* 
       Render Plane
@@ -120,7 +99,7 @@ export default class SceneObjects {
     /* 
       Camera
     */
-    this.camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1)
+    this.camera = new THREE.PerspectiveCamera(65, 1, 0.1, 100)
     // this.camera.position.z = 2
 
     /* 
@@ -288,18 +267,6 @@ export default class SceneObjects {
 
   renderPipeline() {
     if (!this.isRendering) return
-
-    const readIndex = this.currentTargetIndex
-    const writeIndex = 1 - this.currentTargetIndex
-
-    this.computeNode = this.computeFn({
-      readTexture: this.computeTextures[readIndex],
-      writeTexture: this.computeTextures[writeIndex],
-    }).compute(this.gl.sizes.width * this.gl.sizes.height)
-
-    this.gl.renderer.instance.computeAsync(this.computeNode)
-
-    this.currentTargetIndex = writeIndex
   }
 
   update() {
