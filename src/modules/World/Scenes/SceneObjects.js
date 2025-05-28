@@ -107,7 +107,7 @@ export default class SceneObjects {
       Camera
     */
     this.camera = new THREE.PerspectiveCamera(65, 1, 0.1, 100)
-    this.camera.position.z = 2
+    this.camera.position.set(0, -2, 2)
 
     /* 
       Models
@@ -285,7 +285,12 @@ export default class SceneObjects {
   update() {
     if (!this.isRendering) return
 
-    this.suzanne.update()
-    this.plane.update()
+    // this.suzanne.update()
+    // this.plane.update()
+    this.particles.update()
+
+    if (this.gl.isDebug) {
+      this.controls.update()
+    }
   }
 }

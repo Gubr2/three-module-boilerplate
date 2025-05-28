@@ -94,5 +94,9 @@ export default class World {
     }
   }
 
-  update() {}
+  update() {
+    for (const key in this.scenes) {
+      this.scenes[key].update()
+    }
+  }
 }
