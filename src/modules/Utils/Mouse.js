@@ -137,9 +137,25 @@ export default class Mouse {
     if (_event.touches) {
       this.isMouseMoved = true
 
+      // Set Default
+      this.default.x = _event.touches[0].clientX
+      this.default.y = _event.touches[0].clientY
+
       // Set Normalized
       this.normalized.current.x = (_event.touches[0].clientX / this.width) * 2 - 1
       this.normalized.current.y = -(_event.touches[0].clientY / this.height) * 2 + 1
+
+      // Set Drag
+      if (this.isMouseHolding) {
+        // Set Drag Distance
+        this.drag.distance = this.drag.start.distanceTo(this.default)
+
+        if (this.drag.start.x < this.default.x) {
+          this.drag.side = 'right'
+        } else {
+          this.drag.side = 'left'
+        }
+      }
     }
   }
 
