@@ -122,7 +122,9 @@ export default class Mouse {
       // Set Drag
       if (this.isMouseHolding) {
         // Set Drag Distance
-        this.drag.distance = this.drag.start.distanceTo(this.default)
+        this.drag.distance.default = this.drag.start.distanceTo(this.default)
+        this.drag.distance.separated.x = this.default.x - this.drag.start.x
+        this.drag.distance.separated.y = this.default.y - this.drag.start.y
 
         if (this.drag.start.x < this.default.x) {
           this.drag.side = 'right'
@@ -148,7 +150,9 @@ export default class Mouse {
       // Set Drag
       if (this.isMouseHolding) {
         // Set Drag Distance
-        this.drag.distance = this.drag.start.distanceTo(this.default)
+        this.drag.distance.default = this.drag.start.distanceTo(this.default)
+        this.drag.distance.separated.x = this.default.x - this.drag.start.x
+        this.drag.distance.separated.y = this.default.y - this.drag.start.y
 
         if (this.drag.start.x < this.default.x) {
           this.drag.side = 'right'
