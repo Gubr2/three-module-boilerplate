@@ -86,8 +86,6 @@ export default class SceneObjects {
             
             void main() {
               vec4 textureDiffuse = texture(tDiffuse, vUv);
-
-              // vec4 blendedColor = mix(texturePrevious, textureCurrent, 0.85);
             
               gl_FragColor = textureDiffuse;
               
@@ -115,10 +113,6 @@ export default class SceneObjects {
       samples: 1,
     })
 
-    this.renderTargetPostProcessing = new THREE.WebGLRenderTarget(this.gl.sizes.width * this.gl.sizes.pixelRatio, this.gl.sizes.height * this.gl.sizes.pixelRatio, {
-      samples: 1,
-    })
-
     /* 
       Camera
     */
@@ -138,12 +132,6 @@ export default class SceneObjects {
       Lighting
     */
     this.lighting = new Lighting()
-
-    /* 
-      Post-processing
-    */
-    this.postProcessingScene = new THREE.Scene()
-    this.postProcessingCamera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1)
     /* 
       Post-processing Plane
     */
@@ -154,8 +142,7 @@ export default class SceneObjects {
         new THREE.ShaderMaterial({
           //
           uniforms: {
-            tCurrent: new THREE.Uniform(null),
-            tPrevious: new THREE.Uniform(null),
+            tDiffuse: new THREE.Uniform(null),
           },
           vertexShader: /* glsl */ `
               varying vec2 vUv;
@@ -169,26 +156,18 @@ export default class SceneObjects {
           fragmentShader: /* glsl */ `
               varying vec2 vUv;
 
-              uniform sampler2D tCurrent;
-              uniform sampler2D tPrevious;  
+              uniform sampler2D tDiffuse;
               
               void main() {        
-                vec4 textureCurrent = texture(tCurrent, vUv);
-                vec4 texturePrevious = texture(tPrevious, vUv);
-
-                // vec4 blendedColor = mix(texturePrevious, textureCurrent, 0.85);
+                vec4 textureDiffuse = texture(tDiffuse, vUv);
             
-                gl_FragColor = texturePrevious + textureCurrent * 0.9;
-                
-                
+                gl_FragColor = textureDiffuse;
               }
             `,
           side: THREE.DoubleSide,
         })
       ),
     }
-
-    this.postProcessingScene.add(this.postProcessingPlane.mesh)
 
     /* 
       Functions
@@ -358,13 +337,7 @@ export default class SceneObjects {
 
     this.gl.renderer.instance.setRenderTarget(this.renderTarget)
     this.gl.renderer.instance.render(this.scene, this.camera)
-    this.postProcessingPlane.mesh.material.uniforms.tPrevious.value = this.renderTarget.texture
-
-    this.gl.renderer.instance.setRenderTarget(this.renderTargetPostProcessing)
-    this.gl.renderer.instance.render(this.postProcessingScene, this.postProcessingCamera)
-
-    this.renderPlane.mesh.material.uniforms.tDiffuse.value = this.renderTargetPostProcessing.texture
-    this.postProcessingPlane.mesh.material.uniforms.tCurrent.value = this.renderTargetPostProcessing.texture
+    this.renderPlane.mesh.material.uniforms.tDiffuse.value = this.renderTarget.texture
   }
 
   update() {
