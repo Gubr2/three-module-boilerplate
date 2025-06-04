@@ -132,42 +132,6 @@ export default class SceneObjects {
       Lighting
     */
     this.lighting = new Lighting()
-    /* 
-      Post-processing Plane
-    */
-    this.postProcessingPlane = {
-      mesh: new THREE.Mesh(
-        //
-        new THREE.PlaneGeometry(2, 2),
-        new THREE.ShaderMaterial({
-          //
-          uniforms: {
-            tDiffuse: new THREE.Uniform(null),
-          },
-          vertexShader: /* glsl */ `
-              varying vec2 vUv;
-      
-              void main() {
-                gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-              
-                vUv = uv;
-              }
-            `,
-          fragmentShader: /* glsl */ `
-              varying vec2 vUv;
-
-              uniform sampler2D tDiffuse;
-              
-              void main() {        
-                vec4 textureDiffuse = texture(tDiffuse, vUv);
-            
-                gl_FragColor = textureDiffuse;
-              }
-            `,
-          side: THREE.DoubleSide,
-        })
-      ),
-    }
 
     /* 
       Functions
