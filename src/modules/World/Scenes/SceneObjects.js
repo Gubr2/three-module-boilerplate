@@ -1,5 +1,5 @@
 import * as THREE from 'three/webgpu'
-import { positionLocal, positionGeometry, Fn, sin, cos, uvec2, vec2, vec3, vec4, mul, div, sub, add, float, Var, uniform, fract, texture, uv, oneMinus, pass, distance, time, smoothstep, passTexture, textureStore, instanceIndex, storageTexture, NodeAccess } from 'three/tsl'
+import { positionLocal, positionGeometry, Fn, sin, cos, uvec2, vec2, vec3, vec4, mul, div, sub, add, float, Var, uniform, fract, texture, uv, oneMinus, pass, distance, time, timerGlobal, smoothstep, passTexture, textureStore, instanceIndex, storageTexture, mx_noise_vec4 } from 'three/tsl'
 import { afterImage } from 'three/examples/jsm/tsl/display/AfterImageNode.js'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import gsap from 'gsap'
@@ -10,6 +10,7 @@ import Gl from '../../Gl'
 import Plane from '../Geometry/Plane'
 import Suzanne from '../Geometry/Suzanne'
 import Particles from '../Geometry/Particles'
+import FlowFields from '../Geometry/FlowFields'
 
 import Lighting from '../Lighting/Lighting'
 
@@ -93,7 +94,8 @@ export default class SceneObjects {
     })()
 
     this.renderPlane.mesh.material.colorNode = Fn(() => {
-      const color = texture(this.renderTarget.texture)
+      const noise = mx_noise_vec4(vec3(uv().x, uv().y, time))
+      const color = texture(this.renderTarget.texture, vec2(uv().x, uv().y.oneMinus()))
 
       return color
     })()
@@ -106,19 +108,24 @@ export default class SceneObjects {
     /* 
       Camera
     */
-    this.camera = new THREE.PerspectiveCamera(65, 1, 0.1, 100)
-    this.camera.position.set(0, -2, 2)
+    this.camera = new THREE.PerspectiveCamera(65, 1, 0.1, 1000)
 
     /* 
       Models
     */
     // this.plane = new Plane()
     // this.suzanne = new Suzanne()
-    this.particles = new Particles()
+    // this.particles = new Particles()
+    this.flowFields = new FlowFields({
+      camera: this.camera,
+    })
+
+    this.camera.position.set(0, this.flowFields.settings.dimensions.y, this.flowFields.settings.dimensions.z)
 
     // this.scene.add(this.plane.instance)
     // this.scene.add(this.suzanne.instance)
-    this.scene.add(this.particles.instance)
+    // this.scene.add(this.particles.instance)
+    this.scene.add(this.flowFields.instance)
 
     /* 
       Lighting
@@ -139,8 +146,9 @@ export default class SceneObjects {
 
   setOrbitControls() {
     this.controls = new OrbitControls(this.camera, this.gl.canvas)
+    this.controls.target.set(0, 0, 0)
     this.controls.enableDamping = true
-    this.controls.enableZoom = false
+    // this.controls.enableZoom = false
   }
 
   resize() {
@@ -287,7 +295,8 @@ export default class SceneObjects {
 
     // this.suzanne.update()
     // this.plane.update()
-    this.particles.update()
+    // this.particles.update()
+    this.flowFields.update()
 
     if (this.gl.isDebug) {
       this.controls.update()
