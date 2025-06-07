@@ -230,9 +230,6 @@ export default class SceneObjects {
           },
           // markers: true,
         },
-        onUpdate: (_self) => {
-          this.updateCameraAspect()
-        },
       }
     )
 
