@@ -11,6 +11,17 @@ export default class World {
     */
     this.selectors = []
     this.scenes = []
+
+    /* 
+      Debug
+    */
+    if (this.gl.isDebug) this.setDebug()
+  }
+
+  setDebug() {
+    this.debugWorldFolder = this.gl.debug.gui.addFolder({
+      title: 'World',
+    })
   }
 
   add() {

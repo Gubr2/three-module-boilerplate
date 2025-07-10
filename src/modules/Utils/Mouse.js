@@ -59,7 +59,10 @@ export default class Mouse {
     */
     this.drag = {
       start: new Vector2(),
-      distance: 0,
+      distance: {
+        default: 0,
+        separated: new Vector2(),
+      },
       side: 'left',
       pace: {
         default: 0,
@@ -81,6 +84,18 @@ export default class Mouse {
     // Up
     this.dom.addEventListener('mouseup', this.up.bind(this))
     this.dom.addEventListener('touchend', this.up.bind(this))
+
+    // Leave
+    this.dom.addEventListener('mouseleave', this.mouseleave.bind(this))
+    this.dom.addEventListener('touchleave', this.mouseleave.bind(this))
+  }
+
+  mouseleave() {
+    // this.default.set(0, 0)
+    // this.normalized.current.set(0, 0)
+    this.direction.set(0, 0)
+    this.pace.default = 0
+    this.pace.separated.set(0, 0)
   }
 
   mousemove(_event) {
@@ -218,13 +233,21 @@ export default class Mouse {
       Variables
     */
     let value = new Vector2()
+    let amount = _amount
 
     /* 
       Update
     */
     const update = (_delta) => {
-      value.x = MathUtils.damp(value.x, this.default.x, _amount, _delta)
-      value.y = MathUtils.damp(value.y, this.default.y, _amount, _delta)
+      value.x = MathUtils.damp(value.x, this.default.x, amount, _delta)
+      value.y = MathUtils.damp(value.y, this.default.y, amount, _delta)
+    }
+
+    /* 
+      Set Amount
+    */
+    const setAmount = (_amount) => {
+      amount = _amount
     }
 
     /* 
@@ -234,6 +257,7 @@ export default class Mouse {
     return {
       value,
       update,
+      setAmount,
     }
   }
 
@@ -245,13 +269,21 @@ export default class Mouse {
       Variables
     */
     let value = new Vector2()
+    let amount = _amount
 
     /* 
       Update
     */
     const update = (_delta) => {
-      value.x = MathUtils.damp(value.x, this.normalized.current.x, _amount, _delta)
-      value.y = MathUtils.damp(value.y, this.normalized.current.y, _amount, _delta)
+      value.x = MathUtils.damp(value.x, this.normalized.current.x, amount, _delta)
+      value.y = MathUtils.damp(value.y, this.normalized.current.y, amount, _delta)
+    }
+
+    /* 
+      Set Amount
+    */
+    const setAmount = (_amount) => {
+      amount = _amount
     }
 
     /* 
@@ -260,6 +292,7 @@ export default class Mouse {
     return {
       value,
       update,
+      setAmount,
     }
   }
 
@@ -271,13 +304,21 @@ export default class Mouse {
       Variables
     */
     let value = new Vector2()
+    let amount = _amount
 
     /* 
       Update
     */
     const update = (_delta) => {
-      value.x = MathUtils.damp(value.x, this.direction.x, _amount, _delta)
-      value.y = MathUtils.damp(value.y, this.direction.y, _amount, _delta)
+      value.x = MathUtils.damp(value.x, this.direction.x, amount, _delta)
+      value.y = MathUtils.damp(value.y, this.direction.y, amount, _delta)
+    }
+
+    /* 
+      Set Amount
+    */
+    const setAmount = (_amount) => {
+      amount = _amount
     }
 
     /* 
@@ -286,6 +327,7 @@ export default class Mouse {
     return {
       value,
       update,
+      setAmount,
     }
   }
 
@@ -300,15 +342,23 @@ export default class Mouse {
       default: 0,
       separated: new Vector2(),
     }
+    let amount = _amount
 
     /* 
       Update
     */
     const update = (_delta) => {
-      value.default = MathUtils.damp(value.default, this.pace.default, _amount, _delta)
+      value.default = MathUtils.damp(value.default, this.pace.default, amount, _delta)
 
-      value.separated.x = MathUtils.damp(value.separated.x, this.pace.separated.x, _amount, _delta)
-      value.separated.y = MathUtils.damp(value.separated.y, this.pace.separated.y, _amount, _delta)
+      value.separated.x = MathUtils.damp(value.separated.x, this.pace.separated.x, amount, _delta)
+      value.separated.y = MathUtils.damp(value.separated.y, this.pace.separated.y, amount, _delta)
+    }
+
+    /* 
+      Set Amount
+    */
+    const setAmount = (_amount) => {
+      amount = _amount
     }
 
     /* 
@@ -317,6 +367,7 @@ export default class Mouse {
     return {
       value,
       update,
+      setAmount,
     }
   }
 
@@ -334,16 +385,24 @@ export default class Mouse {
         separated: new Vector2(),
       },
     }
+    let amount = _amount
 
     /* 
       Update
     */
     const update = (_delta) => {
-      value.distance = MathUtils.damp(value.distance, this.drag.distance, _amount, _delta)
+      value.distance = MathUtils.damp(value.distance, this.drag.distance, amount, _delta)
 
-      value.pace.default = MathUtils.damp(value.pace.default, this.drag.pace.default, _amount, _delta)
-      value.pace.separated.x = MathUtils.damp(value.pace.separated.x, this.drag.pace.separated.x, _amount, _delta)
-      value.pace.separated.y = MathUtils.damp(value.pace.separated.y, this.drag.pace.separated.y, _amount, _delta)
+      value.pace.default = MathUtils.damp(value.pace.default, this.drag.pace.default, amount, _delta)
+      value.pace.separated.x = MathUtils.damp(value.pace.separated.x, this.drag.pace.separated.x, amount, _delta)
+      value.pace.separated.y = MathUtils.damp(value.pace.separated.y, this.drag.pace.separated.y, amount, _delta)
+    }
+
+    /* 
+      Set Amount
+    */
+    const setAmount = (_amount) => {
+      amount = _amount
     }
 
     /* 
