@@ -1,4 +1,3 @@
-import gsap from 'gsap'
 import { Pane } from 'tweakpane'
 import Stats from 'stats-gl'
 

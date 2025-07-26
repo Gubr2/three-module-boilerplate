@@ -87,7 +87,7 @@ export default class Gl {
     /* 
       Functions
     */
-    this.sizes.on('resize', () => {
+    window.addEventListener('resize', () => {
       this.resize()
     })
   }
@@ -136,6 +136,7 @@ export default class Gl {
 
   update() {
     if (this.isLoaded) {
+      this.time.update()
       this.world.update()
       this.renderer.update()
       this.mouse.update()

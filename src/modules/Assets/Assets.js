@@ -1,7 +1,7 @@
 import * as THREE from 'three'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader.js'
-import { FontLoader } from 'three/examples/jsm/loaders/FontLoader.js'
+// import { FontLoader } from 'three/examples/jsm/loaders/FontLoader.js'
 
 import Gl from '../Gl'
 
@@ -15,7 +15,7 @@ export default class Assets {
     this.gltfLoader = new GLTFLoader()
     this.rgbeLoader = new RGBELoader()
     this.textureLoader = new THREE.TextureLoader()
-    this.fontLoader = new FontLoader()
+    // this.fontLoader = new FontLoader()
 
     /* 
       Assets

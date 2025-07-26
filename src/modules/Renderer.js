@@ -15,7 +15,6 @@ export default class Rendered {
     })
 
     this.instance.setPixelRatio(this.gl.sizes.pixelRatio)
-    this.instance.outputEncoding = THREE.sRGBEncoding
     this.instance.setSize(this.gl.sizes.width, this.gl.sizes.height)
   }
 
