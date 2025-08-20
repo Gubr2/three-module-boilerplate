@@ -113,15 +113,6 @@ export default class Assets {
     this.promisesProgress = 0
 
     return new Promise(async (_resolve) => {
-      /*
-        Models
-      */
-      this.promises.push(
-        this.customModelLoader('/models/suzanne.glb', (_result) => {
-          this.models.suzanne = _result.scene.children[0]
-        })
-      )
-
       /* 
         HDRIs
       */

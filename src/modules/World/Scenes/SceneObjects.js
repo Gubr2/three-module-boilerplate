@@ -6,7 +6,6 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import Gl from '../../Gl'
 
 import Plane from '../Geometry/Plane'
-import Suzanne from '../Geometry/Suzanne'
 
 import Lighting from '../Lighting/Lighting'
 
@@ -38,7 +37,6 @@ export default class SceneObjects {
       Scene
     */
     this.scene = new THREE.Scene()
-    this.scene.environment = this.gl.assets.hdris.studio
 
     /* 
       Render Plane
@@ -123,10 +121,8 @@ export default class SceneObjects {
       Models
     */
     this.plane = new Plane()
-    this.suzanne = new Suzanne()
 
     this.scene.add(this.plane.instance)
-    this.scene.add(this.suzanne.instance)
 
     /* 
       Lighting
@@ -304,7 +300,6 @@ export default class SceneObjects {
   update() {
     if (!this.isRendering) return
 
-    this.suzanne.update()
     this.plane.update()
   }
 }
