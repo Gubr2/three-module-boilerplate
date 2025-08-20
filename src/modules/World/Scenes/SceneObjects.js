@@ -127,7 +127,7 @@ export default class SceneObjects {
       fov: 75,
       aspect: this.gl.sizes.width / this.gl.sizes.height,
       near: 0.1,
-      far: 1000,
+      far: 10,
     })
     this.camera.position.z = 2
 
