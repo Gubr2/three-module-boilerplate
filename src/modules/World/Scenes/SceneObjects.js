@@ -1,5 +1,4 @@
 import { Mesh, Plane, Program, RenderTarget, Transform, Camera, Vec2 } from 'ogl'
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
@@ -135,8 +134,8 @@ export default class SceneObjects {
       Models
     */
     this.defaultPlane = new DefaultPlane()
-
     this.defaultPlane.instance.setParent(this.scene)
+
     /* 
       Functions
     */

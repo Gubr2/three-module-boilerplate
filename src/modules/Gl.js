@@ -78,14 +78,6 @@ export default class Gl {
     */
     this.scene = new Transform()
     this.camera = new Camera(this.renderer.instance.gl)
-    this.camera.orthographic({
-      left: -this.sizes.aspect,
-      right: this.sizes.aspect,
-      top: 1,
-      bottom: -1,
-      near: 0.1,
-      far: 100,
-    })
 
     /* 
       Assets

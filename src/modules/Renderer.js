@@ -13,8 +13,8 @@ export default class Rendered {
       // antialias: true,
     })
 
-    this.instance.setSize(this.gl.sizes.width, this.gl.sizes.height)
     this.instance.dpr = this.gl.sizes.pixelRatio
+    this.instance.setSize(this.gl.sizes.width, this.gl.sizes.height)
   }
 
   update() {
@@ -31,7 +31,7 @@ export default class Rendered {
   }
 
   resize() {
-    this.instance.setSize(this.gl.sizes.width, this.gl.sizes.height)
     this.instance.dpr = this.gl.sizes.pixelRatio
+    this.instance.setSize(this.gl.sizes.width, this.gl.sizes.height)
   }
 }
