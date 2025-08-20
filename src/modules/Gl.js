@@ -1,6 +1,6 @@
 import WebGL from 'three/addons/capabilities/WebGL.js'
-import * as THREE from 'three'
 import gsap from 'gsap'
+import { Transform, Camera } from 'ogl'
 
 import Renderer from './Renderer'
 
@@ -76,8 +76,16 @@ export default class Gl {
     /* 
       Scene & Camera
     */
-    this.scene = new THREE.Scene()
-    this.camera = new THREE.Camera()
+    this.scene = new Transform()
+    this.camera = new Camera(this.renderer.instance.gl)
+    this.camera.orthographic({
+      left: -this.sizes.aspect,
+      right: this.sizes.aspect,
+      top: 1,
+      bottom: -1,
+      near: 0.1,
+      far: 100,
+    })
 
     /* 
       Assets
@@ -136,12 +144,17 @@ export default class Gl {
 
   update() {
     if (this.isLoaded) {
+      if (this.isDebug) this.debug.stats.begin()
+
       this.time.update()
       this.world.update()
       this.renderer.update()
       this.mouse.update()
 
-      if (this.isDebug) this.debug.update()
+      if (this.isDebug) {
+        this.debug.stats.end()
+        this.debug.stats.update()
+      }
     }
   }
 

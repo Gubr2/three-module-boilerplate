@@ -1,4 +1,4 @@
-import * as THREE from 'three'
+import { Renderer } from 'ogl'
 
 import Gl from './Gl'
 
@@ -6,16 +6,15 @@ export default class Rendered {
   constructor() {
     this.gl = new Gl()
 
-    this.instance = new THREE.WebGLRenderer({
+    this.instance = new Renderer({
       canvas: this.gl.canvas,
       powerPreference: 'high-performance',
       alpha: true,
       // antialias: true,
-      precision: 'lowp',
     })
 
-    this.instance.setPixelRatio(this.gl.sizes.pixelRatio)
     this.instance.setSize(this.gl.sizes.width, this.gl.sizes.height)
+    this.instance.dpr = this.gl.sizes.pixelRatio
   }
 
   update() {
@@ -24,12 +23,15 @@ export default class Rendered {
     }
 
     // // // // // // // // // //
-    this.instance.setRenderTarget(null)
-    this.instance.render(this.gl.scene, this.gl.camera)
+    // this.instance.setRenderTarget(null)
+    this.instance.render({
+      scene: this.gl.scene,
+      camera: this.gl.camera,
+    })
   }
 
   resize() {
-    this.instance.setPixelRatio(this.gl.sizes.pixelRatio)
     this.instance.setSize(this.gl.sizes.width, this.gl.sizes.height)
+    this.instance.dpr = this.gl.sizes.pixelRatio
   }
 }

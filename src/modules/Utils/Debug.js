@@ -7,9 +7,6 @@ export default class Debug {
   constructor() {
     this.gl = new Gl()
 
-    // Turn off renderer auto reset to have accurate stats for all scenes
-    this.gl.renderer.instance.info.autoReset = false
-
     // // // // // // // // // // // // // // // // // // // // //
     // GUI
     this.gui = new Pane({
@@ -58,22 +55,9 @@ export default class Debug {
       trackGPU: true,
       trackHz: true,
     })
-    this.stats.init(this.gl.renderer.instance)
+    this.stats.init(this.gl.renderer.instance.gl)
     document.body.appendChild(this.stats.dom)
   }
 
-  update() {
-    // Update stats
-    this.stats.update()
-
-    // Update GUI stats
-    this.guiStats.polygons = this.gl.renderer.instance.info.render.triangles
-    this.guiStats.geometries = this.gl.renderer.instance.info.memory.geometries
-    this.guiStats.programs = this.gl.renderer.instance.info.programs.length
-    this.guiStats.textures = this.gl.renderer.instance.info.memory.textures
-    this.guiStats.draw_calls = this.gl.renderer.instance.info.render.calls
-
-    // Reset renderer info
-    this.gl.renderer.instance.info.reset()
-  }
+  update() {}
 }

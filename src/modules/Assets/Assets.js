@@ -1,8 +1,3 @@
-import * as THREE from 'three'
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
-import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader.js'
-// import { FontLoader } from 'three/examples/jsm/loaders/FontLoader.js'
-
 import Gl from '../Gl'
 
 export default class Assets {
@@ -12,10 +7,6 @@ export default class Assets {
     /* 
       Loaders
     */
-    this.gltfLoader = new GLTFLoader()
-    this.rgbeLoader = new RGBELoader()
-    this.textureLoader = new THREE.TextureLoader()
-    // this.fontLoader = new FontLoader()
 
     /* 
       Assets
@@ -114,19 +105,11 @@ export default class Assets {
 
     return new Promise(async (_resolve) => {
       /* 
-        HDRIs
-      */
-      this.promises.push(
-        this.customHdriLoader('/hdri/studio_small_08_1k.hdr', (_result) => {
-          this.hdris.studio = _result
-          this.hdris.studio.mapping = THREE.EquirectangularReflectionMapping
-        })
-      )
-
-      /* 
         Await
       */
-      await Promise.all(this.promises)
+      if (this.promises.length > 0) {
+        await Promise.all(this.promises)
+      }
 
       _resolve()
 
