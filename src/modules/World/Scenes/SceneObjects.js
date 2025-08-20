@@ -143,16 +143,6 @@ export default class SceneObjects {
     this.setIsRendering()
     this.getBounds()
     this.setScroll()
-
-    if (this.gl.isDebug) {
-      this.setOrbitControls()
-    }
-  }
-
-  setOrbitControls() {
-    this.controls = new OrbitControls(this.camera, this.gl.canvas)
-    this.controls.enableDamping = true
-    this.controls.enableZoom = false
   }
 
   resize() {

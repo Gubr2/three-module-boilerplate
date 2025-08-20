@@ -1,11 +1,13 @@
-import { Mesh, Plane, Program, RenderTarget, Transform, Camera, Vec2 } from 'ogl'
+import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
 import Gl from '../../Gl'
 
-import DefaultPlane from '../Geometry/DefaultPlane'
+import Plane from '../Geometry/Plane'
+
+import Lighting from '../Lighting/Lighting'
 
 export default class SceneObjects {
   constructor(_params) {
@@ -34,30 +36,24 @@ export default class SceneObjects {
     /* 
       Scene
     */
-    this.scene = new Transform()
+    this.scene = new THREE.Scene()
 
     /* 
       Render Plane
     */
     this.renderPlane = {
-      mesh: new Mesh(this.gl.renderer.instance.gl, {
+      mesh: new THREE.Mesh(
         //
-        geometry: new Plane(this.gl.renderer.instance.gl, {
-          width: 1,
-          height: 1,
-        }),
-        program: new Program(this.gl.renderer.instance.gl, {
+        new THREE.PlaneGeometry(1, 1),
+        new THREE.ShaderMaterial({
           uniforms: {
-            tDiffuse: { value: null },
+            tDiffuse: new THREE.Uniform(null),
 
-            uScale: { value: new Vec2(this.gl.sizes.width, this.gl.sizes.height) },
-            uPosition: { value: new Vec2(0, 0) },
-            uResolution: { value: new Vec2(this.gl.sizes.width, this.gl.sizes.height) },
+            uScale: new THREE.Uniform(new THREE.Vector2(this.gl.sizes.width, this.gl.sizes.height)),
+            uPosition: new THREE.Uniform(new THREE.Vector2(0, 0)),
+            uResolution: new THREE.Uniform(new THREE.Vector2(this.gl.sizes.width, this.gl.sizes.height)),
           },
-          vertex: /* glsl */ `
-            attribute vec3 position;
-            attribute vec2 uv;
-
+          vertexShader: /* glsl */ `
             varying vec2 vUv;
 
             uniform vec2 uPosition;
@@ -81,26 +77,23 @@ export default class SceneObjects {
               vUv = uv;
             }
           `,
-          fragment: /* glsl */ `
-            precision highp float;
-           
+          fragmentShader: /* glsl */ `
             varying vec2 vUv;
 
             uniform sampler2D tDiffuse;
             
             void main() {
-              vec4 textureDiffuse = texture2D(tDiffuse, vUv);
+              vec4 textureDiffuse = texture(tDiffuse, vUv);
             
-              gl_FragColor.rgb = textureDiffuse.rgb;
-              gl_FragColor.a = 1.0;
+              gl_FragColor = textureDiffuse;
               
               // Debug
               // gl_FragColor.rgb += vec3(vUv.x, vUv.y, 0.0);
               // gl_FragColor.a = 1.0;
             }
           `,
-        }),
-      }),
+        })
+      ),
     }
 
     this.renderPlane.mesh.frustumCulled = false
@@ -114,29 +107,28 @@ export default class SceneObjects {
     /* 
       Render Target
     */
-    this.renderTarget = new RenderTarget(this.gl.renderer.instance.gl, {
-      width: this.gl.sizes.width * this.gl.sizes.pixelRatio,
-      height: this.gl.sizes.height * this.gl.sizes.pixelRatio,
+    this.renderTarget = new THREE.WebGLRenderTarget(this.gl.sizes.width * this.gl.sizes.pixelRatio, this.gl.sizes.height * this.gl.sizes.pixelRatio, {
+      samples: 1,
     })
 
     /* 
       Camera
     */
-    this.camera = new Camera(this.gl.renderer.instance.gl)
-    this.camera.perspective({
-      fov: 75,
-      aspect: this.gl.sizes.width / this.gl.sizes.height,
-      near: 0.1,
-      far: 10,
-    })
+    this.camera = new THREE.PerspectiveCamera(75, this.gl.sizes.width / this.gl.sizes.height, 0.1, 1000)
     this.camera.position.z = 2
 
     /* 
       Models
     */
-    this.defaultPlane = new DefaultPlane()
+    this.plane = new Plane()
 
-    this.defaultPlane.instance.setParent(this.scene)
+    this.scene.add(this.plane.instance)
+
+    /* 
+      Lighting
+    */
+    this.lighting = new Lighting()
+
     /* 
       Functions
     */
@@ -172,7 +164,7 @@ export default class SceneObjects {
     // this.renderPlane.mesh.material.uniforms.uPosition.value.y = (-this.renderPlane.bounds.top / this.gl.sizes.height) * 2
 
     // Camera
-    this.camera.aspect = this.renderPlane.mesh.program.uniforms.uScale.value.x / this.renderPlane.mesh.program.uniforms.uScale.value.y
+    this.camera.aspect = this.renderPlane.mesh.material.uniforms.uScale.value.x / this.renderPlane.mesh.material.uniforms.uScale.value.y
     this.camera.updateProjectionMatrix()
   }
 
@@ -202,9 +194,9 @@ export default class SceneObjects {
   getBounds() {
     this.bounds = this.params.dom.getBoundingClientRect()
 
-    this.renderPlane.mesh.program.uniforms.uResolution.value.set(this.gl.sizes.width, this.gl.sizes.height)
-    this.renderPlane.mesh.program.uniforms.uPosition.value.x = this.bounds.left
-    this.renderPlane.mesh.program.uniforms.uScale.value.set(this.bounds.width, this.bounds.height)
+    this.renderPlane.mesh.material.uniforms.uResolution.value.set(this.gl.sizes.width, this.gl.sizes.height)
+    this.renderPlane.mesh.material.uniforms.uPosition.value.x = this.bounds.left
+    this.renderPlane.mesh.material.uniforms.uScale.value.set(this.bounds.width, this.bounds.height)
   }
 
   setScroll() {
@@ -212,7 +204,7 @@ export default class SceneObjects {
       Basic
     */
     gsap.fromTo(
-      this.renderPlane.mesh.program.uniforms.uPosition.value,
+      this.renderPlane.mesh.material.uniforms.uPosition.value,
       {
         y: () => Math.max(this.gl.sizes.height, this.bounds.height),
       },
@@ -300,17 +292,14 @@ export default class SceneObjects {
   renderPipeline() {
     if (!this.isRendering) return
 
-    this.gl.renderer.instance.render({
-      scene: this.scene,
-      camera: this.camera,
-      target: this.renderTarget,
-    })
-    this.renderPlane.mesh.program.uniforms.tDiffuse.value = this.renderTarget.texture
+    this.gl.renderer.instance.setRenderTarget(this.renderTarget)
+    this.gl.renderer.instance.render(this.scene, this.camera)
+    this.renderPlane.mesh.material.uniforms.tDiffuse.value = this.renderTarget.texture
   }
 
   update() {
     if (!this.isRendering) return
 
-    this.defaultPlane.update()
+    this.plane.update()
   }
 }
