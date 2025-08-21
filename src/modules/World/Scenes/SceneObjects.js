@@ -91,7 +91,7 @@ export default class SceneObjects {
               vec4 textureDiffuse = texture2D(tDiffuse, vUv);
             
               gl_FragColor.rgb = textureDiffuse.rgb;
-              gl_FragColor.a = 1.0;
+              gl_FragColor.a = textureDiffuse.a;
               
               // Debug
               // gl_FragColor.rgb += vec3(vUv.x, vUv.y, 0.0);
@@ -294,6 +294,7 @@ export default class SceneObjects {
       camera: this.camera,
       target: this.renderTarget,
     })
+
     this.renderPlane.mesh.program.uniforms.tDiffuse.value = this.renderTarget.texture
   }
 
