@@ -66,7 +66,9 @@ export default class Gl {
     */
     this.time = new Time()
     this.sizes = new Sizes()
-    this.mouse = new Mouse()
+    this.mouse = new Mouse('[data-gl="objects"]', {
+      limitToBounds: true,
+    })
 
     /* 
       Renderer
