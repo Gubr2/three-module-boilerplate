@@ -1,5 +1,7 @@
 import Gl from '../Gl'
 
+import { Texture, TextureLoader, GLTFLoader } from 'ogl'
+
 export default class Assets {
   constructor() {
     this.gl = new Gl()
@@ -19,39 +21,27 @@ export default class Assets {
 
   customTextureLoader(_path, _target) {
     return new Promise((_resolve) => {
-      this.textureLoader.load(
-        _path,
-        (_result) => {
-          _resolve()
+      const texture = new Texture(this.gl.renderer.instance.gl)
 
-          _target(_result)
+      TextureLoader.loadImage(this.gl.renderer.instance.gl, _path, texture, true).then((_result) => {
+        _resolve()
 
-          if (this.gl.isDebug) this.logProgress(_path)
-        },
-        undefined,
-        (_error) => {
-          console.error(_error)
-        }
-      )
+        _target(texture)
+
+        if (this.gl.isDebug) this.logProgress(_path)
+      })
     })
   }
 
   customModelLoader(_path, _target) {
     return new Promise((_resolve) => {
-      this.gltfLoader.load(
-        _path,
-        (_result) => {
-          _resolve()
+      GLTFLoader.load(this.gl.renderer.instance.gl, _path).then((_result) => {
+        _resolve()
 
-          _target(_result)
+        _target(_result)
 
-          if (this.gl.isDebug) this.logProgress(_path)
-        },
-        undefined,
-        (_error) => {
-          console.error(_error)
-        }
-      )
+        if (this.gl.isDebug) this.logProgress(_path)
+      })
     })
   }
 
