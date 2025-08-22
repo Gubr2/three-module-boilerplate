@@ -3,13 +3,29 @@ import { Vector2, MathUtils } from 'three'
 import Gl from '../Gl'
 
 export default class Mouse {
-  constructor(_dom) {
+  constructor(_dom, _params = {}) {
     this.gl = new Gl()
 
     /* 
-      DOM
+      Bound
     */
-    this.dom = _dom ? _dom : document
+    this.bounds = _dom
+      ? document.querySelector(_dom).getBoundingClientRect()
+      : {
+          left: 0,
+          top: 0,
+          width: window.innerWidth,
+          height: window.innerHeight,
+          right: window.innerWidth,
+          bottom: window.innerHeight,
+        }
+
+    /* 
+      Params
+    */
+    this.params = {
+      limitToBounds: _params.limitToBounds || false,
+    }
 
     /* 
       Flags
@@ -20,8 +36,8 @@ export default class Mouse {
     /* 
       Sizes
     */
-    this.width = this.dom == document ? window.innerWidth : this.dom.offsetWidth
-    this.height = this.dom == document ? window.innerHeight : this.dom.offsetHeight
+    this.width = this.gl.sizes.width
+    this.height = this.gl.sizes.height
 
     /* 
       Default
@@ -74,20 +90,20 @@ export default class Mouse {
     // EVENTS
 
     // Move
-    this.dom.addEventListener('mousemove', this.mousemove.bind(this))
-    this.dom.addEventListener('touchmove', this.touchmove.bind(this))
+    document.addEventListener('mousemove', this.mousemove.bind(this))
+    document.addEventListener('touchmove', this.touchmove.bind(this))
 
     // Down
-    this.dom.addEventListener('mousedown', this.down.bind(this))
-    this.dom.addEventListener('touchstart', this.down.bind(this))
+    document.addEventListener('mousedown', this.down.bind(this))
+    document.addEventListener('touchstart', this.down.bind(this))
 
     // Up
-    this.dom.addEventListener('mouseup', this.up.bind(this))
-    this.dom.addEventListener('touchend', this.up.bind(this))
+    document.addEventListener('mouseup', this.up.bind(this))
+    document.addEventListener('touchend', this.up.bind(this))
 
     // Leave
-    this.dom.addEventListener('mouseleave', this.mouseleave.bind(this))
-    this.dom.addEventListener('touchleave', this.mouseleave.bind(this))
+    document.addEventListener('mouseleave', this.mouseleave.bind(this))
+    document.addEventListener('touchleave', this.mouseleave.bind(this))
   }
 
   mouseleave() {
@@ -99,53 +115,30 @@ export default class Mouse {
   }
 
   mousemove(_event) {
-    if (this.dom == document) {
-      this.isMouseMoved = true
+    this.isMouseMoved = true
 
-      // Set Default
-      this.default.x = _event.clientX
-      this.default.y = _event.clientY
+    // Set Default
+    this.default.x = _event.clientX - this.bounds.left
+    this.default.y = _event.clientY - this.bounds.top
 
-      // Set Normalized
-      this.normalized.current.x = (_event.clientX / this.width) * 2 - 1
-      this.normalized.current.y = -(_event.clientY / this.height) * 2 + 1
+    if (this.params.limitToBounds) {
+      this.default.x = Math.max(0, Math.min(this.bounds.width, this.default.x))
+      this.default.y = Math.max(0, Math.min(this.bounds.height, this.default.y))
+    }
 
-      // Set Drag
-      if (this.isMouseHolding) {
-        // Set Drag Distance
-        this.drag.distance = this.drag.start.distanceTo(this.default)
+    // Set Normalized
+    this.normalized.current.x = (this.default.x / this.bounds.width) * 2 - 1
+    this.normalized.current.y = -(this.default.y / this.bounds.height) * 2 + 1
 
-        if (this.drag.start.x < this.default.x) {
-          this.drag.side = 'right'
-        } else {
-          this.drag.side = 'left'
-        }
-      }
-    } else {
-      if (_event.target != this.dom) return
+    // Set Drag
+    if (this.isMouseHolding) {
+      // Set Drag Distance
+      this.drag.distance = this.drag.start.distanceTo(this.default)
 
-      this.isMouseMoved = true
-
-      // Set Default
-      this.default.x = _event.offsetX
-      this.default.y = _event.offsetY
-
-      // Set Normalized
-      this.normalized.current.x = (_event.offsetX / this.width) * 2 - 1
-      this.normalized.current.y = -(_event.offsetY / this.height) * 2 + 1
-
-      // Set Drag
-      if (this.isMouseHolding) {
-        // Set Drag Distance
-        this.drag.distance.default = this.drag.start.distanceTo(this.default)
-        this.drag.distance.separated.x = this.default.x - this.drag.start.x
-        this.drag.distance.separated.y = this.default.y - this.drag.start.y
-
-        if (this.drag.start.x < this.default.x) {
-          this.drag.side = 'right'
-        } else {
-          this.drag.side = 'left'
-        }
+      if (this.drag.start.x < this.default.x) {
+        this.drag.side = 'right'
+      } else {
+        this.drag.side = 'left'
       }
     }
   }
@@ -155,12 +148,17 @@ export default class Mouse {
       this.isMouseMoved = true
 
       // Set Default
-      this.default.x = _event.touches[0].clientX
-      this.default.y = _event.touches[0].clientY
+      this.default.x = _event.touches[0].clientX - this.bounds.left
+      this.default.y = _event.touches[0].clientY - this.bounds.top
+
+      if (this.params.limitToBounds) {
+        this.default.x = Math.max(0, Math.min(this.bounds.width, this.default.x))
+        this.default.y = Math.max(0, Math.min(this.bounds.height, this.default.y))
+      }
 
       // Set Normalized
-      this.normalized.current.x = (_event.touches[0].clientX / this.width) * 2 - 1
-      this.normalized.current.y = -(_event.touches[0].clientY / this.height) * 2 + 1
+      this.normalized.current.x = (this.default.x / this.bounds.width) * 2 - 1
+      this.normalized.current.y = -(this.default.y / this.bounds.height) * 2 + 1
 
       // Set Drag
       if (this.isMouseHolding) {
@@ -197,8 +195,8 @@ export default class Mouse {
   }
 
   resize() {
-    this.width = this.dom == document ? window.innerWidth : this.dom.offsetWidth
-    this.height = this.dom == document ? window.innerHeight : this.dom.offsetHeight
+    this.width = this.bounds == document ? window.innerWidth : this.bounds.offsetWidth
+    this.height = this.bounds == document ? window.innerHeight : this.bounds.offsetHeight
   }
 
   update() {
