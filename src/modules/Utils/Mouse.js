@@ -149,9 +149,11 @@ export default class Mouse {
 
       // Set Default
       this.default.x = _event.touches[0].clientX - this.bounds.left
-      this.default.y = _event.touches[0].clientY - this.bounds.top
+      this.default.y = _event.touches[0].pageY - this.bounds.top
 
       if (this.params.limitToBounds) {
+        if (this.default.x < 0 || this.default.x > this.bounds.width || this.default.y < 0 || this.default.y > this.bounds.height) return
+
         this.default.x = Math.max(0, Math.min(this.bounds.width, this.default.x))
         this.default.y = Math.max(0, Math.min(this.bounds.height, this.default.y))
       }
