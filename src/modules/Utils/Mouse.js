@@ -7,10 +7,15 @@ export default class Mouse {
     this.gl = new Gl()
 
     /* 
+      DOM
+    */
+    this.dom = _dom
+
+    /* 
       Bound
     */
-    this.bounds = _dom
-      ? document.querySelector(_dom).getBoundingClientRect()
+    this.bounds = this.dom
+      ? this.getPositionOfDom()
       : {
           left: 0,
           top: 0,
@@ -119,9 +124,11 @@ export default class Mouse {
 
     // Set Default
     this.default.x = _event.clientX - this.bounds.left
-    this.default.y = _event.clientY - this.bounds.top
+    this.default.y = _event.pageY - this.bounds.top
 
     if (this.params.limitToBounds) {
+      if (this.default.x < 0 || this.default.x > this.bounds.width || this.default.y < 0 || this.default.y > this.bounds.height) return
+
       this.default.x = Math.max(0, Math.min(this.bounds.width, this.default.x))
       this.default.y = Math.max(0, Math.min(this.bounds.height, this.default.y))
     }
@@ -197,8 +204,34 @@ export default class Mouse {
   }
 
   resize() {
-    this.width = this.bounds == document ? window.innerWidth : this.bounds.offsetWidth
-    this.height = this.bounds == document ? window.innerHeight : this.bounds.offsetHeight
+    if (this.dom) {
+      this.bounds = this.getPositionOfDom()
+    } else {
+      this.bounds = {
+        left: 0,
+        top: 0,
+        width: window.innerWidth,
+        height: window.innerHeight,
+        right: window.innerWidth,
+        bottom: window.innerHeight,
+      }
+
+      this.width = window.innerWidth
+      this.height = window.innerHeight
+    }
+  }
+
+  getPositionOfDom() {
+    const rect = this.dom.getBoundingClientRect()
+
+    return {
+      left: rect.left,
+      top: rect.top + window.scrollY,
+      width: rect.width,
+      height: rect.height,
+      right: rect.right,
+      bottom: rect.bottom,
+    }
   }
 
   update() {

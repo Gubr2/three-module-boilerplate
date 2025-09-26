@@ -37,6 +37,7 @@ export default class SceneObjects {
       Scene
     */
     this.scene = new THREE.Scene()
+    this.scene.matrixAutoUpdate = false
 
     /* 
       Render Plane
@@ -45,7 +46,7 @@ export default class SceneObjects {
       mesh: new THREE.Mesh(
         //
         new THREE.PlaneGeometry(1, 1),
-        new THREE.ShaderMaterial({
+        new THREE.RawShaderMaterial({
           uniforms: {
             tDiffuse: new THREE.Uniform(null),
 
@@ -54,11 +55,14 @@ export default class SceneObjects {
             uResolution: new THREE.Uniform(new THREE.Vector2(this.gl.sizes.width, this.gl.sizes.height)),
           },
           vertexShader: /* glsl */ `
-            varying vec2 vUv;
+            attribute vec2 uv;
+            attribute vec3 position;
 
             uniform vec2 uPosition;
             uniform vec2 uScale;
             uniform vec2 uResolution;
+
+            varying vec2 vUv;
 
             void main() {
               vec2 pos = position.xy * 2.0;
@@ -78,12 +82,14 @@ export default class SceneObjects {
             }
           `,
           fragmentShader: /* glsl */ `
+            precision lowp float;
+
             varying vec2 vUv;
 
             uniform sampler2D tDiffuse;
             
             void main() {
-              vec4 textureDiffuse = texture(tDiffuse, vUv);
+              vec4 textureDiffuse = texture2D(tDiffuse, vUv);
             
               gl_FragColor = textureDiffuse;
               
@@ -109,6 +115,8 @@ export default class SceneObjects {
     */
     this.renderTarget = new THREE.WebGLRenderTarget(this.gl.sizes.width * this.gl.sizes.pixelRatio, this.gl.sizes.height * this.gl.sizes.pixelRatio, {
       samples: 1,
+      depthBuffer: false,
+      stencilBuffer: false,
     })
 
     /* 
@@ -294,6 +302,7 @@ export default class SceneObjects {
 
     this.gl.renderer.instance.setRenderTarget(this.renderTarget)
     this.gl.renderer.instance.render(this.scene, this.camera)
+
     this.renderPlane.mesh.material.uniforms.tDiffuse.value = this.renderTarget.texture
   }
 
