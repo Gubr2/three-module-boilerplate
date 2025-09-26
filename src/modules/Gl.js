@@ -55,6 +55,7 @@ export default class Gl {
       Flags
     */
     this.isLoaded = false
+    this.didResizedBeforeWebglLoaded = false
 
     /* 
       Canvas
@@ -89,6 +90,10 @@ export default class Gl {
     */
     window.addEventListener('resize', () => {
       this.resize()
+
+      if (!this.isLoaded) {
+        this.didResizedBeforeWebglLoaded = true
+      }
     })
   }
 
@@ -101,6 +106,13 @@ export default class Gl {
           this.isLoaded = true
 
           _resolve()
+
+          /* 
+            Fix accidental rescale before webgl is loaded
+          */
+          if (this.didResizedBeforeWebglLoaded) {
+            this.resize()
+          }
         })
       } else {
         // Fallback
@@ -146,6 +158,8 @@ export default class Gl {
   }
 
   resize() {
+    this.sizes.resize()
+
     if (this.isLoaded) {
       this.renderer.resize()
       this.world.resize()
