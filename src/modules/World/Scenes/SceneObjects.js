@@ -230,13 +230,13 @@ export default class SceneObjects {
       Sticky
     */
     // Enter
-    // gsap.fromTo(
-    //   this.renderPlane.bounds,
+    //  gsap.fromTo(
+    //   this.renderPlane.mesh.program.uniforms.uPosition.value,
     //   {
-    //     top: () => this.gl.sizes.height,
+    //     y: () => this.gl.sizes.height,
     //   },
     //   {
-    //     top: 0,
+    //     y: 0,
     //     ease: 'none',
     //     scrollTrigger: {
     //       invalidateOnRefresh: true,
@@ -246,25 +246,25 @@ export default class SceneObjects {
     //       end: () => `top top`,
     //       onRefresh: () => {
     //         // this.getBounds();
-    //         this.updateCameraAspect();
+    //         this.updateCameraAspect()
     //       },
     //       refreshPriority: -99,
     //       // markers: true,
     //     },
     //     onUpdate: (_self) => {
-    //       this.updateCameraAspect();
+    //       this.updateCameraAspect()
     //     },
     //   }
-    // );
+    // )
 
     // // Leave
     // gsap.fromTo(
-    //   this.renderPlane.bounds,
+    //   this.renderPlane.mesh.program.uniforms.uPosition.value,
     //   {
-    //     top: 0,
+    //     y: 0,
     //   },
     //   {
-    //     top: () => -this.gl.sizes.height,
+    //     y: () => -this.gl.sizes.height,
     //     ease: 'none',
     //     scrollTrigger: {
     //       invalidateOnRefresh: true,
@@ -274,16 +274,16 @@ export default class SceneObjects {
     //       end: () => `bottom+=${this.gl.sizes.height} bottom`,
     //       onRefresh: () => {
     //         // this.getBounds();
-    //         this.updateCameraAspect();
+    //         this.updateCameraAspect()
     //       },
     //       refreshPriority: -99,
-    //       // markers: true,
+    //       markers: true,
     //     },
     //     onUpdate: (_self) => {
-    //       this.updateCameraAspect();
+    //       this.updateCameraAspect()
     //     },
     //   }
-    // );
+    // )
   }
 
   renderPipeline() {
