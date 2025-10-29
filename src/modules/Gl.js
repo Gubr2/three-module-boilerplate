@@ -151,6 +151,8 @@ export default class Gl {
   }
 
   resize() {
+    this.sizes.resize()
+
     if (this.isLoaded) {
       this.renderer.resize()
       this.world.resize()

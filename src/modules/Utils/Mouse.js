@@ -124,7 +124,7 @@ export default class Mouse {
 
     // Set Default
     this.default.x = _event.clientX - this.bounds.left
-    this.default.y = _event.pageY - this.bounds.top
+    this.default.y = this.dom ? _event.pageY - this.bounds.top : _event.clientY - this.bounds.top
 
     if (this.params.limitToBounds) {
       if (this.default.x < 0 || this.default.x > this.bounds.width || this.default.y < 0 || this.default.y > this.bounds.height) return
@@ -156,7 +156,7 @@ export default class Mouse {
 
       // Set Default
       this.default.x = _event.touches[0].clientX - this.bounds.left
-      this.default.y = _event.touches[0].pageY - this.bounds.top
+      this.default.y = this.dom ? _event.touches[0].pageY - this.bounds.top : _event.touches[0].clientY - this.bounds.top
 
       if (this.params.limitToBounds) {
         if (this.default.x < 0 || this.default.x > this.bounds.width || this.default.y < 0 || this.default.y > this.bounds.height) return
