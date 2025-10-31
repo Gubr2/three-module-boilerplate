@@ -95,7 +95,7 @@ export default class Gl {
   load() {
     return new Promise((_resolve) => {
       if (WebGL.isWebGL2Available()) {
-        Promise.all([this.loadDOM(), this.assets.load()]).then(() => {
+        this.assets.load().then(() => {
           this.init()
 
           this.isLoaded = true
@@ -118,20 +118,6 @@ export default class Gl {
     this.world.add()
 
     console.log('[WebGL] [ █ █ █ █ █ █ ] -', 'Initialized')
-  }
-
-  loadDOM() {
-    return new Promise((_resolve) => {
-      if (document.readyState === 'interactive') {
-        console.log('[WebGL] [ █ █         ] -', 'DOM loaded')
-        _resolve()
-      } else {
-        document.addEventListener('DOMContentLoaded', () => {
-          console.log('[WebGL] [ █ █         ] -', 'DOM loaded')
-          _resolve()
-        })
-      }
-    })
   }
 
   update() {

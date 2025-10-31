@@ -103,7 +103,7 @@ export default class Assets {
 
       _resolve()
 
-      console.log('[WebGL] [ █ █ █ █     ] -', 'Assets loaded')
+      console.log('[WebGL] [ █ █ █       ] -', 'Assets loaded')
     })
   }
 }
