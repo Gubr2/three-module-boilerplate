@@ -134,16 +134,14 @@ export default class Gl {
 
   update() {
     if (this.isLoaded) {
-      if (this.isDebug) this.debug.stats.begin()
+      if (this.isDebug) this.debug.perf.begin()
 
       this.time.update()
       this.world.update()
       this.renderer.update()
       this.mouse.update()
 
-      if (this.isDebug) this.debug.stats.end()
-
-      if (this.isDebug) this.debug.update()
+      if (this.isDebug) this.debug.perf.end()
     }
   }
 

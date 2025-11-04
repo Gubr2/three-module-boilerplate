@@ -9,13 +9,14 @@
   },
   "devDependencies": {
     "sass": "^1.62.1",
+    "three-perf": "^1.0.11",
     "vite": "^4.0.4",
     "vite-plugin-glsl": "^1.2.1"
   },
   "dependencies": {
     "gsap": "^3.12.7",
     "stats-gl": "^3.6.0",
-    "three": "^0.173.0",
+    "three": "^0.181.0",
     "tweakpane": "^4.0.5"
   }
 }
