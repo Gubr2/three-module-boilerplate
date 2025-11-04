@@ -38,6 +38,7 @@ export default class Debug {
       domElement: document.body,
       renderer: this.gl.renderer.instance,
       showGraph: false,
+      overClock: false,
     })
   }
 
