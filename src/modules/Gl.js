@@ -100,7 +100,7 @@ export default class Gl {
   load() {
     return new Promise((_resolve) => {
       if (WebGL.isWebGL2Available()) {
-        Promise.all([this.loadDOM(), this.assets.load()]).then(() => {
+        this.assets.load().then(() => {
           this.init()
 
           this.isLoaded = true
