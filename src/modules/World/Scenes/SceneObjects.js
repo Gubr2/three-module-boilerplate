@@ -7,8 +7,6 @@ import Gl from '../../Gl'
 
 import Plane from '../Geometry/Plane'
 
-import Lighting from '../Lighting/Lighting'
-
 export default class SceneObjects {
   constructor(_params) {
     gsap.registerPlugin(ScrollTrigger)
@@ -126,11 +124,6 @@ export default class SceneObjects {
     this.plane = new Plane()
 
     this.scene.add(this.plane.instance)
-
-    /* 
-      Lighting
-    */
-    this.lighting = new Lighting()
 
     /* 
       Functions

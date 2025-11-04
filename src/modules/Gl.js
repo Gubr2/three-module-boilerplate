@@ -8,7 +8,6 @@ import World from './World/World'
 
 import Time from './Utils/Time'
 import Sizes from './Utils/Sizes'
-import Debug from './Utils/Debug'
 import Mouse from './Utils/Mouse'
 
 import Assets from './Assets/Assets'
@@ -44,7 +43,7 @@ export default class Gl {
       Get Debug 
     */
     this.urlParams = new URLSearchParams(window.location.search)
-    this.isDebug = this.urlParams.has('debug')
+    this.isDebug = this.urlParams.has('debug') && import.meta.env.DEV
 
     /* 
       Params
@@ -121,8 +120,11 @@ export default class Gl {
     })
   }
 
-  init() {
-    if (this.isDebug) this.debug = new Debug()
+  async init() {
+    if (this.isDebug) {
+      const Debug = (await import('./Utils/Debug')).default
+      this.debug = new Debug()
+    }
 
     this.world = new World()
     gsap.ticker.add(this.update.bind(this))
