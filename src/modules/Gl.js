@@ -55,6 +55,7 @@ export default class Gl {
       Flags
     */
     this.isLoaded = false
+    this.didResizedBeforeWebglLoaded = false
 
     /* 
       Canvas
@@ -89,6 +90,10 @@ export default class Gl {
     */
     window.addEventListener('resize', () => {
       this.resize()
+
+      if (!this.isLoaded) {
+        this.didResizedBeforeWebglLoaded = true
+      }
     })
   }
 
