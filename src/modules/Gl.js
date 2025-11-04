@@ -132,20 +132,6 @@ export default class Gl {
     console.log('[WebGL] [ █ █ █ █ █ █ ] -', 'Initialized')
   }
 
-  loadDOM() {
-    return new Promise((_resolve) => {
-      if (document.readyState === 'interactive') {
-        console.log('[WebGL] [ █ █         ] -', 'DOM loaded')
-        _resolve()
-      } else {
-        document.addEventListener('DOMContentLoaded', () => {
-          console.log('[WebGL] [ █ █         ] -', 'DOM loaded')
-          _resolve()
-        })
-      }
-    })
-  }
-
   update() {
     if (this.isLoaded) {
       this.time.update()

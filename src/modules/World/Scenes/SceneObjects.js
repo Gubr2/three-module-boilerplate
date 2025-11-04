@@ -46,7 +46,7 @@ export default class SceneObjects {
       mesh: new THREE.Mesh(
         //
         new THREE.PlaneGeometry(1, 1),
-        new THREE.RawShaderMaterial({
+        new THREE.ShaderMaterial({
           uniforms: {
             tDiffuse: new THREE.Uniform(null),
 
@@ -55,9 +55,6 @@ export default class SceneObjects {
             uResolution: new THREE.Uniform(new THREE.Vector2(this.gl.sizes.width, this.gl.sizes.height)),
           },
           vertexShader: /* glsl */ `
-            attribute vec2 uv;
-            attribute vec3 position;
-
             uniform vec2 uPosition;
             uniform vec2 uScale;
             uniform vec2 uResolution;
@@ -82,8 +79,6 @@ export default class SceneObjects {
             }
           `,
           fragmentShader: /* glsl */ `
-            precision lowp float;
-
             varying vec2 vUv;
 
             uniform sampler2D tDiffuse;
