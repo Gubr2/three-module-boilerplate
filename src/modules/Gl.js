@@ -106,6 +106,13 @@ export default class Gl {
           this.isLoaded = true
 
           _resolve()
+
+          /* 
+            Fix accidental rescale before webgl is loaded
+          */
+          if (this.didResizedBeforeWebglLoaded) {
+            this.resize()
+          }
         })
       } else {
         // Fallback
