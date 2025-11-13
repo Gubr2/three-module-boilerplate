@@ -120,10 +120,9 @@ export default class Gl {
     })
   }
 
-  if (this.isDebug) {
+  async init() {
     const Debug = (await import('./Utils/Debug')).default
     this.debug = new Debug()
-  }
 
     this.world = new World()
     gsap.ticker.add(this.update.bind(this))
