@@ -29,11 +29,9 @@ export default class World {
 
     this.selectors.forEach((_scene, _index) => {
       if (_scene.dataset.gl === 'objects') {
-        this.scenes.push(
-          new SceneObjects({
-            dom: _scene,
-          })
-        )
+        this.scenes.objects = new SceneObjects({
+          dom: _scene,
+        })
       }
     })
 
