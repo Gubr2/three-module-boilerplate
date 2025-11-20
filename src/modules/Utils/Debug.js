@@ -40,6 +40,8 @@ export default class Debug {
       showGraph: false,
       overClock: false,
     })
+
+    console.log(this.perf)
   }
 
   update() {}
