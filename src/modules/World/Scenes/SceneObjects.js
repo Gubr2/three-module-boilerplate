@@ -106,11 +106,7 @@ export default class SceneObjects {
     /* 
       Render Target
     */
-    this.renderTarget = new THREE.WebGLRenderTarget(this.gl.sizes.width * this.gl.sizes.pixelRatio, this.gl.sizes.height * this.gl.sizes.pixelRatio, {
-      samples: 1,
-      depthBuffer: false,
-      stencilBuffer: false,
-    })
+    this.renderTarget = new THREE.WebGLRenderTarget(this.gl.sizes.width * this.gl.sizes.pixelRatio, this.gl.sizes.height * this.gl.sizes.pixelRatio, {})
 
     /* 
       Camera
