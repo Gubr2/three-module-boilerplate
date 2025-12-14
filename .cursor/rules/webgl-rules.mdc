@@ -51,10 +51,10 @@ src/webgl/
   }
   ```
 
-### The Loop
+### The Update Loop
 
 - The render loop is managed by `gsap.ticker` in `Gl.js`.
-- `Gl.update()` calls `time.update()`, `world.update()`, `renderer.update()`, etc.
+- The global `Gl.update()` calls `time.update()`, `world.update()`, `renderer.update()`, etc. Nothing else should be called from a custom `requestAnimationFrame()` to keep full control of the render order.
 
 ## 4. Scene Architecture (DOM Integration)
 
@@ -71,7 +71,7 @@ The project uses a **Render-to-Texture** approach to map 3D scenes to DOM elemen
 
 To create a new scene type (e.g., for a specific DOM component), do **NOT** write it from scratch.
 
-1. **Copy the Template**: Use `src/webgl/World/Scenes/SceneBoilerplate.js` as the base. Copy this file to create your new scene (e.g., `src/webgl/World/Scenes/MyScene.js`).
+1. **Copy the Template**: Use `src/webgl/World/Scenes/SceneBoilerplate.js` as the base. Copy this file to create your new scene (e.g., `src/webgl/World/Scenes/SceneNew.js`).
 2. **Rename Class**: Rename the class inside the file to match your new file name.
 3. **Register in World.js**:
 
@@ -81,8 +81,8 @@ To create a new scene type (e.g., for a specific DOM component), do **NOT** writ
 
    ```javascript
    this.selectors.forEach((_scene) => {
-     if (_scene.dataset.gl === 'my-new-scene') {
-       this.scenes.myNewScene = new MyNewScene({
+     if (_scene.dataset.gl === 'new') {
+       this.scenes.myNewScene = new SceneNew({
          dom: _scene,
          isFollowingDom: true,
        })
@@ -92,7 +92,9 @@ To create a new scene type (e.g., for a specific DOM component), do **NOT** writ
 
 ### How a Scene Works
 
-The `SceneBoilerplate.js` file contains the essential logic for the Render-to-Texture system:
+The scene contains the essential logic for the Render-to-Texture system:
+
+- **Params**:
 
 - **`this.renderPlane`**: This is a Quad (Mesh) added to the **Main Global Scene**. It displays the output of this local scene.
 
@@ -110,10 +112,13 @@ The `SceneBoilerplate.js` file contains the essential logic for the Render-to-Te
   3. Updates `this.renderPlane` texture with the result (`tDiffuse`).
 
 - **DOM Syncing (`getBounds`, `setScroll`)**:
+
   - `getBounds()` calculates the DOM element's position.
   - `setScroll()` uses GSAP to update the `uPosition` uniform during scroll, keeping the 3D content visually attached to the HTML element.
   - **Important**: Position calculation works only if `_params.isFollowingDom` is set to `true`. Otherwise, the quad defaults to fullscreen coverage.
   - `ScrollTrigger` toggles `this.isRendering` to optimize performance when off-screen.
+
+- **Debugging**: `setDebug()` is where all the debugging bindings goes for the scene.
 
 ## 5. Asset Management
 
