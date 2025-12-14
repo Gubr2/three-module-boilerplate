@@ -5,8 +5,6 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
 import Gl from '../../Gl'
 
-import Plane from '../Geometry/Plane'
-
 export default class SceneObjects {
   constructor(_params) {
     gsap.registerPlugin(ScrollTrigger)
@@ -45,6 +43,9 @@ export default class SceneObjects {
         //
         new THREE.PlaneGeometry(1, 1),
         new THREE.ShaderMaterial({
+          defines: {
+            IS_FOLLOWING_DOM: this.params?.isFollowingDom ? 1 : 0,
+          },
           uniforms: {
             tDiffuse: new THREE.Uniform(null),
 
@@ -62,6 +63,8 @@ export default class SceneObjects {
             void main() {
               vec2 pos = position.xy * 2.0;
 
+              #ifdef IS_FOLLOWING_DOM
+
               // Scale
               pos.x *= uScale.x / uResolution.x;
               pos.y *= uScale.y / uResolution.y;
@@ -69,6 +72,8 @@ export default class SceneObjects {
               // Position
               pos.x += - 1.0 + uPosition.x / uResolution.x * 2. + uScale.x / uResolution.x;
               pos.y -= uPosition.y / uResolution.y * 2.0;
+
+              #endif
               
               gl_Position = vec4(pos.xy, 0.0, 1.0);
             
@@ -106,7 +111,10 @@ export default class SceneObjects {
     /* 
       Render Target
     */
-    this.renderTarget = new THREE.WebGLRenderTarget(this.gl.sizes.width * this.gl.sizes.pixelRatio, this.gl.sizes.height * this.gl.sizes.pixelRatio, {})
+    this.renderTarget = new THREE.WebGLRenderTarget(this.gl.sizes.width * this.gl.sizes.pixelRatio, this.gl.sizes.height * this.gl.sizes.pixelRatio, {
+      // depthBuffer: false,
+      // stencilBuffer: false,
+    })
 
     /* 
       Camera
@@ -117,19 +125,41 @@ export default class SceneObjects {
     /* 
       Models
     */
-    this.plane = new Plane()
+    this.plane = new THREE.Mesh(
+      new THREE.PlaneGeometry(1, 1),
+      new THREE.ShaderMaterial({
+        //
+        vertexShader: /* glsl */ `
+        varying vec2 vUv;
 
-    this.scene.add(this.plane.instance)
+        void main() {
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        
+          vUv = uv;
+        }
+      `,
+        fragmentShader: /* glsl */ `
+        varying vec2 vUv;
+        
+        void main() {        
+          gl_FragColor = vec4(vec3(vUv.x, vUv.y, 0.0), 1.0);
+        }
+      `,
+        side: THREE.DoubleSide,
+      })
+    )
+
+    this.scene.add(this.plane)
 
     /* 
       Functions
     */
     this.setIsRendering()
     this.getBounds()
-    this.setScroll()
-
+    if (this.params?.isFollowingDom) this.setScroll()
     if (this.gl.isDebug) {
       this.setOrbitControls()
+      this.setDebug()
     }
   }
 
@@ -141,6 +171,9 @@ export default class SceneObjects {
 
   resize() {
     this.renderTarget.setSize(this.gl.sizes.width * this.gl.sizes.pixelRatio, this.gl.sizes.height * this.gl.sizes.pixelRatio)
+
+    this.getBounds()
+    this.updateCameraAspect()
   }
 
   updateCameraAspect() {
@@ -184,11 +217,16 @@ export default class SceneObjects {
   }
 
   getBounds() {
-    this.bounds = this.params.dom.getBoundingClientRect()
+    if (this.params?.isFollowingDom) {
+      this.bounds = this.params.dom.getBoundingClientRect()
 
-    this.renderPlane.mesh.material.uniforms.uResolution.value.set(this.gl.sizes.width, this.gl.sizes.height)
-    this.renderPlane.mesh.material.uniforms.uPosition.value.x = this.bounds.left
-    this.renderPlane.mesh.material.uniforms.uScale.value.set(this.bounds.width, this.bounds.height)
+      this.renderPlane.mesh.material.uniforms.uResolution.value.set(this.gl.sizes.width, this.gl.sizes.height)
+      this.renderPlane.mesh.material.uniforms.uPosition.value.x = this.bounds.left
+      this.renderPlane.mesh.material.uniforms.uScale.value.set(this.bounds.width, this.bounds.height)
+    } else {
+      this.renderPlane.mesh.material.uniforms.uResolution.value.set(this.gl.sizes.width, this.gl.sizes.height)
+      this.renderPlane.mesh.material.uniforms.uScale.value.set(this.gl.sizes.width, this.gl.sizes.height)
+    }
   }
 
   setScroll() {
@@ -211,12 +249,10 @@ export default class SceneObjects {
           end: () => `center+=${Math.max(this.gl.sizes.height, this.bounds.height)} top+=${this.gl.sizes.height / 2}`,
           refreshPriority: -99,
           // markers: true,
-
-          onRefresh: () => {
-            this.getBounds()
-            this.updateCameraAspect()
-          },
-          // markers: true,
+          // onRefresh: () => {
+          //   this.getBounds()
+          //   this.updateCameraAspect()
+          // },
         },
       }
     )
@@ -281,6 +317,12 @@ export default class SceneObjects {
     // );
   }
 
+  setDebug() {
+    this.debugFolder = this.gl.world.debugFolder.addFolder({
+      title: 'Boilerplate',
+    })
+  }
+
   renderPipeline() {
     if (!this.isRendering) return
 
@@ -293,6 +335,6 @@ export default class SceneObjects {
   update() {
     if (!this.isRendering) return
 
-    this.plane.update()
+    this.plane.position.y = Math.sin(this.gl.time.elapsed)
   }
 }

@@ -8,7 +8,7 @@ body {
   height: 300vh !important;
 }
 
-canvas {
+[data-gl-canvas] {
   position: fixed;
   top: 0;
   left: 0;
@@ -16,7 +16,7 @@ canvas {
   z-index: 9;
 }
 
-[data-gl='objects'] {
+[data-gl='boilerplate'] {
   position: relative;
   top: 50vh;
   left: 25vh;

@@ -1,6 +1,6 @@
 import Gl from '../Gl'
 
-import SceneObjects from './Scenes/SceneObjects'
+import SceneBoilerplate from './Scenes/SceneBoilerplate'
 
 export default class World {
   constructor() {
@@ -10,7 +10,7 @@ export default class World {
       Scenes
     */
     this.selectors = []
-    this.scenes = []
+    this.scenes = {}
 
     /* 
       Debug
@@ -19,7 +19,7 @@ export default class World {
   }
 
   setDebug() {
-    this.debugWorldFolder = this.gl.debug.gui.addFolder({
+    this.debugFolder = this.gl.debug.gui.addFolder({
       title: 'World',
     })
   }
@@ -28,9 +28,10 @@ export default class World {
     this.selectors = document.querySelectorAll('[data-gl]')
 
     this.selectors.forEach((_scene, _index) => {
-      if (_scene.dataset.gl === 'objects') {
-        this.scenes.objects = new SceneObjects({
+      if (_scene.dataset.gl === 'boilerplate') {
+        this.scenes.boilerplate = new SceneBoilerplate({
           dom: _scene,
+          isFollowingDom: true,
         })
       }
     })

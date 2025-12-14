@@ -1,6 +1,6 @@
 import * as THREE from 'three'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
-import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader.js'
+import { HDRLoader } from 'three/examples/jsm/loaders/HDRLoader.js'
 // import { FontLoader } from 'three/examples/jsm/loaders/FontLoader.js'
 
 import Gl from '../Gl'
@@ -13,7 +13,7 @@ export default class Assets {
       Loaders
     */
     this.gltfLoader = new GLTFLoader()
-    this.rgbeLoader = new RGBELoader()
+    this.hdriLoader = new HDRLoader()
     this.textureLoader = new THREE.TextureLoader()
     // this.fontLoader = new FontLoader()
 
@@ -66,7 +66,7 @@ export default class Assets {
 
   customHdriLoader(_path, _target) {
     return new Promise((_resolve) => {
-      this.rgbeLoader.load(
+      this.hdriLoader.load(
         _path,
         (_result) => {
           _resolve()
