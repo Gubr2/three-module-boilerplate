@@ -26,102 +26,200 @@ export default class Assets {
     this.fonts = {}
   }
 
-  customTextureLoader(_path, _target) {
-    return new Promise((_resolve) => {
-      this.textureLoader.load(
-        _path,
-        (_result) => {
-          _resolve()
+  customTextureLoader(_path, _target, _isAsync = false) {
+    const loader = () =>
+      new Promise((_resolve) => {
+        this.textureLoader.load(
+          _path,
+          (_result) => {
+            _resolve()
 
-          _target(_result)
+            _target(_result)
 
-          if (this.gl.isDebug) this.logProgress(_path)
-        },
-        undefined,
-        (_error) => {
-          console.error(_error)
-        }
-      )
-    })
+            if (_isAsync) {
+              this.logAsyncProgress(_path)
+            } else {
+              this.logProgress(_path)
+            }
+          },
+          undefined,
+          (_error) => {
+            console.error(_error)
+          }
+        )
+      })
+
+    if (_isAsync) {
+      this.promisesAsync.push(loader)
+    } else {
+      const promise = loader()
+      this.promises.push(promise)
+      return promise
+    }
   }
 
-  customModelLoader(_path, _target) {
-    return new Promise((_resolve) => {
-      this.gltfLoader.load(
-        _path,
-        (_result) => {
-          _resolve()
+  customKTX2TextureLoader(_path, _target, _isAsync = false) {
+    const loader = () =>
+      new Promise((_resolve) => {
+        this.ktx2Loader.load(
+          _path,
+          (_result) => {
+            _resolve()
 
-          _target(_result)
+            _result.colorSpace = THREE.LinearSRGBColorSpace
 
-          if (this.gl.isDebug) this.logProgress(_path)
-        },
-        undefined,
-        (_error) => {
-          console.error(_error)
-        }
-      )
-    })
+            _target(_result)
+
+            if (_isAsync) {
+              this.logAsyncProgress(_path)
+            } else {
+              this.logProgress(_path)
+            }
+          },
+          undefined,
+          (_error) => {
+            console.error(_error)
+          }
+        )
+      })
+
+    if (_isAsync) {
+      this.promisesAsync.push(loader)
+    } else {
+      const promise = loader()
+      this.promises.push(promise)
+      return promise
+    }
   }
 
-  customHdriLoader(_path, _target) {
-    return new Promise((_resolve) => {
-      this.hdriLoader.load(
-        _path,
-        (_result) => {
-          _resolve()
+  customModelLoader(_path, _target, _isAsync = false) {
+    const loader = () =>
+      new Promise((_resolve) => {
+        this.gltfLoader.load(
+          _path,
+          (_result) => {
+            _resolve()
 
-          _target(_result)
+            _target(_result)
 
-          if (this.gl.isDebug) this.logProgress(_path)
-        },
-        undefined,
-        (_error) => {
-          console.error(_error)
-        }
-      )
-    })
+            if (_isAsync) {
+              this.logAsyncProgress(_path)
+            } else {
+              this.logProgress(_path)
+            }
+          },
+          undefined,
+          (_error) => {
+            console.error(_error)
+          }
+        )
+      })
+
+    if (_isAsync) {
+      this.promisesAsync.push(loader)
+    } else {
+      const promise = loader()
+
+      this.promises.push(promise)
+
+      return promise
+    }
   }
 
-  customFontLoader(_path, _target) {
-    return new Promise((_resolve) => {
-      this.fontLoader.load(
-        _path,
-        (_result) => {
-          _resolve()
+  customHdriLoader(_path, _target, _isAsync = false) {
+    const loader = () =>
+      new Promise((_resolve) => {
+        this.hdriLoader.load(
+          _path,
+          (_result) => {
+            _target(_result)
 
-          _target(_result)
+            _resolve()
 
-          if (this.gl.isDebug) this.logProgress(_path)
-        },
-        undefined,
-        (_error) => {
-          console.error(_error)
-        }
-      )
-    })
+            if (_isAsync) {
+              this.logAsyncProgress(_path)
+            } else {
+              this.logProgress(_path)
+            }
+          },
+          undefined,
+          (_error) => {
+            console.error(_error)
+          }
+        )
+      })
+
+    if (_isAsync) {
+      this.promisesAsync.push(loader)
+    } else {
+      const promise = loader()
+
+      this.promises.push(promise)
+
+      return promise
+    }
+  }
+
+  customFontLoader(_path, _target, _isAsync = false) {
+    const loader = () =>
+      new Promise((_resolve) => {
+        this.fontLoader.load(
+          _path,
+          (_result) => {
+            _resolve()
+
+            _target(_result)
+
+            if (_isAsync) {
+              this.logAsyncProgress(_path)
+            } else {
+              this.logProgress(_path)
+            }
+          },
+          undefined,
+          (_error) => {
+            console.error(_error)
+          }
+        )
+      })
+
+    if (_isAsync) {
+      this.promisesAsync.push(loader)
+    } else {
+      const promise = loader()
+      this.promises.push(promise)
+      return promise
+    }
   }
 
   logProgress(_path) {
     this.promisesProgress++
 
-    console.info(`[WebGL] [ ${this.promisesProgress}/${this.promises.length} asset loaded ] -`, _path)
+    if (this.gl.isDebug) console.info(`[WebGL] [ ${this.promisesProgress}/${this.promises.length} asset loaded ] -`, _path)
+  }
+
+  logProgressAsync(_path) {
+    this.promisesAsyncProgress++
+
+    if (this.gl.isDebug) console.info(`[WebGL] [ ${this.promisesAsyncProgress}/${this.promisesAsync.length} async asset loaded ] -`, _path)
   }
 
   load() {
     this.promises = []
     this.promisesProgress = 0
 
+    this.promisesAsync = []
+    this.promisesAsyncProgress = 0
+
     return new Promise(async (_resolve) => {
       /* 
-        HDRIs
+        Textures
       */
-      this.promises.push(
-        this.customHdriLoader('/hdri/studio_small_08_1k.hdr', (_result) => {
-          this.hdris.studio = _result
-          this.hdris.studio.mapping = THREE.EquirectangularReflectionMapping
-        })
-      )
+      this.customTextureLoader('/textures/noise.png', (_result) => {
+        this.textures.noise = _result
+        this.textures.noise.wrapS = THREE.RepeatWrapping
+        this.textures.noise.wrapT = THREE.RepeatWrapping
+      })
 
       /* 
         Await
@@ -131,6 +229,18 @@ export default class Assets {
       _resolve()
 
       console.log('[WebGL] [ █ █ █ █     ] -', 'Assets loaded')
+
+      // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+      // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+      // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+
+      /* 
+        Async
+      */
+      this.promisesAsync.map((_fn) => _fn()) // Async promises needs to be called manually, thats why they are placed in arrow functions
+      Promise.all(this.promisesAsync).then(() => {
+        console.log('[WebGL] [  A S Y N C  ] -', 'Async assets loaded')
+      })
     })
   }
 }

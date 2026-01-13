@@ -63,7 +63,7 @@ export default class SceneObjects {
             void main() {
               vec2 pos = position.xy * 2.0;
 
-              #ifdef IS_FOLLOWING_DOM
+              #if IS_FOLLOWING_DOM
 
               // Scale
               pos.x *= uScale.x / uResolution.x;
