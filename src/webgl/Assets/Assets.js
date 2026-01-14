@@ -198,7 +198,7 @@ export default class Assets {
     if (this.gl.isDebug) console.info(`[WebGL] [ ${this.promisesProgress}/${this.promises.length} asset loaded ] -`, _path)
   }
 
-  logProgressAsync(_path) {
+  logAsyncProgress(_path) {
     this.promisesAsyncProgress++
 
     if (this.gl.isDebug) console.info(`[WebGL] [ ${this.promisesAsyncProgress}/${this.promisesAsync.length} async asset loaded ] -`, _path)
