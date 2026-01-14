@@ -4,7 +4,7 @@ import gsap from 'gsap'
 
 import Gl from '../../../Gl'
 
-export default class GPGPUParticles {
+export default class Fireflies {
   constructor() {
     this.gl = new Gl()
 
@@ -125,20 +125,20 @@ export default class GPGPUParticles {
       transparent: true,
       // blending: THREE.AdditiveBlending,
       uniforms: {
-        uSize: new THREE.Uniform(0.1), // 0.15 With size-attenuation
+        tParticlesTexture: new THREE.Uniform(null),
+
         uResolution: new THREE.Uniform(new THREE.Vector2(this.gl.sizes.width * this.gl.sizes.pixelRatio, this.gl.sizes.height * this.gl.sizes.pixelRatio)),
-        uParticlesTexture: new THREE.Uniform(null),
-        uBokeh: new THREE.Uniform(0.0),
+
         uFocusDistance: new THREE.Uniform(7.5),
         uFocusRange: new THREE.Uniform(0.25),
-        uCloseUpBokeh: new THREE.Uniform(0.0),
 
         COLOR: new THREE.Uniform(new THREE.Color(0xffffff)),
+        ALPHA: new THREE.Uniform(0.5),
+        SIZE: new THREE.Uniform(0.05),
       },
       vertexShader: /* glsl */ `
         uniform vec2 uResolution;
-        uniform float uSize;
-        uniform sampler2D uParticlesTexture;
+        uniform sampler2D tParticlesTexture;
 
         uniform float uFocusDistance;
         uniform float uFocusRange;
@@ -149,9 +149,11 @@ export default class GPGPUParticles {
         varying vec2 vParticlesUv;
         varying float vLifeSize;
         varying float vDepth;
+        
+        uniform float SIZE;
 
         void main() {
-          vec4 particle = texture2D(uParticlesTexture, aParticlesUv);
+          vec4 particle = texture2D(tParticlesTexture, aParticlesUv);
 
           // Final position
           vec4 modelPosition = modelMatrix * vec4(particle.xyz, 1.0);
@@ -165,7 +167,7 @@ export default class GPGPUParticles {
           float lifeSize = min(lifeIn, lifeOut);
       
           // Point size (with distance attenuation)
-          float distanceAttenuation = (1.0 / -viewPosition.z) * uSize;
+          float distanceAttenuation = (1.0 / -viewPosition.z) * SIZE;
           gl_PointSize = aRandom * lifeSize * uResolution.y * distanceAttenuation;
       
           // Varyings
@@ -181,20 +183,21 @@ export default class GPGPUParticles {
         varying float vLifeSize;
         varying float vDepth;
 
-        uniform sampler2D uParticlesTexture;
-        uniform float uBokeh;
+        uniform sampler2D tParticlesTexture;
 
         uniform vec3 COLOR;
+        uniform float ALPHA;
+        uniform float SIZE;
 
         void main() {
-          vec4 particle = texture2D(uParticlesTexture, vParticlesUv);
+          vec4 particle = texture2D(tParticlesTexture, vParticlesUv);
 
           float distanceToCenter = length(gl_PointCoord - 0.5) * 2.0;
           if(distanceToCenter > 1.0) discard;
 
-          float alpha = smoothstep(1.0, 1.0 - vDepth, distanceToCenter);
+          float alpha = smoothstep(1.0, 1.0 - vDepth, distanceToCenter) * vLifeSize;
 
-          vec4 color = vec4(COLOR, alpha);
+          vec4 color = vec4(COLOR, alpha * ALPHA);
 
           gl_FragColor = color;
         }
@@ -217,6 +220,6 @@ export default class GPGPUParticles {
     this.gpgpu.particlesVariable.material.uniforms.uTime.value = this.gl.time.elapsed * this.settings.speed
     this.gpgpu.particlesVariable.material.uniforms.uDeltaTime.value = this.gl.time.delta * 0.001 * this.settings.speed
     this.gpgpu.computation.compute()
-    this.particles.material.uniforms.uParticlesTexture.value = this.gpgpu.computation.getCurrentRenderTarget(this.gpgpu.particlesVariable).texture
+    this.particles.material.uniforms.tParticlesTexture.value = this.gpgpu.computation.getCurrentRenderTarget(this.gpgpu.particlesVariable).texture
   }
 }

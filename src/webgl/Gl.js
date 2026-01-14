@@ -9,6 +9,7 @@ import World from './World/World'
 import Time from './Utils/Time'
 import Sizes from './Utils/Sizes'
 import Mouse from './Utils/Mouse'
+import ShaderChunks from './Utils/ShaderChunks'
 
 import Assets from './Assets/Assets'
 
@@ -67,6 +68,7 @@ export default class Gl {
     this.time = new Time()
     this.sizes = new Sizes()
     this.mouse = new Mouse()
+    this.shaderChunks = new ShaderChunks()
 
     /* 
       Renderer
