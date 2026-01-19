@@ -1,0 +1,230 @@
+import { Texture, TextureLoader } from 'ogl'
+
+import Gl from '../Gl'
+
+export default class Assets {
+  constructor() {
+    this.gl = new Gl()
+
+    /* 
+      Assets
+    */
+    this.models = {}
+    this.textures = {}
+    this.hdris = {}
+    this.fonts = {}
+  }
+
+  customTextureLoader(_path, _target, _isAsync = false) {
+    const loader = () =>
+      new Promise((_resolve) => {
+        const texture = new Texture(this.gl.renderer.instance.gl)
+
+        TextureLoader.loadImage(this.gl.renderer.instance.gl, _path, texture, true).then((_result) => {
+          _resolve()
+
+          _target(texture)
+
+          if (_isAsync) {
+            this.logAsyncProgress(_path)
+          } else {
+            this.logProgress(_path)
+          }
+        })
+      })
+
+    if (_isAsync) {
+      this.promisesAsync.push(loader)
+    } else {
+      const promise = loader()
+      this.promises.push(promise)
+      return promise
+    }
+  }
+
+  customKTX2TextureLoader(_path, _target, _isAsync = false) {
+    const loader = () =>
+      new Promise((_resolve) => {
+        this.ktx2Loader.load(
+          _path,
+          (_result) => {
+            _resolve()
+
+            _result.colorSpace = THREE.LinearSRGBColorSpace
+
+            _target(_result)
+
+            if (_isAsync) {
+              this.logAsyncProgress(_path)
+            } else {
+              this.logProgress(_path)
+            }
+          },
+          undefined,
+          (_error) => {
+            console.error(_error)
+          }
+        )
+      })
+
+    if (_isAsync) {
+      this.promisesAsync.push(loader)
+    } else {
+      const promise = loader()
+      this.promises.push(promise)
+      return promise
+    }
+  }
+
+  customModelLoader(_path, _target, _isAsync = false) {
+    const loader = () =>
+      new Promise((_resolve) => {
+        this.gltfLoader.load(
+          _path,
+          (_result) => {
+            _resolve()
+
+            _target(_result)
+
+            if (_isAsync) {
+              this.logAsyncProgress(_path)
+            } else {
+              this.logProgress(_path)
+            }
+          },
+          undefined,
+          (_error) => {
+            console.error(_error)
+          }
+        )
+      })
+
+    if (_isAsync) {
+      this.promisesAsync.push(loader)
+    } else {
+      const promise = loader()
+
+      this.promises.push(promise)
+
+      return promise
+    }
+  }
+
+  customHdriLoader(_path, _target, _isAsync = false) {
+    const loader = () =>
+      new Promise((_resolve) => {
+        this.hdriLoader.load(
+          _path,
+          (_result) => {
+            _target(_result)
+
+            _resolve()
+
+            if (_isAsync) {
+              this.logAsyncProgress(_path)
+            } else {
+              this.logProgress(_path)
+            }
+          },
+          undefined,
+          (_error) => {
+            console.error(_error)
+          }
+        )
+      })
+
+    if (_isAsync) {
+      this.promisesAsync.push(loader)
+    } else {
+      const promise = loader()
+
+      this.promises.push(promise)
+
+      return promise
+    }
+  }
+
+  customFontLoader(_path, _target, _isAsync = false) {
+    const loader = () =>
+      new Promise((_resolve) => {
+        this.fontLoader.load(
+          _path,
+          (_result) => {
+            _resolve()
+
+            _target(_result)
+
+            if (_isAsync) {
+              this.logAsyncProgress(_path)
+            } else {
+              this.logProgress(_path)
+            }
+          },
+          undefined,
+          (_error) => {
+            console.error(_error)
+          }
+        )
+      })
+
+    if (_isAsync) {
+      this.promisesAsync.push(loader)
+    } else {
+      const promise = loader()
+      this.promises.push(promise)
+      return promise
+    }
+  }
+
+  logProgress(_path) {
+    this.promisesProgress++
+
+    if (this.gl.isDebug) console.info(`[WebGL] [ ${this.promisesProgress}/${this.promises.length} asset loaded ] -`, _path)
+  }
+
+  logAsyncProgress(_path) {
+    this.promisesAsyncProgress++
+
+    if (this.gl.isDebug) console.info(`[WebGL] [ ${this.promisesAsyncProgress}/${this.promisesAsync.length} async asset loaded ] -`, _path)
+  }
+
+  load() {
+    this.promises = []
+    this.promisesProgress = 0
+
+    this.promisesAsync = []
+    this.promisesAsyncProgress = 0
+
+    return new Promise(async (_resolve) => {
+      /* 
+        Textures
+      */
+      this.customTextureLoader('/textures/noise.png', (_result) => {
+        this.textures.noise = _result
+        this.textures.noise.wrapS = this.gl.renderer.instance.gl.REPEAT
+        this.textures.noise.wrapT = this.gl.renderer.instance.gl.REPEAT
+      })
+
+      /* 
+        Await
+      */
+      await Promise.all(this.promises)
+
+      _resolve()
+
+      console.log('[WebGL] [ █ █ █ █     ] -', 'Assets loaded')
+
+      // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+      // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+      // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+
+      /* 
+        Async
+      */
+      this.promisesAsync.map((_fn) => _fn()) // Async promises needs to be called manually, thats why they are placed in arrow functions
+      Promise.all(this.promisesAsync).then(() => {
+        console.log('[WebGL] [  A S Y N C  ] -', 'Async assets loaded')
+      })
+    })
+  }
+}
