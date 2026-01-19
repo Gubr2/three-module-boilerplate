@@ -12,7 +12,7 @@ export default class SceneObjects {
     /* 
       Setup
     */
-    this.id = 'objects'
+    this.id = 'boilerplate'
 
     /* 
       Params
