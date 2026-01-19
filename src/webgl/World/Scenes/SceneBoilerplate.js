@@ -4,7 +4,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import Gl from '../../Gl'
 import { Camera, Geometry, Program, RenderTarget, Mesh, Vec2, Transform } from 'ogl'
 
-export default class SceneObjects {
+export default class SceneBoilerplate {
   constructor(_params) {
     gsap.registerPlugin(ScrollTrigger)
 
@@ -40,11 +40,11 @@ export default class SceneObjects {
     this.renderPlane = {
       mesh: new Mesh(this.gl.renderer.instance.gl, {
         //
-        geometry: new Geometry({
+        geometry: new Geometry(this.gl.renderer.instance.gl, {
           width: 1,
           height: 1,
         }),
-        program: new Program({
+        program: new Program(this.gl.renderer.instance.gl, {
           defines: {
             IS_FOLLOWING_DOM: this.params?.isFollowingDom ? 1 : 0,
           },
@@ -138,11 +138,11 @@ export default class SceneObjects {
     this.plane = new Mesh(
       this.gl.renderer.instance.gl,
       {
-        geometry: new Geometry({
+        geometry: new Geometry(this.gl.renderer.instance.gl, {
           width: 1,
           height: 1,
         }),
-        program: new Program({
+        program: new Program(this.gl.renderer.instance.gl, {
           vertex: /* glsl */ `
             varying vec2 vUv;
   
