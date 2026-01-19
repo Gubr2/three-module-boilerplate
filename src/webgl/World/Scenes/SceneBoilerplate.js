@@ -5,7 +5,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
 import Gl from '../../Gl'
 
-export default class SceneObjects {
+export default class SceneBoilerplate {
   constructor(_params) {
     gsap.registerPlugin(ScrollTrigger)
 
