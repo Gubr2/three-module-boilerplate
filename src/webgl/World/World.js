@@ -37,7 +37,7 @@ export default class World {
     })
 
     for (const key in this.scenes) {
-      this.gl.scene.add(this.scenes[key].renderPlane.mesh)
+      this.gl.scene.addChild(this.scenes[key].renderPlane.mesh)
     }
   }
 

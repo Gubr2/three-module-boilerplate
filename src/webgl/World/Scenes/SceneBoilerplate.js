@@ -2,7 +2,7 @@ import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
 import Gl from '../../Gl'
-import { Camera, Geometry, Program, RenderTarget, Mesh, Vec2, Transform } from 'ogl'
+import { Camera, Program, RenderTarget, Mesh, Vec2, Transform, Plane } from 'ogl'
 
 export default class SceneBoilerplate {
   constructor(_params) {
@@ -40,7 +40,7 @@ export default class SceneBoilerplate {
     this.renderPlane = {
       mesh: new Mesh(this.gl.renderer.instance.gl, {
         //
-        geometry: new Geometry(this.gl.renderer.instance.gl, {
+        geometry: new Plane(this.gl.renderer.instance.gl, {
           width: 1,
           height: 1,
         }),
@@ -59,6 +59,9 @@ export default class SceneBoilerplate {
             #define IS_FOLLOWING_DOM ${this.params?.isFollowingDom ? 1 : 0}
 
             precision lowp float;
+
+            attribute vec2 uv;
+            attribute vec3 position;
 
             uniform vec2 uPosition;
             uniform vec2 uScale;
@@ -88,6 +91,8 @@ export default class SceneBoilerplate {
             }
           `,
           fragment: /* glsl */ `
+            precision lowp float;
+
             varying vec2 vUv;
 
             uniform sampler2D tDiffuse;
@@ -138,12 +143,20 @@ export default class SceneBoilerplate {
     this.plane = new Mesh(
       this.gl.renderer.instance.gl,
       {
-        geometry: new Geometry(this.gl.renderer.instance.gl, {
+        geometry: new Plane(this.gl.renderer.instance.gl, {
           width: 1,
           height: 1,
         }),
         program: new Program(this.gl.renderer.instance.gl, {
           vertex: /* glsl */ `
+            precision lowp float;
+
+            uniform mat4 projectionMatrix;
+            uniform mat4 modelViewMatrix;
+
+            attribute vec2 uv;
+            attribute vec3 position;
+
             varying vec2 vUv;
   
             void main() {
@@ -153,6 +166,8 @@ export default class SceneBoilerplate {
             }
           `,
           fragment: /* glsl */ `
+            precision lowp float;
+
             varying vec2 vUv;
             
             void main() {        
@@ -163,7 +178,7 @@ export default class SceneBoilerplate {
       }
     )
 
-    this.scene.add(this.plane)
+    this.scene.addChild(this.plane)
 
     /* 
       Functions
@@ -234,12 +249,12 @@ export default class SceneBoilerplate {
     if (this.params?.isFollowingDom) {
       this.bounds = this.params.dom.getBoundingClientRect()
 
-      this.renderPlane.mesh.material.uniforms.uResolution.value.set(this.gl.sizes.width, this.gl.sizes.height)
-      this.renderPlane.mesh.material.uniforms.uPosition.value.x = this.bounds.left
-      this.renderPlane.mesh.material.uniforms.uScale.value.set(this.bounds.width, this.bounds.height)
+      this.renderPlane.mesh.program.uniforms.uResolution.value.set(this.gl.sizes.width, this.gl.sizes.height)
+      this.renderPlane.mesh.program.uniforms.uPosition.value.x = this.bounds.left
+      this.renderPlane.mesh.program.uniforms.uScale.value.set(this.bounds.width, this.bounds.height)
     } else {
-      this.renderPlane.mesh.material.uniforms.uResolution.value.set(this.gl.sizes.width, this.gl.sizes.height)
-      this.renderPlane.mesh.material.uniforms.uScale.value.set(this.gl.sizes.width, this.gl.sizes.height)
+      this.renderPlane.mesh.program.uniforms.uResolution.value.set(this.gl.sizes.width, this.gl.sizes.height)
+      this.renderPlane.mesh.program.uniforms.uScale.value.set(this.gl.sizes.width, this.gl.sizes.height)
     }
   }
 
@@ -248,7 +263,7 @@ export default class SceneBoilerplate {
       Basic
     */
     gsap.fromTo(
-      this.renderPlane.mesh.material.uniforms.uPosition.value,
+      this.renderPlane.mesh.program.uniforms.uPosition.value,
       {
         y: () => Math.max(this.gl.sizes.height, this.bounds.height),
       },
@@ -346,7 +361,7 @@ export default class SceneBoilerplate {
       target: this.renderTarget,
     })
 
-    this.renderPlane.mesh.material.uniforms.tDiffuse.value = this.renderTarget.texture
+    this.renderPlane.mesh.program.uniforms.tDiffuse.value = this.renderTarget.texture
   }
 
   update() {

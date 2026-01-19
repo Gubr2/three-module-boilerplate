@@ -12,6 +12,7 @@ export default class Rendered {
       antialias: false,
       depth: false,
       stencil: false,
+      alpha: true,
     })
 
     this.resize()
