@@ -207,7 +207,6 @@ export default class Fireflies {
     this.particles.material.depthWrite = false
 
     this.mesh = new THREE.Points(this.particles.geometry, this.particles.material)
-    this.mesh.renderOrder = 2
 
     this.instance.add(this.mesh)
   }
