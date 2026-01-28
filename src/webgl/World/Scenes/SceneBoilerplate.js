@@ -218,7 +218,7 @@ export default class SceneBoilerplate {
     // this.renderPlane.mesh.material.uniforms.uPosition.value.y = (-this.renderPlane.bounds.top / this.gl.sizes.height) * 2
 
     // Camera
-    this.camera.aspect = this.renderPlane.mesh.material.uniforms.uScale.value.x / this.renderPlane.mesh.material.uniforms.uScale.value.y
+    this.camera.aspect = this.renderPlane.mesh.program.uniforms.uScale.value.x / this.renderPlane.mesh.program.uniforms.uScale.value.y
     this.camera.updateProjectionMatrix()
   }
 

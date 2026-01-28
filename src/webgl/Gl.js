@@ -145,7 +145,10 @@ export default class Gl {
       this.renderer.update()
       this.mouse.update()
 
-      if (this.isDebug) this.debug.stats.end()
+      if (this.isDebug) {
+        this.debug.stats.end()
+        this.debug.stats.update()
+      }
     }
   }
 
