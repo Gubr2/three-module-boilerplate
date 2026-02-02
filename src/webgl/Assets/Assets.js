@@ -42,6 +42,39 @@ export default class Assets {
     }
   }
 
+  customModelLoader(_path, _target, _isAsync = false) {
+    const loader = () => {
+      return new Promise((_resolve) => {
+        fetch(_path)
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error(`HTTP error! status: ${response.status}`)
+            }
+            return response.arrayBuffer()
+          })
+          .then(async (arrayBuffer) => {
+            const desc = GLTFLoader.unpackGLB(arrayBuffer)
+            const gltf = await GLTFLoader.parse(this.gl.renderer.instance.gl, desc, '')
+
+            _target(gltf)
+
+            this.logProgress(_path)
+
+            _resolve()
+          })
+          .catch((_error) => console.error(`Failed to load model data from path: ${_path}`, _error))
+      })
+    }
+
+    if (_isAsync) {
+      this.promisesAsync.push(loader)
+    } else {
+      const promise = loader()
+      this.promises.push(promise)
+      return promise
+    }
+  }
+
   logProgress(_path) {
     this.promisesProgress++
 
