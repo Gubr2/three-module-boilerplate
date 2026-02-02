@@ -1,6 +1,6 @@
 import { Renderer, Camera, RenderTarget, Geometry, Program, Mesh, Color, Vec2, Box, NormalProgram, Post } from 'ogl';
 
-import Gl from '../../Gl'
+import Gl from '../Gl'
 
 export default class PostFluid {
   constructor() {
