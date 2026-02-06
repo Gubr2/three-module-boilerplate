@@ -176,30 +176,18 @@ export default class SceneBoilerplate {
 
   resize() {
     this.getBounds()
-    this.updateCameraAspect()
 
     if (this.params?.isFollowingDom) {
       this.renderTarget.setSize(this.bounds.width * this.gl.sizes.pixelRatio, this.bounds.height * this.gl.sizes.pixelRatio)
+
+      this.camera.aspect = this.bounds.width / this.bounds.height
+      this.camera.updateProjectionMatrix()
     } else {
       this.renderTarget.setSize(this.gl.sizes.width * this.gl.sizes.pixelRatio, this.gl.sizes.height * this.gl.sizes.pixelRatio)
+
+      this.camera.aspect = this.renderPlane.mesh.material.uniforms.uScale.value.x / this.renderPlane.mesh.material.uniforms.uScale.value.y
+      this.camera.updateProjectionMatrix()
     }
-  }
-
-  updateCameraAspect() {
-    // Mesh
-    // this.renderPlane.mesh.position.set(
-    //   //
-    //   ((this.renderPlane.bounds.left - this.gl.sizes.width / 2 + this.renderPlane.bounds.width / 2) / this.gl.sizes.width) * 2,
-    //   (-this.renderPlane.bounds.top / this.gl.sizes.height) * 2,
-    //   // 0,
-    //   // 0,
-    //   0
-    // )
-    // this.renderPlane.mesh.material.uniforms.uPosition.value.y = (-this.renderPlane.bounds.top / this.gl.sizes.height) * 2
-
-    // Camera
-    this.camera.aspect = this.renderPlane.mesh.material.uniforms.uScale.value.x / this.renderPlane.mesh.material.uniforms.uScale.value.y
-    this.camera.updateProjectionMatrix()
   }
 
   setIsRendering() {
