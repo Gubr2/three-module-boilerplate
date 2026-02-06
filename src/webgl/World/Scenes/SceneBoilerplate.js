@@ -2,7 +2,7 @@ import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
 import Gl from '../../Gl'
-import { Camera, Program, RenderTarget, Mesh, Vec2, Transform, Plane } from 'ogl'
+import { Camera, Program, RenderTarget, Mesh, Vec2, Transform, Plane, Orbit } from 'ogl'
 
 export default class SceneBoilerplate {
   constructor(_params) {
@@ -185,40 +185,32 @@ export default class SceneBoilerplate {
     */
     this.setIsRendering()
     this.getBounds()
-    if (this.params?.isFollowingDom) this.setScroll()
+
+    if (this.params?.isFollowingDom) {
+      this.setScroll()
+      this.resize() // Resize to match the DOM element's size, aspect ratio
+    }
+
     if (this.gl.isDebug) {
-      // this.setOrbitControls()
+      this.setOrbitControls()
       this.setDebug()
     }
   }
 
   setOrbitControls() {
-    this.controls = new OrbitControls(this.camera, this.gl.canvas)
-    this.controls.enableDamping = true
-    this.controls.enableZoom = false
+    this.controls = new Orbit(this.camera, this.gl.canvas)
   }
 
   resize() {
-    this.renderTarget.setSize(this.gl.sizes.width * this.gl.sizes.pixelRatio, this.gl.sizes.height * this.gl.sizes.pixelRatio)
+    if (this.params?.isFollowingDom) {
+      this.renderTarget.setSize(this.bounds.width * this.gl.sizes.pixelRatio, this.bounds.height * this.gl.sizes.pixelRatio)
+      this.camera.perspective({ aspect: this.bounds.width / this.bounds.height });
+    } else {
+      this.renderTarget.setSize(this.gl.sizes.width * this.gl.sizes.pixelRatio, this.gl.sizes.height * this.gl.sizes.pixelRatio)
+      this.camera.perspective({ aspect: this.gl.canvas.width / this.gl.canvas.height });
+    }
 
     this.getBounds()
-    this.updateCameraAspect()
-  }
-
-  updateCameraAspect() {
-    // Mesh
-    // this.renderPlane.mesh.position.set(
-    //   //
-    //   ((this.renderPlane.bounds.left - this.gl.sizes.width / 2 + this.renderPlane.bounds.width / 2) / this.gl.sizes.width) * 2,
-    //   (-this.renderPlane.bounds.top / this.gl.sizes.height) * 2,
-    //   // 0,
-    //   // 0,
-    //   0
-    // )
-    // this.renderPlane.mesh.material.uniforms.uPosition.value.y = (-this.renderPlane.bounds.top / this.gl.sizes.height) * 2
-
-    // Camera
-    this.camera.perspective({ aspect: this.gl.canvas.width / this.gl.canvas.height });
   }
 
   setIsRendering() {
