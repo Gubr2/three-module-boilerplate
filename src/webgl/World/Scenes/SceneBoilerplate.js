@@ -36,6 +36,12 @@ export default class SceneBoilerplate {
     this.scene.matrixAutoUpdate = false
 
     /* 
+      Bounds
+    */
+    this.bounds = {}
+    this.getBounds()
+
+    /* 
       Render Plane
     */
     this.renderPlane = {
@@ -49,8 +55,8 @@ export default class SceneBoilerplate {
           uniforms: {
             tDiffuse: new THREE.Uniform(null),
 
-            uScale: new THREE.Uniform(new THREE.Vector2(this.gl.sizes.width, this.gl.sizes.height)),
-            uPosition: new THREE.Uniform(new THREE.Vector2(0, 0)),
+            uScale: new THREE.Uniform(new THREE.Vector2(this.bounds.width, this.bounds.height)),
+            uPosition: new THREE.Uniform(new THREE.Vector2(this.bounds.left, this.bounds.top)),
             uResolution: new THREE.Uniform(new THREE.Vector2(this.gl.sizes.width, this.gl.sizes.height)),
           },
           vertexShader: /* glsl */ `
@@ -104,14 +110,9 @@ export default class SceneBoilerplate {
     this.renderPlane.mesh.matrixAutoUpdate = false
 
     /* 
-      Bounds
-    */
-    this.bounds = {}
-
-    /* 
       Render Target
     */
-    this.renderTarget = new THREE.WebGLRenderTarget(this.gl.sizes.width * this.gl.sizes.pixelRatio, this.gl.sizes.height * this.gl.sizes.pixelRatio, {
+    this.renderTarget = new THREE.WebGLRenderTarget(this.bounds.width * this.gl.sizes.pixelRatio, this.bounds.height * this.gl.sizes.pixelRatio, {
       // depthBuffer: false,
       // stencilBuffer: false,
     })
@@ -119,7 +120,7 @@ export default class SceneBoilerplate {
     /* 
       Camera
     */
-    this.camera = new THREE.PerspectiveCamera(75, this.gl.sizes.width / this.gl.sizes.height, 0.1, 1000)
+    this.camera = new THREE.PerspectiveCamera(75, this.bounds.width / this.bounds.height, 0.1, 1000)
     this.camera.position.z = 2
 
     /* 
@@ -130,14 +131,14 @@ export default class SceneBoilerplate {
       new THREE.ShaderMaterial({
         //
         vertexShader: /* glsl */ `
-        varying vec2 vUv;
+          varying vec2 vUv;
 
-        void main() {
-          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-        
-          vUv = uv;
-        }
-      `,
+          void main() {
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+          
+            vUv = uv;
+          }
+        `,
         fragmentShader: /* glsl */ `
         varying vec2 vUv;
         
@@ -159,7 +160,6 @@ export default class SceneBoilerplate {
 
     if (this.params?.isFollowingDom) {
       this.setScroll()
-      this.resize() // Resizeto match the DOM element's size, aspect ratio
     }
 
     if (this.gl.isDebug) {
@@ -180,11 +180,14 @@ export default class SceneBoilerplate {
     /* 
       Render Target
     */
-    if (this.params?.isFollowingDom) {
-      this.renderTarget.setSize(this.bounds.width * this.gl.sizes.pixelRatio, this.bounds.height * this.gl.sizes.pixelRatio)
-    } else {
-      this.renderTarget.setSize(this.gl.sizes.width * this.gl.sizes.pixelRatio, this.gl.sizes.height * this.gl.sizes.pixelRatio)
-    }
+    this.renderTarget.setSize(this.bounds.width * this.gl.sizes.pixelRatio, this.bounds.height * this.gl.sizes.pixelRatio)
+
+    /* 
+      Render Plane
+    */
+    this.renderPlane.mesh.material.uniforms.uResolution.value.set(this.gl.sizes.width, this.gl.sizes.height)
+    this.renderPlane.mesh.material.uniforms.uPosition.value.x = this.bounds.left
+    this.renderPlane.mesh.material.uniforms.uScale.value.set(this.bounds.width, this.bounds.height)
 
     /* 
       Camera
@@ -219,13 +222,13 @@ export default class SceneBoilerplate {
   getBounds() {
     if (this.params?.isFollowingDom) {
       this.bounds = this.params.dom.getBoundingClientRect()
-
-      this.renderPlane.mesh.material.uniforms.uResolution.value.set(this.gl.sizes.width, this.gl.sizes.height)
-      this.renderPlane.mesh.material.uniforms.uPosition.value.x = this.bounds.left
-      this.renderPlane.mesh.material.uniforms.uScale.value.set(this.bounds.width, this.bounds.height)
     } else {
-      this.renderPlane.mesh.material.uniforms.uResolution.value.set(this.gl.sizes.width, this.gl.sizes.height)
-      this.renderPlane.mesh.material.uniforms.uScale.value.set(this.gl.sizes.width, this.gl.sizes.height)
+      this.bounds = {
+        width: this.gl.sizes.width,
+        height: this.gl.sizes.height,
+        left: 0,
+        top: 0,
+      }
     }
   }
 
