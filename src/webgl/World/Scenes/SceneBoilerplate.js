@@ -156,7 +156,12 @@ export default class SceneBoilerplate {
     */
     this.setIsRendering()
     this.getBounds()
-    if (this.params?.isFollowingDom) this.setScroll()
+
+    if (this.params?.isFollowingDom) {
+      this.setScroll()
+      this.resize() // Resizeto match the DOM element's size, aspect ratio
+    }
+
     if (this.gl.isDebug) {
       this.setOrbitControls()
       this.setDebug()
@@ -170,10 +175,14 @@ export default class SceneBoilerplate {
   }
 
   resize() {
-    this.renderTarget.setSize(this.gl.sizes.width * this.gl.sizes.pixelRatio, this.gl.sizes.height * this.gl.sizes.pixelRatio)
-
     this.getBounds()
     this.updateCameraAspect()
+
+    if (this.params?.isFollowingDom) {
+      this.renderTarget.setSize(this.bounds.width * this.gl.sizes.pixelRatio, this.bounds.height * this.gl.sizes.pixelRatio)
+    } else {
+      this.renderTarget.setSize(this.gl.sizes.width * this.gl.sizes.pixelRatio, this.gl.sizes.height * this.gl.sizes.pixelRatio)
+    }
   }
 
   updateCameraAspect() {
