@@ -35,6 +35,12 @@ export default class SceneBoilerplate {
     this.scene.matrixAutoUpdate = false
 
     /* 
+      Bounds
+    */
+    this.bounds = {}
+    this.getBounds()
+
+    /* 
       Render Plane
     */
     this.renderPlane = {
@@ -51,8 +57,8 @@ export default class SceneBoilerplate {
           uniforms: {
             tDiffuse: { value: null },
 
-            uScale: { value: new Vec2(this.gl.sizes.width, this.gl.sizes.height) },
-            uPosition: { value: new Vec2(0, 0) },
+            uScale: { value: new Vec2(this.bounds.width, this.bounds.height) },
+            uPosition: { value: new Vec2(this.bounds.left, this.bounds.top) },
             uResolution: { value: new Vec2(this.gl.sizes.width, this.gl.sizes.height) },
           },
           vertex: /* glsl */ `
@@ -112,16 +118,11 @@ export default class SceneBoilerplate {
     }
 
     /* 
-      Bounds
-    */
-    this.bounds = {}
-
-    /* 
       Render Target
     */
     this.renderTarget = new RenderTarget(this.gl.renderer.instance.gl, {
-      width: this.gl.sizes.width * this.gl.sizes.pixelRatio,
-      height: this.gl.sizes.height * this.gl.sizes.pixelRatio,
+      width: this.bounds.width * this.gl.sizes.pixelRatio,
+      height: this.bounds.height * this.gl.sizes.pixelRatio,
       depth: false,
       stencil: false,
     })
@@ -131,7 +132,7 @@ export default class SceneBoilerplate {
     */
     this.camera = new Camera(this.gl.renderer.instance.gl, {
       fov: 75,
-      aspect: this.gl.sizes.width / this.gl.sizes.height,
+      aspect: this.bounds.width / this.bounds.height,
       near: 0.1,
       far: 100,
     })
@@ -184,11 +185,9 @@ export default class SceneBoilerplate {
       Functions
     */
     this.setIsRendering()
-    this.getBounds()
 
     if (this.params?.isFollowingDom) {
       this.setScroll()
-      this.resize() // Resize to match the DOM element's size, aspect ratio
     }
 
     if (this.gl.isDebug) {
@@ -202,15 +201,25 @@ export default class SceneBoilerplate {
   }
 
   resize() {
-    if (this.params?.isFollowingDom) {
-      this.renderTarget.setSize(this.bounds.width * this.gl.sizes.pixelRatio, this.bounds.height * this.gl.sizes.pixelRatio)
-      this.camera.perspective({ aspect: this.bounds.width / this.bounds.height });
-    } else {
-      this.renderTarget.setSize(this.gl.sizes.width * this.gl.sizes.pixelRatio, this.gl.sizes.height * this.gl.sizes.pixelRatio)
-      this.camera.perspective({ aspect: this.gl.canvas.width / this.gl.canvas.height });
-    }
-
     this.getBounds()
+
+    /* 
+      Render Target
+    */
+    this.renderTarget.setSize(this.bounds.width * this.gl.sizes.pixelRatio, this.bounds.height * this.gl.sizes.pixelRatio)
+
+    /* 
+      Render Plane
+    */
+    this.renderPlane.mesh.program.uniforms.uResolution.value.set(this.gl.sizes.width, this.gl.sizes.height)
+    this.renderPlane.mesh.program.uniforms.uPosition.value.x = this.bounds.left
+    this.renderPlane.mesh.program.uniforms.uScale.value.set(this.bounds.width, this.bounds.height)
+
+    /* 
+      Camera
+    */
+    this.camera.perspective({ aspect: this.bounds.width / this.bounds.height });
+    this.camera.updateProjectionMatrix()
   }
 
   setIsRendering() {
@@ -239,13 +248,13 @@ export default class SceneBoilerplate {
   getBounds() {
     if (this.params?.isFollowingDom) {
       this.bounds = this.params.dom.getBoundingClientRect()
-
-      this.renderPlane.mesh.program.uniforms.uResolution.value.set(this.gl.sizes.width, this.gl.sizes.height)
-      this.renderPlane.mesh.program.uniforms.uPosition.value.x = this.bounds.left
-      this.renderPlane.mesh.program.uniforms.uScale.value.set(this.bounds.width, this.bounds.height)
     } else {
-      this.renderPlane.mesh.program.uniforms.uResolution.value.set(this.gl.sizes.width, this.gl.sizes.height)
-      this.renderPlane.mesh.program.uniforms.uScale.value.set(this.gl.sizes.width, this.gl.sizes.height)
+      this.bounds = {
+        left: 0,
+        top: 0,
+        width: this.gl.sizes.width,
+        height: this.gl.sizes.height,
+      }
     }
   }
 
