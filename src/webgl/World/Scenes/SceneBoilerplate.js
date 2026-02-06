@@ -177,17 +177,20 @@ export default class SceneBoilerplate {
   resize() {
     this.getBounds()
 
+    /* 
+      Render Target
+    */
     if (this.params?.isFollowingDom) {
       this.renderTarget.setSize(this.bounds.width * this.gl.sizes.pixelRatio, this.bounds.height * this.gl.sizes.pixelRatio)
-
-      this.camera.aspect = this.bounds.width / this.bounds.height
-      this.camera.updateProjectionMatrix()
     } else {
       this.renderTarget.setSize(this.gl.sizes.width * this.gl.sizes.pixelRatio, this.gl.sizes.height * this.gl.sizes.pixelRatio)
-
-      this.camera.aspect = this.renderPlane.mesh.material.uniforms.uScale.value.x / this.renderPlane.mesh.material.uniforms.uScale.value.y
-      this.camera.updateProjectionMatrix()
     }
+
+    /* 
+      Camera
+    */
+    this.camera.aspect = this.bounds.width / this.bounds.height
+    this.camera.updateProjectionMatrix()
   }
 
   setIsRendering() {
