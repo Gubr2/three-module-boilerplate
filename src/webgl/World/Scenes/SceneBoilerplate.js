@@ -277,65 +277,65 @@ export default class SceneBoilerplate {
     /* 
       Sticky
     */
-    // Enter
-    this.gsapResources.push(
-      gsap.fromTo(
-        this.renderPlane.bounds,
-        {
-          top: () => this.gl.sizes.height,
-        },
-        {
-          top: 0,
-          ease: 'none',
-          scrollTrigger: {
-            invalidateOnRefresh: true,
-            scrub: true,
-            trigger: '[data-gl-track=""]',
-            start: () => `top-=${this.gl.sizes.height} top`,
-            end: () => `top top`,
-            onRefresh: () => {
-              // this.getBounds();
-              this.updateCameraAspect();
-            },
-            refreshPriority: -99,
-            // markers: true,
-          },
-          onUpdate: (_self) => {
-            this.updateCameraAspect();
-          },
-        }
-      )
-    )
+    // // Enter
+    // this.gsapResources.push(
+    //   gsap.fromTo(
+    //     this.renderPlane.bounds,
+    //     {
+    //       top: () => this.gl.sizes.height,
+    //     },
+    //     {
+    //       top: 0,
+    //       ease: 'none',
+    //       scrollTrigger: {
+    //         invalidateOnRefresh: true,
+    //         scrub: true,
+    //         trigger: '[data-gl-track=""]',
+    //         start: () => `top-=${this.gl.sizes.height} top`,
+    //         end: () => `top top`,
+    //         onRefresh: () => {
+    //           // this.getBounds();
+    //           this.updateCameraAspect();
+    //         },
+    //         refreshPriority: -99,
+    //         // markers: true,
+    //       },
+    //       onUpdate: (_self) => {
+    //         this.updateCameraAspect();
+    //       },
+    //     }
+    //   )
+    // )
 
-    // Leave
-    this.gsapResources.push(
-      gsap.fromTo(
-        this.renderPlane.bounds,
-        {
-          top: 0,
-        },
-        {
-          top: () => -this.gl.sizes.height,
-          ease: 'none',
-          scrollTrigger: {
-            invalidateOnRefresh: true,
-            scrub: true,
-            trigger: '[data-gl-track=""]',
-            start: () => `bottom bottom`,
-            end: () => `bottom+=${this.gl.sizes.height} bottom`,
-            onRefresh: () => {
-              // this.getBounds();
-              this.updateCameraAspect();
-            },
-            refreshPriority: -99,
-            // markers: true,
-          },
-          onUpdate: (_self) => {
-            this.updateCameraAspect();
-          },
-        }
-      )
-    )
+    // // Leave
+    // this.gsapResources.push(
+    //   gsap.fromTo(
+    //     this.renderPlane.bounds,
+    //     {
+    //       top: 0,
+    //     },
+    //     {
+    //       top: () => -this.gl.sizes.height,
+    //       ease: 'none',
+    //       scrollTrigger: {
+    //         invalidateOnRefresh: true,
+    //         scrub: true,
+    //         trigger: '[data-gl-track=""]',
+    //         start: () => `bottom bottom`,
+    //         end: () => `bottom+=${this.gl.sizes.height} bottom`,
+    //         onRefresh: () => {
+    //           // this.getBounds();
+    //           this.updateCameraAspect();
+    //         },
+    //         refreshPriority: -99,
+    //         // markers: true,
+    //       },
+    //       onUpdate: (_self) => {
+    //         this.updateCameraAspect();
+    //       },
+    //     }
+    //   )
+    // )
   }
 
   setDebug() {
