@@ -202,6 +202,10 @@ export default class Mouse {
 
   up(_event) {
     this.isMouseHolding = false
+
+    // Reset Drag Distance
+    this.drag.distance.default = 0
+    this.drag.distance.separated.set(0, 0)
   }
 
   resize() {
