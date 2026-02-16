@@ -17,13 +17,13 @@ export default class Mouse {
     this.bounds = this.dom
       ? this.getPositionOfDom()
       : {
-          left: 0,
-          top: 0,
-          width: window.innerWidth,
-          height: window.innerHeight,
-          right: window.innerWidth,
-          bottom: window.innerHeight,
-        }
+        left: 0,
+        top: 0,
+        width: window.innerWidth,
+        height: window.innerHeight,
+        right: window.innerWidth,
+        bottom: window.innerHeight,
+      }
 
     /* 
       Params
@@ -65,11 +65,6 @@ export default class Mouse {
     /* 
       Pace
     */
-    this.pace = {
-      default: 0,
-      separated: new Vector2(),
-    }
-
     this.pace = {
       default: 0,
       separated: new Vector2(),
@@ -418,7 +413,10 @@ export default class Mouse {
       Variables
     */
     let value = {
-      distance: 0,
+      distance: {
+        default: 0,
+        separated: new Vector2(),
+      },
       pace: {
         default: 0,
         separated: new Vector2(),
@@ -430,7 +428,9 @@ export default class Mouse {
       Update
     */
     const update = (_delta) => {
-      value.distance = MathUtils.damp(value.distance, this.drag.distance, amount, _delta)
+      value.distance.default = MathUtils.damp(value.distance.default, this.drag.distance.default, amount, _delta)
+      value.distance.separated.x = MathUtils.damp(value.distance.separated.x, this.drag.distance.separated.x, amount, _delta)
+      value.distance.separated.y = MathUtils.damp(value.distance.separated.y, this.drag.distance.separated.y, amount, _delta)
 
       value.pace.default = MathUtils.damp(value.pace.default, this.drag.pace.default, amount, _delta)
       value.pace.separated.x = MathUtils.damp(value.pace.separated.x, this.drag.pace.separated.x, amount, _delta)
@@ -450,6 +450,7 @@ export default class Mouse {
     return {
       value,
       update,
+      setAmount,
     }
   }
 }
