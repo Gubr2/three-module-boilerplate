@@ -1,14 +1,12 @@
 import * as THREE from 'three'
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
-import gsap from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
+import gsap from '@/lib/gsap'
+import { ScrollTrigger } from '@/lib/gsap'
 
 import Gl from '../../Gl'
 
 export default class SceneBoilerplate {
   constructor(_params) {
-    gsap.registerPlugin(ScrollTrigger)
-
     /* 
       Setup
     */
@@ -153,6 +151,18 @@ export default class SceneBoilerplate {
     this.scene.add(this.plane)
 
     /* 
+      Disposable resources
+    */
+    this.gsapResources = []
+
+    /* 
+      Disposable functions
+    */
+    this.disposableFunctions = {
+      // updateScrollUniforms: this.updateScrollUniforms.bind(this),
+    }
+
+    /* 
       Functions
     */
     this.setIsRendering()
@@ -197,26 +207,28 @@ export default class SceneBoilerplate {
   }
 
   setIsRendering() {
-    ScrollTrigger.create({
-      trigger: this.params.dom,
-      start: () => `top-=${this.gl.sizes.height / 2} bottom`,
-      end: () => `bottom+=${this.gl.sizes.height / 2} top`,
-      invalidateOnRefresh: true,
-      // markers: true,
+    this.gsapResources.push(
+      ScrollTrigger.create({
+        trigger: this.params.dom,
+        start: () => `top-=${this.gl.sizes.height / 2} bottom`,
+        end: () => `bottom+=${this.gl.sizes.height / 2} top`,
+        invalidateOnRefresh: true,
+        // markers: true,
 
-      onEnter: () => {
-        this.isRendering = true
-      },
-      onEnterBack: () => {
-        this.isRendering = true
-      },
-      onLeave: () => {
-        this.isRendering = false
-      },
-      onLeaveBack: () => {
-        this.isRendering = false
-      },
-    })
+        onEnter: () => {
+          this.isRendering = true
+        },
+        onEnterBack: () => {
+          this.isRendering = true
+        },
+        onLeave: () => {
+          this.isRendering = false
+        },
+        onLeaveBack: () => {
+          this.isRendering = false
+        },
+      })
+    )
   }
 
   getBounds() {
@@ -236,88 +248,94 @@ export default class SceneBoilerplate {
     /* 
       Basic
     */
-    gsap.fromTo(
-      this.renderPlane.mesh.material.uniforms.uPosition.value,
-      {
-        y: () => Math.max(this.gl.sizes.height, this.bounds.height),
-      },
-      {
-        y: () => -Math.max(this.gl.sizes.height, this.bounds.height),
-        ease: 'none',
-        scrollTrigger: {
-          invalidateOnRefresh: true,
-          scrub: true,
-          trigger: this.params.dom,
-          start: () => `center-=${Math.max(this.gl.sizes.height, this.bounds.height)} top+=${this.gl.sizes.height / 2}`,
-          end: () => `center+=${Math.max(this.gl.sizes.height, this.bounds.height)} top+=${this.gl.sizes.height / 2}`,
-          refreshPriority: -99,
-          // markers: true,
-          // onRefresh: () => {
-          //   this.getBounds()
-          //   this.updateCameraAspect()
-          // },
+    this.gsapResources.push(
+      gsap.fromTo(
+        this.renderPlane.mesh.material.uniforms.uPosition.value,
+        {
+          y: () => Math.max(this.gl.sizes.height, this.bounds.height),
         },
-      }
+        {
+          y: () => -Math.max(this.gl.sizes.height, this.bounds.height),
+          ease: 'none',
+          scrollTrigger: {
+            invalidateOnRefresh: true,
+            scrub: true,
+            trigger: this.params.dom,
+            start: () => `center-=${Math.max(this.gl.sizes.height, this.bounds.height)} top+=${this.gl.sizes.height / 2}`,
+            end: () => `center+=${Math.max(this.gl.sizes.height, this.bounds.height)} top+=${this.gl.sizes.height / 2}`,
+            refreshPriority: -99,
+            // markers: true,
+            // onRefresh: () => {
+            //   this.getBounds()
+            //   this.updateCameraAspect()
+            // },
+          },
+        }
+      )
     )
 
     /* 
       Sticky
     */
     // Enter
-    // gsap.fromTo(
-    //   this.renderPlane.bounds,
-    //   {
-    //     top: () => this.gl.sizes.height,
-    //   },
-    //   {
-    //     top: 0,
-    //     ease: 'none',
-    //     scrollTrigger: {
-    //       invalidateOnRefresh: true,
-    //       scrub: true,
-    //       trigger: '[data-gl-track=""]',
-    //       start: () => `top-=${this.gl.sizes.height} top`,
-    //       end: () => `top top`,
-    //       onRefresh: () => {
-    //         // this.getBounds();
-    //         this.updateCameraAspect();
-    //       },
-    //       refreshPriority: -99,
-    //       // markers: true,
-    //     },
-    //     onUpdate: (_self) => {
-    //       this.updateCameraAspect();
-    //     },
-    //   }
-    // );
+    this.gsapResources.push(
+      gsap.fromTo(
+        this.renderPlane.bounds,
+        {
+          top: () => this.gl.sizes.height,
+        },
+        {
+          top: 0,
+          ease: 'none',
+          scrollTrigger: {
+            invalidateOnRefresh: true,
+            scrub: true,
+            trigger: '[data-gl-track=""]',
+            start: () => `top-=${this.gl.sizes.height} top`,
+            end: () => `top top`,
+            onRefresh: () => {
+              // this.getBounds();
+              this.updateCameraAspect();
+            },
+            refreshPriority: -99,
+            // markers: true,
+          },
+          onUpdate: (_self) => {
+            this.updateCameraAspect();
+          },
+        }
+      )
+    )
 
-    // // Leave
-    // gsap.fromTo(
-    //   this.renderPlane.bounds,
-    //   {
-    //     top: 0,
-    //   },
-    //   {
-    //     top: () => -this.gl.sizes.height,
-    //     ease: 'none',
-    //     scrollTrigger: {
-    //       invalidateOnRefresh: true,
-    //       scrub: true,
-    //       trigger: '[data-gl-track=""]',
-    //       start: () => `bottom bottom`,
-    //       end: () => `bottom+=${this.gl.sizes.height} bottom`,
-    //       onRefresh: () => {
-    //         // this.getBounds();
-    //         this.updateCameraAspect();
-    //       },
-    //       refreshPriority: -99,
-    //       // markers: true,
-    //     },
-    //     onUpdate: (_self) => {
-    //       this.updateCameraAspect();
-    //     },
-    //   }
-    // );
+    // Leave
+    this.gsapResources.push(
+      gsap.fromTo(
+        this.renderPlane.bounds,
+        {
+          top: 0,
+        },
+        {
+          top: () => -this.gl.sizes.height,
+          ease: 'none',
+          scrollTrigger: {
+            invalidateOnRefresh: true,
+            scrub: true,
+            trigger: '[data-gl-track=""]',
+            start: () => `bottom bottom`,
+            end: () => `bottom+=${this.gl.sizes.height} bottom`,
+            onRefresh: () => {
+              // this.getBounds();
+              this.updateCameraAspect();
+            },
+            refreshPriority: -99,
+            // markers: true,
+          },
+          onUpdate: (_self) => {
+            this.updateCameraAspect();
+          },
+        }
+      )
+    )
   }
 
   setDebug() {
@@ -339,5 +357,31 @@ export default class SceneBoilerplate {
     if (!this.isRendering) return
 
     this.plane.position.y = Math.sin(this.gl.time.elapsed)
+  }
+
+  dispose() {
+    /* 
+      Remove assets
+    */
+    this.renderPlane.mesh.material.dispose()
+    this.renderPlane.mesh.geometry.dispose()
+
+    /* 
+      Remove listeners
+    */
+    // Scroll.off('scroll', this.disposableFunctions.updateScrollUniforms)
+
+    /* 
+      Kill ScrollTriggers
+    */
+    this.gsapResources.forEach((_item) => _item.kill())
+    this.gsapResources = []
+
+    /* 
+      Remove debug folder
+    */
+    if (this.debugFolder) {
+      this.debugFolder.dispose()
+    }
   }
 }
