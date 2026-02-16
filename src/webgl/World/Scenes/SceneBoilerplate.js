@@ -389,4 +389,30 @@ export default class SceneBoilerplate {
 
     this.plane.position.y = Math.sin(this.gl.time.elapsed)
   }
+
+  dispose() {
+    /* 
+      Remove assets
+    */
+    // this.renderPlane.mesh.material.dispose()
+    // this.renderPlane.mesh.geometry.dispose()
+
+    /* 
+      Remove listeners
+    */
+    // Scroll.off('scroll', this.disposableFunctions.updateScrollUniforms)
+
+    /* 
+      Kill ScrollTriggers
+    */
+    this.gsapResources.forEach((_item) => _item.kill())
+    this.gsapResources = []
+
+    /* 
+      Remove debug folder
+    */
+    if (this.debugFolder) {
+      this.debugFolder.dispose()
+    }
+  }
 }
