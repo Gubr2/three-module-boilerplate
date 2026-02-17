@@ -250,14 +250,16 @@ export default class Mouse {
 
     // Set Drag
     if (this.isMouseHolding) {
-      this.drag.pace.default = this.normalized.current.distanceTo(this.normalized.previous)
-      this.drag.pace.separated.x = this.normalized.current.x - this.normalized.previous.x
-      this.drag.pace.separated.y = this.normalized.current.y - this.normalized.previous.y
+      this.drag.pace.default = this.pace.default
+      this.drag.pace.separated.x = this.pace.separated.x
+      this.drag.pace.separated.y = this.pace.separated.y
     } else {
       this.drag.pace.default = 0
       this.drag.pace.separated.x = 0
       this.drag.pace.separated.y = 0
     }
+
+    // console.log(this.drag.pace.default)
 
     // Set Normalized Previous
     this.normalized.previous.copy(this.normalized.current)
@@ -435,6 +437,8 @@ export default class Mouse {
       value.distance.default = MathUtils.damp(value.distance.default, this.drag.distance.default, amount, _delta)
       value.distance.separated.x = MathUtils.damp(value.distance.separated.x, this.drag.distance.separated.x, amount, _delta)
       value.distance.separated.y = MathUtils.damp(value.distance.separated.y, this.drag.distance.separated.y, amount, _delta)
+
+      // console.log(this.drag.pace.default)
 
       value.pace.default = MathUtils.damp(value.pace.default, this.drag.pace.default, amount, _delta)
       value.pace.separated.x = MathUtils.damp(value.pace.separated.x, this.drag.pace.separated.x, amount, _delta)
