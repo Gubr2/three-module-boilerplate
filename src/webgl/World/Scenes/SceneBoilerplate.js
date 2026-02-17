@@ -372,6 +372,12 @@ export default class SceneBoilerplate {
     // Scroll.off('scroll', this.disposableFunctions.updateScrollUniforms)
 
     /* 
+      Remove RTs
+    */
+    this.renderTarget.dispose()
+
+
+    /* 
       Kill ScrollTriggers
     */
     this.gsapResources.forEach((_item) => _item.kill())
