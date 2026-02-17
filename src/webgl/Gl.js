@@ -1,5 +1,6 @@
 import WebGL from 'three/addons/capabilities/WebGL.js'
 import gsap from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { Transform, Camera } from 'ogl'
 
 import Renderer from './Renderer'
@@ -95,6 +96,8 @@ export default class Gl {
       if (!this.isLoaded) {
         this.didResizedBeforeWebglLoaded = true
       }
+
+      ScrollTrigger.refresh() // Manual refresh after everyting gets resized
     })
   }
 
