@@ -97,7 +97,7 @@ export default class Gl {
         this.didResizedBeforeWebglLoaded = true
       }
 
-      ScrollTrigger.refresh() // Manual refresh after everyting gets resized
+      ScrollTrigger.refresh() // Manual refresh after everyting gets resized to make sure scroll trigger positioning applies
     })
   }
 
