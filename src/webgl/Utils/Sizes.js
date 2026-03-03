@@ -19,6 +19,17 @@ export default class Sizes {
     this.isTouchDevice = window.matchMedia('(hover: none)').matches
   }
 
+  setResponsiveFov(_fov, referenceAspect) {
+    let fov = _fov
+
+    if (this.aspect < referenceAspect) {
+      const fovInRadians = (_fov * Math.PI) / 180
+      fov = 2 * Math.atan((Math.tan(fovInRadians / 2) * referenceAspect) / this.aspect) * (180 / Math.PI)
+    }
+
+    return fov
+  }
+
   resize() {
     this.set()
   }
