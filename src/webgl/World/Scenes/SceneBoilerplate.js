@@ -166,7 +166,6 @@ export default class SceneBoilerplate {
       Functions
     */
     this.setIsRendering()
-    this.getBounds()
 
     if (this.params?.isFollowingDom) {
       this.setScroll()
