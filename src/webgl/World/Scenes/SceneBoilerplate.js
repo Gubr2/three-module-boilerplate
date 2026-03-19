@@ -264,10 +264,6 @@ export default class SceneBoilerplate {
             end: () => `center+=${Math.max(this.gl.sizes.height, this.bounds.height)} top+=${this.gl.sizes.height / 2}`,
             refreshPriority: -99,
             // markers: true,
-            // onRefresh: () => {
-            //   this.getBounds()
-            //   this.updateCameraAspect()
-            // },
           },
         }
       )
@@ -292,15 +288,8 @@ export default class SceneBoilerplate {
     //         trigger: '[data-gl-track=""]',
     //         start: () => `top-=${this.gl.sizes.height} top`,
     //         end: () => `top top`,
-    //         onRefresh: () => {
-    //           // this.getBounds();
-    //           this.updateCameraAspect();
-    //         },
     //         refreshPriority: -99,
     //         // markers: true,
-    //       },
-    //       onUpdate: (_self) => {
-    //         this.updateCameraAspect();
     //       },
     //     }
     //   )
@@ -322,15 +311,8 @@ export default class SceneBoilerplate {
     //         trigger: '[data-gl-track=""]',
     //         start: () => `bottom bottom`,
     //         end: () => `bottom+=${this.gl.sizes.height} bottom`,
-    //         onRefresh: () => {
-    //           // this.getBounds();
-    //           this.updateCameraAspect();
-    //         },
     //         refreshPriority: -99,
     //         // markers: true,
-    //       },
-    //       onUpdate: (_self) => {
-    //         this.updateCameraAspect();
     //       },
     //     }
     //   )
