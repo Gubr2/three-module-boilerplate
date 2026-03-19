@@ -293,10 +293,6 @@ export default class SceneBoilerplate {
             end: () => `center+=${Math.max(this.gl.sizes.height, this.bounds.height)} top+=${this.gl.sizes.height / 2}`,
             refreshPriority: -99,
             // markers: true,
-            // onRefresh: () => {
-            //   this.getBounds()
-            //   this.updateCameraAspect()
-            // },
           },
         }
       )
@@ -308,12 +304,12 @@ export default class SceneBoilerplate {
     // // Enter
     // this.gsapResources.push(
     //   gsap.fromTo(
-    //     this.renderPlane.bounds,
+    //     this.renderPlane.mesh.program.uniforms.uPosition.value,
     //     {
-    //       top: () => this.gl.sizes.height,
+    //       y: () => this.gl.sizes.height,
     //     },
     //     {
-    //       top: 0,
+    //       y: 0,
     //       ease: 'none',
     //       scrollTrigger: {
     //         invalidateOnRefresh: true,
@@ -321,15 +317,8 @@ export default class SceneBoilerplate {
     //         trigger: '[data-gl-track=""]',
     //         start: () => `top-=${this.gl.sizes.height} top`,
     //         end: () => `top top`,
-    //         onRefresh: () => {
-    //           // this.getBounds();
-    //           this.updateCameraAspect();
-    //         },
     //         refreshPriority: -99,
     //         // markers: true,
-    //       },
-    //       onUpdate: (_self) => {
-    //         this.updateCameraAspect();
     //       },
     //     }
     //   )
@@ -338,12 +327,12 @@ export default class SceneBoilerplate {
     // // Leave
     // this.gsapResources.push(
     //   gsap.fromTo(
-    //     this.renderPlane.bounds,
+    //     this.renderPlane.mesh.program.uniforms.uPosition.value,
     //     {
-    //       top: 0,
+    //       y: 0,
     //     },
     //     {
-    //       top: () => -this.gl.sizes.height,
+    //       y: () => -this.gl.sizes.height,
     //       ease: 'none',
     //       scrollTrigger: {
     //         invalidateOnRefresh: true,
@@ -351,15 +340,8 @@ export default class SceneBoilerplate {
     //         trigger: '[data-gl-track=""]',
     //         start: () => `bottom bottom`,
     //         end: () => `bottom+=${this.gl.sizes.height} bottom`,
-    //         onRefresh: () => {
-    //           // this.getBounds();
-    //           this.updateCameraAspect();
-    //         },
     //         refreshPriority: -99,
     //         // markers: true,
-    //       },
-    //       onUpdate: (_self) => {
-    //         this.updateCameraAspect();
     //       },
     //     }
     //   )
