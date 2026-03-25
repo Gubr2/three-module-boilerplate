@@ -100,7 +100,7 @@ export default class SceneBoilerplate {
               // gl_FragColor.a = 1.0;
             }
           `,
-        })
+        }),
       ),
     }
 
@@ -145,7 +145,7 @@ export default class SceneBoilerplate {
         }
       `,
         side: THREE.DoubleSide,
-      })
+      }),
     )
 
     this.scene.add(this.plane)
@@ -226,7 +226,7 @@ export default class SceneBoilerplate {
         onLeaveBack: () => {
           this.isRendering = false
         },
-      })
+      }),
     )
   }
 
@@ -265,8 +265,8 @@ export default class SceneBoilerplate {
             refreshPriority: -99,
             // markers: true,
           },
-        }
-      )
+        },
+      ),
     )
 
     /* 
@@ -288,7 +288,7 @@ export default class SceneBoilerplate {
     //         trigger: '[data-gl-track=""]',
     //         start: () => `top-=${this.gl.sizes.height} top`,
     //         end: () => `top top`,
-    //         refreshPriority: -99,
+    //         refreshPriority: -100,
     //         // markers: true,
     //       },
     //     }
@@ -356,7 +356,6 @@ export default class SceneBoilerplate {
       Remove RTs
     */
     this.renderTarget.dispose()
-
 
     /* 
       Kill ScrollTriggers
