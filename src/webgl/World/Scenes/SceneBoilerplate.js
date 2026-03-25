@@ -113,7 +113,7 @@ export default class SceneBoilerplate {
               // gl_FragColor.a = 1.0;
             }
           `,
-        })
+        }),
       }),
     }
 
@@ -141,15 +141,13 @@ export default class SceneBoilerplate {
     /* 
       Models
     */
-    this.plane = new Mesh(
-      this.gl.renderer.instance.gl,
-      {
-        geometry: new Plane(this.gl.renderer.instance.gl, {
-          width: 1,
-          height: 1,
-        }),
-        program: new Program(this.gl.renderer.instance.gl, {
-          vertex: /* glsl */ `
+    this.plane = new Mesh(this.gl.renderer.instance.gl, {
+      geometry: new Plane(this.gl.renderer.instance.gl, {
+        width: 1,
+        height: 1,
+      }),
+      program: new Program(this.gl.renderer.instance.gl, {
+        vertex: /* glsl */ `
             precision lowp float;
 
             uniform mat4 projectionMatrix;
@@ -166,7 +164,7 @@ export default class SceneBoilerplate {
               vUv = uv;
             }
           `,
-          fragment: /* glsl */ `
+        fragment: /* glsl */ `
             precision lowp float;
 
             varying vec2 vUv;
@@ -175,9 +173,8 @@ export default class SceneBoilerplate {
               gl_FragColor = vec4(vec3(vUv.x, vUv.y, 0.0), 1.0);
             }
           `,
-        })
-      }
-    )
+      }),
+    })
 
     this.scene.addChild(this.plane)
 
@@ -230,7 +227,7 @@ export default class SceneBoilerplate {
     /* 
       Camera
     */
-    this.camera.perspective({ aspect: this.bounds.width / this.bounds.height });
+    this.camera.perspective({ aspect: this.bounds.width / this.bounds.height })
     this.camera.updateProjectionMatrix()
   }
 
@@ -255,7 +252,7 @@ export default class SceneBoilerplate {
         onLeaveBack: () => {
           this.isRendering = false
         },
-      })
+      }),
     )
   }
 
@@ -294,8 +291,8 @@ export default class SceneBoilerplate {
             refreshPriority: -99,
             // markers: true,
           },
-        }
-      )
+        },
+      ),
     )
 
     /* 
@@ -317,7 +314,7 @@ export default class SceneBoilerplate {
     //         trigger: '[data-gl-track=""]',
     //         start: () => `top-=${this.gl.sizes.height} top`,
     //         end: () => `top top`,
-    //         refreshPriority: -99,
+    //         refreshPriority: -100,
     //         // markers: true,
     //       },
     //     }
@@ -388,7 +385,6 @@ export default class SceneBoilerplate {
       Remove RTs
     */
     // this.renderTarget.dispose()
-
 
     /* 
       Kill ScrollTriggers
