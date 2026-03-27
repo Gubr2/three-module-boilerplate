@@ -1,7 +1,7 @@
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
-import gsap from '@/lib/gsap'
-import { ScrollTrigger } from '@/lib/gsap'
+import gsap from 'gsap'
+import { ScrollTrigger } from 'gsap'
 
 import Gl from '../../Gl'
 
