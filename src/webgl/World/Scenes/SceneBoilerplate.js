@@ -41,6 +41,16 @@ export default class SceneBoilerplate {
     this.getBounds()
 
     /* 
+      Render Target
+    */
+    this.renderTarget = new RenderTarget(this.gl.renderer.instance.gl, {
+      width: this.bounds.width * this.gl.sizes.pixelRatio,
+      height: this.bounds.height * this.gl.sizes.pixelRatio,
+      depth: false,
+      stencil: false,
+    })
+
+    /* 
       Render Plane
     */
     this.renderPlane = {
@@ -55,7 +65,7 @@ export default class SceneBoilerplate {
             IS_FOLLOWING_DOM: this.params?.isFollowingDom ? 1 : 0,
           },
           uniforms: {
-            tDiffuse: { value: null },
+            tDiffuse: { value: this.renderTarget.texture },
 
             uScale: { value: new Vec2(this.bounds.width, this.bounds.height) },
             uPosition: { value: new Vec2(this.bounds.left, this.bounds.top) },
@@ -116,16 +126,6 @@ export default class SceneBoilerplate {
         }),
       }),
     }
-
-    /* 
-      Render Target
-    */
-    this.renderTarget = new RenderTarget(this.gl.renderer.instance.gl, {
-      width: this.bounds.width * this.gl.sizes.pixelRatio,
-      height: this.bounds.height * this.gl.sizes.pixelRatio,
-      depth: false,
-      stencil: false,
-    })
 
     /* 
       Camera
@@ -359,8 +359,6 @@ export default class SceneBoilerplate {
       camera: this.camera,
       target: this.renderTarget,
     })
-
-    this.renderPlane.mesh.program.uniforms.tDiffuse.value = this.renderTarget.texture
   }
 
   update() {
