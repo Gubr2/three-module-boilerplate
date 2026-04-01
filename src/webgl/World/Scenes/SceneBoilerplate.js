@@ -1,12 +1,14 @@
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import gsap from 'gsap'
-import { ScrollTrigger } from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
 import Gl from '../../Gl'
 
 export default class SceneBoilerplate {
   constructor(_params) {
+    gsap.registerPlugin(ScrollTrigger)
+
     /* 
       Setup
     */
@@ -40,6 +42,14 @@ export default class SceneBoilerplate {
     this.getBounds()
 
     /* 
+      Render Target
+    */
+    this.renderTarget = new THREE.WebGLRenderTarget(this.bounds.width * this.gl.sizes.pixelRatio, this.bounds.height * this.gl.sizes.pixelRatio, {
+      // depthBuffer: false,
+      // stencilBuffer: false,
+    })
+
+    /* 
       Render Plane
     */
     this.renderPlane = {
@@ -51,7 +61,7 @@ export default class SceneBoilerplate {
             IS_FOLLOWING_DOM: this.params?.isFollowingDom ? 1 : 0,
           },
           uniforms: {
-            tDiffuse: new THREE.Uniform(null),
+            tDiffuse: new THREE.Uniform(this.renderTarget.texture),
 
             uScale: new THREE.Uniform(new THREE.Vector2(this.bounds.width, this.bounds.height)),
             uPosition: new THREE.Uniform(new THREE.Vector2(this.bounds.left, this.bounds.top)),
@@ -106,14 +116,6 @@ export default class SceneBoilerplate {
 
     this.renderPlane.mesh.frustumCulled = false
     this.renderPlane.mesh.matrixAutoUpdate = false
-
-    /* 
-      Render Target
-    */
-    this.renderTarget = new THREE.WebGLRenderTarget(this.bounds.width * this.gl.sizes.pixelRatio, this.bounds.height * this.gl.sizes.pixelRatio, {
-      // depthBuffer: false,
-      // stencilBuffer: false,
-    })
 
     /* 
       Camera
@@ -330,8 +332,6 @@ export default class SceneBoilerplate {
 
     this.gl.renderer.instance.setRenderTarget(this.renderTarget)
     this.gl.renderer.instance.render(this.scene, this.camera)
-
-    this.renderPlane.mesh.material.uniforms.tDiffuse.value = this.renderTarget.texture
   }
 
   update() {

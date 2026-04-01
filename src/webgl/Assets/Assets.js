@@ -1,6 +1,7 @@
 import * as THREE from 'three'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import { HDRLoader } from 'three/examples/jsm/loaders/HDRLoader.js'
+import { UltraHDRLoader } from 'three/addons/loaders/UltraHDRLoader.js'
 // import { FontLoader } from 'three/examples/jsm/loaders/FontLoader.js'
 
 import Gl from '../Gl'
@@ -45,7 +46,7 @@ export default class Assets {
           undefined,
           (_error) => {
             console.error(_error)
-          }
+          },
         )
       })
 
@@ -79,7 +80,7 @@ export default class Assets {
           undefined,
           (_error) => {
             console.error(_error)
-          }
+          },
         )
       })
 
@@ -111,7 +112,7 @@ export default class Assets {
           undefined,
           (_error) => {
             console.error(_error)
-          }
+          },
         )
       })
 
@@ -145,7 +146,7 @@ export default class Assets {
           undefined,
           (_error) => {
             console.error(_error)
-          }
+          },
         )
       })
 
@@ -179,7 +180,7 @@ export default class Assets {
           undefined,
           (_error) => {
             console.error(_error)
-          }
+          },
         )
       })
 
@@ -220,6 +221,9 @@ export default class Assets {
         this.textures.noise.wrapS = THREE.RepeatWrapping
         this.textures.noise.wrapT = THREE.RepeatWrapping
       })
+
+      const loader = new UltraHDRLoader()
+      loader.load('https://bdb.itsoffbrand.io/gl/envmap.jpeg', (_texture) => {})
 
       /* 
         Await
