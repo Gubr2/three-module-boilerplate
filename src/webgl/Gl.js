@@ -62,7 +62,7 @@ export default class Gl {
     /* 
       Canvas
     */
-    this.canvas = document.querySelector(this.params.canvas)
+    this.canvas = this.params.canvas
 
     /* 
       Utils
