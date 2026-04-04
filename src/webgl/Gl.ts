@@ -15,11 +15,33 @@ import Dispose from './Utils/Dispose'
 
 import Assets from './Assets/Assets'
 
-let instance = null
+interface Params {
+  canvas: HTMLCanvasElement
+}
+
+let instance: Gl | null = null
 
 export default class Gl {
-  constructor(_params) {
-    /* 
+  urlParams!: URLSearchParams
+  isDebug: boolean = false
+  params!: Params
+  isLoaded: boolean = false
+  didResizedBeforeWebglLoaded: boolean = false
+  canvas!: HTMLCanvasElement
+  time!: Time
+  sizes!: Sizes
+  mouse!: Mouse
+  shaderChunks!: ShaderChunks
+  dispose!: Dispose
+  renderer!: Renderer
+  scene!: THREE.Scene
+  camera!: THREE.Camera
+  assets!: Assets
+  debug?: any
+  world!: World
+
+  constructor(_params: Params) {
+    /*
       Singleton
     */
     if (instance) {
@@ -28,7 +50,7 @@ export default class Gl {
 
     instance = this
 
-    /* 
+    /*
       Check if WebGL 2.0 is available
     */
     if (WebGL.isWebGL2Available()) {
@@ -41,30 +63,30 @@ export default class Gl {
     }
   }
 
-  setup(_params) {
-    /* 
-      Get Debug 
+  setup(_params: Params): void {
+    /*
+      Get Debug
     */
     this.urlParams = new URLSearchParams(window.location.search)
     this.isDebug = this.urlParams.has('debug') && import.meta.env.DEV
 
-    /* 
+    /*
       Params
     */
     this.params = _params
 
-    /* 
+    /*
       Flags
     */
     this.isLoaded = false
     this.didResizedBeforeWebglLoaded = false
 
-    /* 
+    /*
       Canvas
     */
     this.canvas = this.params.canvas
 
-    /* 
+    /*
       Utils
     */
     this.time = new Time()
@@ -73,23 +95,23 @@ export default class Gl {
     this.shaderChunks = new ShaderChunks()
     this.dispose = new Dispose()
 
-    /* 
+    /*
       Renderer
     */
     this.renderer = new Renderer()
 
-    /* 
+    /*
       Scene & Camera
     */
     this.scene = new THREE.Scene()
     this.camera = new THREE.Camera()
 
-    /* 
+    /*
       Assets
     */
     this.assets = new Assets()
 
-    /* 
+    /*
       Functions
     */
     window.addEventListener('resize', () => {
@@ -103,7 +125,7 @@ export default class Gl {
     })
   }
 
-  load() {
+  load(): Promise<void> {
     return new Promise((_resolve) => {
       if (WebGL.isWebGL2Available()) {
         this.assets.load().then(() => {
@@ -113,7 +135,7 @@ export default class Gl {
 
           _resolve()
 
-          /* 
+          /*
             Fix accidental rescale before webgl is loaded
           */
           if (this.didResizedBeforeWebglLoaded) {
@@ -127,7 +149,7 @@ export default class Gl {
     })
   }
 
-  async init() {
+  async init(): Promise<void> {
     if (this.isDebug) {
       const Debug = (await import('./Utils/Debug')).default
       this.debug = new Debug()
@@ -141,7 +163,7 @@ export default class Gl {
     console.log('[WebGL] [ █ █ █ █ █ █ ] -', 'Initialized')
   }
 
-  update() {
+  update(): void {
     if (this.isLoaded) {
       if (this.isDebug) this.debug.perf.begin()
 
@@ -154,7 +176,7 @@ export default class Gl {
     }
   }
 
-  resize() {
+  resize(): void {
     this.sizes.resize()
 
     if (this.isLoaded) {
