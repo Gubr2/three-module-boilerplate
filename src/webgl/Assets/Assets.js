@@ -222,9 +222,6 @@ export default class Assets {
         this.textures.noise.wrapT = THREE.RepeatWrapping
       })
 
-      const loader = new UltraHDRLoader()
-      loader.load('https://bdb.itsoffbrand.io/gl/envmap.jpeg', (_texture) => {})
-
       /* 
         Await
       */
