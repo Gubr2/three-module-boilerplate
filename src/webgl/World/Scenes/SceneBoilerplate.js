@@ -344,6 +344,8 @@ export default class SceneBoilerplate {
     /* 
       Remove assets
     */
+    this.gl.dispose.allTextures(this.renderPlane.mesh)
+
     this.renderPlane.mesh.material.dispose()
     this.renderPlane.mesh.geometry.dispose()
 
