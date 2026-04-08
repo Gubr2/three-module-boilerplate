@@ -3,13 +3,16 @@ import Gl from '../Gl'
 import SceneBoilerplate from './Scenes/SceneBoilerplate'
 
 export default class World {
+  gl: Gl
+  selectors!: NodeListOf<Element>
+  scenes: object
+
   constructor() {
     this.gl = new Gl()
 
     /* 
       Scenes
     */
-    this.selectors = []
     this.scenes = {}
 
     /* 

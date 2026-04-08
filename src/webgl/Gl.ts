@@ -24,10 +24,10 @@ let instance: Gl | null = null
 export default class Gl {
   urlParams!: URLSearchParams
   isDebug: boolean = false
-  params!: Params
+  params?: Params
   isLoaded: boolean = false
   didResizedBeforeWebglLoaded: boolean = false
-  canvas!: HTMLCanvasElement
+  canvas?: HTMLCanvasElement
   time!: Time
   sizes!: Sizes
   mouse!: Mouse
@@ -40,7 +40,7 @@ export default class Gl {
   debug?: any
   world!: World
 
-  constructor(_params: Params) {
+  constructor(_params?: Params) {
     /*
       Singleton
     */
@@ -63,7 +63,7 @@ export default class Gl {
     }
   }
 
-  setup(_params: Params): void {
+  setup(_params?: Params): void {
     /*
       Get Debug
     */
@@ -84,7 +84,7 @@ export default class Gl {
     /*
       Canvas
     */
-    this.canvas = this.params.canvas
+    this.canvas = this.params?.canvas
 
     /*
       Utils
