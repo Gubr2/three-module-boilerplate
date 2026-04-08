@@ -265,6 +265,24 @@ export default class Mouse {
     this.normalized.previous.copy(this.normalized.current)
   }
 
+  dispose() {
+    // Move
+    document.removeEventListener('mousemove', this.mousemove.bind(this))
+    document.removeEventListener('touchmove', this.touchmove.bind(this))
+
+    // Down
+    document.removeEventListener('mousedown', this.down.bind(this))
+    document.removeEventListener('touchstart', this.down.bind(this))
+
+    // Up
+    document.removeEventListener('mouseup', this.up.bind(this))
+    document.removeEventListener('touchend', this.up.bind(this))
+
+    // Leave
+    document.removeEventListener('mouseleave', this.mouseleave.bind(this))
+    document.removeEventListener('touchleave', this.mouseleave.bind(this))
+  }
+
   /* 
     Create Eased Movement
   */
