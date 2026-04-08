@@ -1,11 +1,13 @@
 import Gl from '../Gl'
 
+import _Scene from './Scenes/_Scene'
 import SceneBoilerplate from './Scenes/SceneBoilerplate'
 
 export default class World {
   gl: Gl
-  selectors!: NodeListOf<Element>
-  scenes: object
+  selectors!: NodeListOf<HTMLElement>
+  scenes!: Record<string, _Scene>
+  debugFolder: any
 
   constructor() {
     this.gl = new Gl()
@@ -32,69 +34,22 @@ export default class World {
 
     this.selectors.forEach((_scene, _index) => {
       if (_scene.dataset.gl === 'boilerplate') {
-        this.scenes.boilerplate = new SceneBoilerplate({
+        this.scenes['boilerplate'] = new SceneBoilerplate({
           dom: _scene,
           isFollowingDom: true,
+          id: _scene.dataset.gl,
         })
       }
     })
 
     for (const key in this.scenes) {
-      this.gl.scene.add(this.scenes[key].renderPlane.mesh)
+      this.gl.scene.add(this.scenes[key].renderPlane)
     }
   }
 
-  destroy() {
-    if (this.gl.isDebug) console.log('Before destroy:', this.gl.renderer.instance.info)
-
-    /* 
-      Scenes
-    */
+  dispose() {
     for (const key in this.scenes) {
-      // Remove everything from the scene and dispose
-      this.gl.scene.remove(this.scenes[key].renderPlane.mesh)
-      if (this.scenes[key].renderTarget) this.scenes[key].renderTarget.dispose()
-      this.scenes[key].renderPlane.mesh.geometry.dispose()
-      this.scenes[key].renderPlane.mesh.material.dispose()
-
-      // Remove everything from the scene
-      if (this.scenes[key].scene) {
-        this.scenes[key].scene.traverse((object) => {
-          this.scenes[key].scene.remove(object.name)
-
-          if (!object.isMesh) return
-
-          object.geometry.dispose()
-
-          if (object.material.isMaterial) {
-            this.cleanMaterial(object.material)
-          } else {
-            // an array of materials
-            for (const material of object.material) this.cleanMaterial(material)
-          }
-        })
-      }
-    }
-
-    this.selectors = []
-    this.scenes = []
-
-    // Clear renderer image
-    this.gl.renderer.instance.setRenderTarget(null)
-    this.gl.renderer.instance.clear()
-
-    if (this.gl.isDebug) console.log('After destroy:', this.gl.renderer.instance.info)
-  }
-
-  cleanMaterial(material) {
-    material.dispose()
-
-    // dispose textures
-    for (const key of Object.keys(material)) {
-      const value = material[key]
-      if (value && typeof value === 'object' && 'minFilter' in value) {
-        value.dispose()
-      }
+      this.scenes[key].dispose()
     }
   }
 
