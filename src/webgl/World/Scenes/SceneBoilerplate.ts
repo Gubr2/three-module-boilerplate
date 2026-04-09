@@ -6,7 +6,7 @@ export default class SceneBoilerplate extends _Scene {
   scene: THREE.Scene
   renderTarget: THREE.WebGLRenderTarget
   camera: THREE.PerspectiveCamera
-  plane: THREE.Mesh
+  plane: THREE.Mesh<THREE.PlaneGeometry, THREE.ShaderMaterial>
 
   constructor(_params: SceneParams) {
     super(_params)
@@ -179,12 +179,14 @@ export default class SceneBoilerplate extends _Scene {
     super.dispose()
 
     /* 
-      Remove assets
+      Remove plane
     */
-    this.gl.dispose.allTextures(this.renderPlane)
-
-    this.renderPlane.material.dispose()
-    this.renderPlane.geometry.dispose()
+    if (this.plane.geometry) this.plane.geometry.dispose()
+    if (this.plane.material) {
+      this.plane.material.dispose()
+      this.gl.dispose.allTextures(this.plane)
+    }
+    this.scene.remove(this.plane)
 
     /* 
       Remove RTs

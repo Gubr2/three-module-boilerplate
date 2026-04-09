@@ -27,6 +27,22 @@ export default class World {
     this.debugFolder = this.gl.debug.gui.addFolder({
       title: 'World',
     })
+
+    this.debugFolder
+      .addButton({
+        title: 'Add All',
+      })
+      .on('click', () => {
+        this.add()
+      })
+
+    this.debugFolder
+      .addButton({
+        title: 'Dispose All',
+      })
+      .on('click', () => {
+        this.dispose()
+      })
   }
 
   add() {
@@ -49,8 +65,11 @@ export default class World {
 
   dispose() {
     for (const key in this.scenes) {
+      this.gl.scene.remove(this.scenes[key].renderPlane)
       this.scenes[key].dispose()
     }
+
+    this.scenes = {}
   }
 
   resize() {

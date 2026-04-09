@@ -1,7 +1,7 @@
 import { Pane } from 'tweakpane'
 import { ThreePerf } from 'three-perf'
 
-import Gl from '../Gl.js'
+import Gl from '../Gl'
 
 export default class Debug {
   constructor() {
@@ -78,5 +78,5 @@ export default class Debug {
     }
   }
 
-  update() {}
+  update() { }
 }

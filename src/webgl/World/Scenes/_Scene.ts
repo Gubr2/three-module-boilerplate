@@ -8,7 +8,7 @@ import Gl from '../../Gl'
 export interface SceneParams {
   dom: HTMLElement
   isFollowingDom: boolean
-  id?: string
+  id: string
 }
 
 interface ScrollParams {
@@ -58,13 +58,12 @@ export default class _Scene {
     /* 
       Render Plane
     */
-    /* 
-      Render Plane
-    */
     this.renderPlane = new THREE.Mesh(
       //
       new THREE.PlaneGeometry(1, 1)
     )
+
+    console.log(this.renderPlane)
 
     this.renderPlane.frustumCulled = false
     this.renderPlane.matrixAutoUpdate = false
@@ -203,7 +202,7 @@ export default class _Scene {
 
   setDebug() {
     this.debugFolder = this.gl.world.debugFolder.addFolder({
-      title: 'Boilerplate',
+      title: 'Scene: ' + this.params.id.charAt(0).toUpperCase() + this.params.id.slice(1),
     })
   }
 
@@ -216,6 +215,13 @@ export default class _Scene {
   }
 
   dispose() {
+    /* 
+      Remove render plane
+    */
+    this.renderPlane.geometry.dispose()
+    this.renderPlane.material.dispose()
+    this.gl.dispose.allTextures(this.renderPlane)
+
     /* 
       Kill ScrollTriggers
     */
