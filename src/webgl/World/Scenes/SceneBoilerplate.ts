@@ -83,8 +83,8 @@ export default class SceneBoilerplate extends _Scene {
     /* 
       Camera
     */
-    this.camera = new THREE.PerspectiveCamera(75, this.bounds.width / this.bounds.height, 0.1, 1000)
-    this.camera.position.z = 2
+    this.camera = new THREE.PerspectiveCamera(32, this.bounds.width / this.bounds.height, 0.1, 100)
+    this.camera.position.z = 5
 
     /* 
       Models
@@ -179,14 +179,16 @@ export default class SceneBoilerplate extends _Scene {
     super.dispose()
 
     /* 
-      Remove plane
+      Clear scene
     */
-    if (this.plane.geometry) this.plane.geometry.dispose()
-    if (this.plane.material) {
-      this.plane.material.dispose()
-      this.gl.dispose.allTextures(this.plane)
-    }
-    this.scene.remove(this.plane)
+    this.scene.traverse((_child) => {
+      if (_child instanceof THREE.Mesh) {
+        this.gl.dispose.allTextures(_child)
+
+        _child.material.dispose()
+        _child.geometry.dispose()
+      }
+    })
 
     /* 
       Remove RTs

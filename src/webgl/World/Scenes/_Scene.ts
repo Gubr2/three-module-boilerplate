@@ -1,5 +1,4 @@
 import * as THREE from 'three'
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
@@ -62,8 +61,6 @@ export default class _Scene {
       //
       new THREE.PlaneGeometry(1, 1)
     )
-
-    console.log(this.renderPlane)
 
     this.renderPlane.frustumCulled = false
     this.renderPlane.matrixAutoUpdate = false
