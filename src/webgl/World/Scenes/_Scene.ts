@@ -150,6 +150,8 @@ export default class _Scene {
       )
     } else if (_params.type === 'sticky') {
       // Enter
+      // ↳ Move in
+      // ↳ Compensate for tall devices, where the screen height gets greater than the sticky container height
       this.gsapResources.push(
         gsap.fromTo(
           _params.renderPlane.material.uniforms.uPosition.value,
@@ -163,8 +165,14 @@ export default class _Scene {
               invalidateOnRefresh: true,
               scrub: true,
               trigger: _params.trigger,
-              start: () => `top-=${this.gl.sizes.height} top`,
-              end: () => `top top`,
+              start: () => `
+                top-=${this.gl.sizes.height} 
+                top+=${Math.max((this.gl.sizes.height - this.bounds.height) / 2, 0)} 
+              `,
+              end: () => `
+                top 
+                top+=${Math.max((this.gl.sizes.height - this.bounds.height) / 2, 0)}
+              `,
               refreshPriority: -100,
               // markers: true,
             },
@@ -173,6 +181,8 @@ export default class _Scene {
       )
 
       // Leave
+      // ↳ Move out
+      // ↳ Compensate for tall devices, where the screen height gets greater than the sticky container height
       this.gsapResources.push(
         gsap.fromTo(
           _params.renderPlane.material.uniforms.uPosition.value,
@@ -186,8 +196,14 @@ export default class _Scene {
               invalidateOnRefresh: true,
               scrub: true,
               trigger: _params.trigger,
-              start: () => `bottom bottom`,
-              end: () => `bottom+=${this.gl.sizes.height} bottom`,
+              start: () => `
+                bottom 
+                bottom-=${Math.max((this.gl.sizes.height - this.bounds.height) / 2, 0)}
+              `,
+              end: () => `
+                bottom+=${this.gl.sizes.height} 
+                bottom-=${Math.max((this.gl.sizes.height - this.bounds.height) / 2, 0)}
+              `,
               refreshPriority: -99,
               // markers: true,
             },

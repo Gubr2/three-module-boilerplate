@@ -6,7 +6,7 @@ export default class SceneBoilerplate extends _Scene {
   scene: THREE.Scene
   renderTarget: THREE.WebGLRenderTarget
   camera: THREE.PerspectiveCamera
-  plane: THREE.Mesh<THREE.PlaneGeometry, THREE.ShaderMaterial>
+  plane!: THREE.Mesh
 
   constructor(_params: SceneParams) {
     super(_params)
@@ -89,6 +89,35 @@ export default class SceneBoilerplate extends _Scene {
     /* 
       Models
     */
+    this.setModels()
+
+    /* 
+      Disposable resources
+    */
+    this.gsapResources = []
+
+    /* 
+      Disposable functions
+    */
+    this.disposableFunctions = {
+      // updateScrollUniforms: this.updateScrollUniforms.bind(this),
+    }
+
+    /* 
+      Functions
+    */
+    this.setIsRendering(this.params.dom)
+
+    if (this.params?.isFollowingDom) {
+      this.setDefaultScroll({
+        renderPlane: this.renderPlane,
+        trigger: this.params.dom,
+        type: 'regular',
+      })
+    }
+  }
+
+  setModels() {
     this.plane = new THREE.Mesh(
       new THREE.PlaneGeometry(1, 1),
       new THREE.ShaderMaterial({
@@ -114,30 +143,6 @@ export default class SceneBoilerplate extends _Scene {
     )
 
     this.scene.add(this.plane)
-
-    /* 
-      Disposable resources
-    */
-    this.gsapResources = []
-
-    /* 
-      Disposable functions
-    */
-    this.disposableFunctions = {
-      // updateScrollUniforms: this.updateScrollUniforms.bind(this),
-    }
-
-    /* 
-      Functions
-    */
-    this.setIsRendering(this.params.dom)
-    if (this.params?.isFollowingDom) {
-      this.setDefaultScroll({
-        renderPlane: this.renderPlane,
-        trigger: this.params.dom,
-        type: 'regular',
-      })
-    }
   }
 
   resize() {

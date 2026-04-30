@@ -198,6 +198,8 @@ export default class Mouse {
       this.normalized.current.x = (_event.touches[0].clientX / this.width) * 2 - 1
       this.normalized.current.y = -(_event.touches[0].clientY / this.height) * 2 + 1
     }
+
+    this.normalized.previous.copy(this.normalized.current)
   }
 
   up(_event) {
