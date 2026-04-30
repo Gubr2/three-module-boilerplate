@@ -4,11 +4,6 @@ import _Scene from './Scenes/_Scene'
 import SceneBoilerplate from './Scenes/SceneBoilerplate'
 
 export default class World {
-  gl: Gl
-  selectors!: NodeListOf<HTMLElement>
-  scenes!: Record<string, _Scene>
-  debugFolder: any
-
   constructor() {
     this.gl = new Gl()
 

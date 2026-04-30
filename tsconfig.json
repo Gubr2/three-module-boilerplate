@@ -1,13 +1,12 @@
 {
   "compilerOptions": {
+    "checkJs": true,
+    "allowJs": true,
+    "strict": true,
     "target": "ESNext",
     "module": "ESNext",
     "moduleResolution": "bundler",
-    "types": ["vite/client"],
-    "strict": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true
+    "types": ["vite/client"]
   },
   "include": ["src"]
 }
