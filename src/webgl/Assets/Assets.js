@@ -27,7 +27,27 @@ export default class Assets {
     this.fonts = {}
   }
 
-  customTextureLoader(_path, _target, _isAsync = false) {
+  checkIfMandatory(_sceneDependencies) {
+    // By default, every asset is loaded async
+    // ↳ This forces me to set assets dependency for each scene
+    if (!_sceneDependencies) return false
+
+    if (_sceneDependencies == 'all') {
+      return true
+    } else {
+      return _sceneDependencies.some((_item) => this.activeScenes.some((_scene) => _scene === _item)) // Check for exact match here thats why I'm not using includes() )
+    }
+  }
+
+  customTextureLoader(_path, _target, _sceneDependencies = false) {
+    /* 
+      Check if mandatory
+    */
+    const isMandatory = this.checkIfMandatory(_sceneDependencies)
+
+    /* 
+      Load
+    */
     const loader = () =>
       new Promise((_resolve) => {
         this.textureLoader.load(
@@ -37,10 +57,10 @@ export default class Assets {
 
             _target(_result)
 
-            if (_isAsync) {
-              this.logAsyncProgress(_path)
-            } else {
+            if (isMandatory) {
               this.logProgress(_path)
+            } else {
+              this.logAsyncProgress(_path)
             }
           },
           undefined,
@@ -50,16 +70,27 @@ export default class Assets {
         )
       })
 
-    if (_isAsync) {
-      this.promisesAsync.push(loader)
-    } else {
+    /* 
+      Resolve
+    */
+    if (isMandatory) {
       const promise = loader()
       this.promises.push(promise)
-      return promise
+      // return promise
+    } else {
+      this.promisesAsync.push(loader)
     }
   }
 
-  customKTX2TextureLoader(_path, _target, _isAsync = false) {
+  customKTX2TextureLoader(_path, _target, _sceneDependencies = false) {
+    /* 
+      Check if mandatory
+    */
+    const isMandatory = this.checkIfMandatory(_sceneDependencies)
+
+    /* 
+      Load
+    */
     const loader = () =>
       new Promise((_resolve) => {
         this.ktx2Loader.load(
@@ -71,10 +102,10 @@ export default class Assets {
 
             _target(_result)
 
-            if (_isAsync) {
-              this.logAsyncProgress(_path)
-            } else {
+            if (isMandatory) {
               this.logProgress(_path)
+            } else {
+              this.logAsyncProgress(_path)
             }
           },
           undefined,
@@ -84,30 +115,44 @@ export default class Assets {
         )
       })
 
-    if (_isAsync) {
-      this.promisesAsync.push(loader)
-    } else {
+
+    /* 
+      Resolve
+    */
+    if (isMandatory) {
       const promise = loader()
       this.promises.push(promise)
-      return promise
+      // return promise
+    } else {
+      this.promisesAsync.push(loader)
     }
   }
 
-  customModelLoader(_path, _target, _isAsync = false) {
+  customModelLoader(_path, _target, _sceneDependencies = false, _delay = 0) {
+    /* 
+      Check if mandatory
+    */
+    const isMandatory = this.checkIfMandatory(_sceneDependencies)
+
+    /* 
+      Load
+    */
     const loader = () =>
       new Promise((_resolve) => {
         this.gltfLoader.load(
           _path,
           (_result) => {
-            _resolve()
+            setTimeout(() => {
+              _resolve()
 
-            _target(_result)
+              _target(_result)
 
-            if (_isAsync) {
-              this.logAsyncProgress(_path)
-            } else {
-              this.logProgress(_path)
-            }
+              if (isMandatory) {
+                this.logProgress(_path)
+              } else {
+                this.logAsyncProgress(_path)
+              }
+            }, _delay)
           },
           undefined,
           (_error) => {
@@ -116,18 +161,28 @@ export default class Assets {
         )
       })
 
-    if (_isAsync) {
-      this.promisesAsync.push(loader)
-    } else {
+
+    /* 
+      Resolve
+    */
+    if (isMandatory) {
       const promise = loader()
-
       this.promises.push(promise)
-
-      return promise
+      // return promise
+    } else {
+      this.promisesAsync.push(loader)
     }
   }
 
-  customHdriLoader(_path, _target, _isAsync = false) {
+  customHdriLoader(_path, _target, _sceneDependencies = false) {
+    /* 
+      Check if mandatory
+    */
+    const isMandatory = this.checkIfMandatory(_sceneDependencies)
+
+    /* 
+      Load
+    */
     const loader = () =>
       new Promise((_resolve) => {
         this.hdriLoader.load(
@@ -137,10 +192,10 @@ export default class Assets {
 
             _resolve()
 
-            if (_isAsync) {
-              this.logAsyncProgress(_path)
-            } else {
+            if (isMandatory) {
               this.logProgress(_path)
+            } else {
+              this.logAsyncProgress(_path)
             }
           },
           undefined,
@@ -150,18 +205,70 @@ export default class Assets {
         )
       })
 
-    if (_isAsync) {
-      this.promisesAsync.push(loader)
-    } else {
+    /* 
+      Resolve
+    */
+    if (isMandatory) {
       const promise = loader()
-
       this.promises.push(promise)
-
-      return promise
+      // return promise
+    } else {
+      this.promisesAsync.push(loader)
     }
   }
 
-  customFontLoader(_path, _target, _isAsync = false) {
+  customExrLoader(_path, _target, _sceneDependencies = false) {
+    /* 
+      Check if mandatory
+    */
+    const isMandatory = this.checkIfMandatory(_sceneDependencies)
+
+    /* 
+      Load
+    */
+    const loader = () =>
+      new Promise((_resolve) => {
+        this.exrLoader.load(
+          _path,
+          (_result) => {
+            _target(_result)
+
+            _resolve()
+
+            if (isMandatory) {
+              this.logProgress(_path)
+            } else {
+              this.logAsyncProgress(_path)
+            }
+          },
+          undefined,
+          (_error) => {
+            console.error(_error)
+          },
+        )
+      })
+
+    /* 
+      Resolve
+    */
+    if (isMandatory) {
+      const promise = loader()
+      this.promises.push(promise)
+      // return promise
+    } else {
+      this.promisesAsync.push(loader)
+    }
+  }
+
+  customFontLoader(_path, _target, _sceneDependencies = false) {
+    /* 
+      Check if mandatory
+    */
+    const isMandatory = this.checkIfMandatory(_sceneDependencies)
+
+    /* 
+      Load
+    */
     const loader = () =>
       new Promise((_resolve) => {
         this.fontLoader.load(
@@ -171,10 +278,10 @@ export default class Assets {
 
             _target(_result)
 
-            if (_isAsync) {
-              this.logAsyncProgress(_path)
-            } else {
+            if (isMandatory) {
               this.logProgress(_path)
+            } else {
+              this.logAsyncProgress(_path)
             }
           },
           undefined,
@@ -184,12 +291,15 @@ export default class Assets {
         )
       })
 
-    if (_isAsync) {
-      this.promisesAsync.push(loader)
-    } else {
+    /* 
+      Resolve
+    */
+    if (isMandatory) {
       const promise = loader()
       this.promises.push(promise)
-      return promise
+      // return promise
+    } else {
+      this.promisesAsync.push(loader)
     }
   }
 
@@ -220,7 +330,7 @@ export default class Assets {
         this.textures.noise = _result
         this.textures.noise.wrapS = THREE.RepeatWrapping
         this.textures.noise.wrapT = THREE.RepeatWrapping
-      })
+      }, 'all')
 
       /* 
         Await
@@ -238,9 +348,18 @@ export default class Assets {
       /* 
         Async
       */
-      this.promisesAsync.map((_fn) => _fn()) // Async promises needs to be called manually, thats why they are placed in arrow functions
-      Promise.all(this.promisesAsync).then(() => {
+      const promisesAsync = this.promisesAsync.map((_fn) => _fn()) // Async promises needs to be called manually, thats why they are placed in arrow functions
+
+      Promise.all(promisesAsync).then(() => {
         console.log('[WebGL] [  A S Y N C  ] -', 'Async assets loaded')
+      })
+
+      /* 
+        All
+        ↳ For preloader hiding and transition – to make sure, everything is loaded
+      */
+      Promise.all([...this.promises, ...promisesAsync]).then(() => {
+        console.log('[WebGL] [    A L L    ] -', 'All assets loaded')
       })
     })
   }

@@ -5,6 +5,7 @@
     "moduleResolution": "bundler",
     "types": ["vite/client"],
     "allowJs": true,
+    "noEmit": true,
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,

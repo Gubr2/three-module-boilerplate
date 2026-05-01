@@ -50,11 +50,16 @@ export default class Gl {
 
     instance = this
 
+    /* 
+      Params
+    */
+    this.params = _params
+
     /*
       Check if WebGL 2.0 is available
     */
     if (WebGL.isWebGL2Available()) {
-      this.setup(_params)
+      this.setup()
     } else {
       // Fallback
       console.log('[WebGL] [   (╯︵╰,)   ] -', 'WebGL 2.0 is not available - initializing fallback.')
@@ -63,17 +68,12 @@ export default class Gl {
     }
   }
 
-  setup(_params?: Params): void {
+  setup(): void {
     /*
       Get Debug
     */
     this.urlParams = new URLSearchParams(window.location.search)
     this.isDebug = this.urlParams.has('debug') && import.meta.env.DEV
-
-    /*
-      Params
-    */
-    this.params = _params
 
     /*
       Flags
