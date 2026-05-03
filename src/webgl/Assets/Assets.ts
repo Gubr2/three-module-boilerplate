@@ -1,12 +1,29 @@
 import * as THREE from 'three'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import { HDRLoader } from 'three/examples/jsm/loaders/HDRLoader.js'
-import { UltraHDRLoader } from 'three/addons/loaders/UltraHDRLoader.js'
 // import { FontLoader } from 'three/examples/jsm/loaders/FontLoader.js'
 
 import Gl from '../Gl'
 
 export default class Assets {
+  gl: Gl
+  gltfLoader: GLTFLoader
+  hdriLoader: HDRLoader
+  textureLoader: THREE.TextureLoader
+  // fontLoader: FontLoader
+
+  activeScenes: (string | undefined)[]
+
+  models: Record<string, any>
+  textures: Record<string, any>
+  hdris: Record<string, any>
+  fonts: Record<string, any>
+
+  promises: Promise<void>[]
+  promisesProgress: number
+  promisesAsync: (() => Promise<void>)[]
+  promisesAsyncProgress: number
+
   constructor() {
     this.gl = new Gl()
 
@@ -19,27 +36,42 @@ export default class Assets {
     // this.fontLoader = new FontLoader()
 
     /* 
+      Scene Selectors
+    */
+    this.activeScenes = Array.from(document.querySelectorAll<HTMLElement>('[data-gl-scene]')).map((_scene) => _scene.dataset.glScene)
+    // .filter((id): id is string => id !== undefined)
+
+    /* 
       Assets
     */
     this.models = {}
     this.textures = {}
     this.hdris = {}
     this.fonts = {}
+
+    /* 
+      Promises
+    */
+    this.promises = []
+    this.promisesProgress = 0
+
+    this.promisesAsync = []
+    this.promisesAsyncProgress = 0
   }
 
-  checkIfMandatory(_sceneDependencies) {
-    // By default, every asset is loaded async
-    // ↳ This forces me to set assets dependency for each scene
-    if (!_sceneDependencies) return false
-
-    if (_sceneDependencies == 'all') {
+  checkIfMandatory(_sceneDependencies: string | string[]) {
+    if (_sceneDependencies === 'all') {
       return true
+    } else if (Array.isArray(_sceneDependencies)) {
+      return _sceneDependencies.some((_item) => this.activeScenes.some((_scene) => _scene === _item))
     } else {
-      return _sceneDependencies.some((_item) => this.activeScenes.some((_scene) => _scene === _item)) // Check for exact match here thats why I'm not using includes() )
+      // By default, every asset is loaded async
+      // ↳ This forces me to set assets dependency for each scene
+      return false
     }
   }
 
-  customTextureLoader(_path, _target, _sceneDependencies = false) {
+  customTextureLoader(_path: string, _target: (result: any) => void, _sceneDependencies: string | string[]) {
     /* 
       Check if mandatory
     */
@@ -49,7 +81,7 @@ export default class Assets {
       Load
     */
     const loader = () =>
-      new Promise((_resolve) => {
+      new Promise<void>((_resolve) => {
         this.textureLoader.load(
           _path,
           (_result) => {
@@ -66,7 +98,7 @@ export default class Assets {
           undefined,
           (_error) => {
             console.error(_error)
-          },
+          }
         )
       })
 
@@ -111,10 +143,9 @@ export default class Assets {
           undefined,
           (_error) => {
             console.error(_error)
-          },
+          }
         )
       })
-
 
     /* 
       Resolve
@@ -128,7 +159,7 @@ export default class Assets {
     }
   }
 
-  customModelLoader(_path, _target, _sceneDependencies = false, _delay = 0) {
+  customModelLoader(_path, _target, _sceneDependencies = false) {
     /* 
       Check if mandatory
     */
@@ -142,25 +173,22 @@ export default class Assets {
         this.gltfLoader.load(
           _path,
           (_result) => {
-            setTimeout(() => {
-              _resolve()
+            _resolve()
 
-              _target(_result)
+            _target(_result)
 
-              if (isMandatory) {
-                this.logProgress(_path)
-              } else {
-                this.logAsyncProgress(_path)
-              }
-            }, _delay)
+            if (isMandatory) {
+              this.logProgress(_path)
+            } else {
+              this.logAsyncProgress(_path)
+            }
           },
           undefined,
           (_error) => {
             console.error(_error)
-          },
+          }
         )
       })
-
 
     /* 
       Resolve
@@ -201,7 +229,7 @@ export default class Assets {
           undefined,
           (_error) => {
             console.error(_error)
-          },
+          }
         )
       })
 
@@ -244,7 +272,7 @@ export default class Assets {
           undefined,
           (_error) => {
             console.error(_error)
-          },
+          }
         )
       })
 
@@ -287,7 +315,7 @@ export default class Assets {
           undefined,
           (_error) => {
             console.error(_error)
-          },
+          }
         )
       })
 
@@ -316,21 +344,19 @@ export default class Assets {
   }
 
   load() {
-    this.promises = []
-    this.promisesProgress = 0
-
-    this.promisesAsync = []
-    this.promisesAsyncProgress = 0
-
-    return new Promise(async (_resolve) => {
+    return new Promise<void>(async (_resolve) => {
       /* 
         Textures
       */
-      this.customTextureLoader('/textures/noise.png', (_result) => {
-        this.textures.noise = _result
-        this.textures.noise.wrapS = THREE.RepeatWrapping
-        this.textures.noise.wrapT = THREE.RepeatWrapping
-      }, 'all')
+      this.customTextureLoader(
+        '/textures/noise.png',
+        (_result) => {
+          this.textures.noise = _result
+          this.textures.noise.wrapS = THREE.RepeatWrapping
+          this.textures.noise.wrapT = THREE.RepeatWrapping
+        },
+        'all'
+      )
 
       /* 
         Await
