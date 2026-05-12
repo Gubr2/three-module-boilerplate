@@ -1,22 +1,26 @@
 import * as THREE from 'three'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
-import { HDRLoader } from 'three/examples/jsm/loaders/HDRLoader.js'
+// import { HDRLoader } from 'three/examples/jsm/loaders/HDRLoader.js'
+// import { KTX2Loader } from 'three/examples/jsm/loaders/KTX2Loader.js'
+// import { EXRLoader } from 'three/examples/jsm/loaders/EXRLoader.js'
 // import { FontLoader } from 'three/examples/jsm/loaders/FontLoader.js'
 
 import Gl from '../Gl'
 
 export default class Assets {
   gl: Gl
-  gltfLoader: GLTFLoader
-  hdriLoader: HDRLoader
   textureLoader: THREE.TextureLoader
+  // gltfLoader: GLTFLoader
+  // ktx2Loader: KTX2Loader
+  // hdrLoader: HDRLoader
+  // exrLoader: EXRLoader
   // fontLoader: FontLoader
 
   activeScenes: (string | undefined)[]
 
   models: Record<string, any>
-  textures: Record<string, any>
-  hdris: Record<string, any>
+  textures: Record<string, THREE.Texture>
+  hdris: Record<string, THREE.Texture>
   fonts: Record<string, any>
 
   promises: Promise<void>[]
@@ -30,9 +34,11 @@ export default class Assets {
     /* 
       Loaders
     */
-    this.gltfLoader = new GLTFLoader()
-    this.hdriLoader = new HDRLoader()
     this.textureLoader = new THREE.TextureLoader()
+    //  this.gltfLoader = new GLTFLoader()
+    // this.ktx2Loader = new KTX2Loader()
+    // this.hdrLoader = new HDRLoader()
+    // this.exrLoader = new EXRLoader()
     // this.fontLoader = new FontLoader()
 
     /* 
@@ -71,7 +77,7 @@ export default class Assets {
     }
   }
 
-  customTextureLoader(_path: string, _target: (result: any) => void, _sceneDependencies: string | string[]) {
+  customLoader(_path: string, _loader: any, _target: (result: any) => void, _sceneDependencies: string | string[]) {
     /* 
       Check if mandatory
     */
@@ -82,9 +88,9 @@ export default class Assets {
     */
     const loader = () =>
       new Promise<void>((_resolve) => {
-        this.textureLoader.load(
+        _loader.load(
           _path,
-          (_result) => {
+          (_result: any) => {
             _resolve()
 
             _target(_result)
@@ -96,7 +102,7 @@ export default class Assets {
             }
           },
           undefined,
-          (_error) => {
+          (_error: any) => {
             console.error(_error)
           }
         )
@@ -114,230 +120,13 @@ export default class Assets {
     }
   }
 
-  customKTX2TextureLoader(_path, _target, _sceneDependencies = false) {
-    /* 
-      Check if mandatory
-    */
-    const isMandatory = this.checkIfMandatory(_sceneDependencies)
-
-    /* 
-      Load
-    */
-    const loader = () =>
-      new Promise((_resolve) => {
-        this.ktx2Loader.load(
-          _path,
-          (_result) => {
-            _resolve()
-
-            _result.colorSpace = THREE.LinearSRGBColorSpace
-
-            _target(_result)
-
-            if (isMandatory) {
-              this.logProgress(_path)
-            } else {
-              this.logAsyncProgress(_path)
-            }
-          },
-          undefined,
-          (_error) => {
-            console.error(_error)
-          }
-        )
-      })
-
-    /* 
-      Resolve
-    */
-    if (isMandatory) {
-      const promise = loader()
-      this.promises.push(promise)
-      // return promise
-    } else {
-      this.promisesAsync.push(loader)
-    }
-  }
-
-  customModelLoader(_path, _target, _sceneDependencies = false) {
-    /* 
-      Check if mandatory
-    */
-    const isMandatory = this.checkIfMandatory(_sceneDependencies)
-
-    /* 
-      Load
-    */
-    const loader = () =>
-      new Promise((_resolve) => {
-        this.gltfLoader.load(
-          _path,
-          (_result) => {
-            _resolve()
-
-            _target(_result)
-
-            if (isMandatory) {
-              this.logProgress(_path)
-            } else {
-              this.logAsyncProgress(_path)
-            }
-          },
-          undefined,
-          (_error) => {
-            console.error(_error)
-          }
-        )
-      })
-
-    /* 
-      Resolve
-    */
-    if (isMandatory) {
-      const promise = loader()
-      this.promises.push(promise)
-      // return promise
-    } else {
-      this.promisesAsync.push(loader)
-    }
-  }
-
-  customHdriLoader(_path, _target, _sceneDependencies = false) {
-    /* 
-      Check if mandatory
-    */
-    const isMandatory = this.checkIfMandatory(_sceneDependencies)
-
-    /* 
-      Load
-    */
-    const loader = () =>
-      new Promise((_resolve) => {
-        this.hdriLoader.load(
-          _path,
-          (_result) => {
-            _target(_result)
-
-            _resolve()
-
-            if (isMandatory) {
-              this.logProgress(_path)
-            } else {
-              this.logAsyncProgress(_path)
-            }
-          },
-          undefined,
-          (_error) => {
-            console.error(_error)
-          }
-        )
-      })
-
-    /* 
-      Resolve
-    */
-    if (isMandatory) {
-      const promise = loader()
-      this.promises.push(promise)
-      // return promise
-    } else {
-      this.promisesAsync.push(loader)
-    }
-  }
-
-  customExrLoader(_path, _target, _sceneDependencies = false) {
-    /* 
-      Check if mandatory
-    */
-    const isMandatory = this.checkIfMandatory(_sceneDependencies)
-
-    /* 
-      Load
-    */
-    const loader = () =>
-      new Promise((_resolve) => {
-        this.exrLoader.load(
-          _path,
-          (_result) => {
-            _target(_result)
-
-            _resolve()
-
-            if (isMandatory) {
-              this.logProgress(_path)
-            } else {
-              this.logAsyncProgress(_path)
-            }
-          },
-          undefined,
-          (_error) => {
-            console.error(_error)
-          }
-        )
-      })
-
-    /* 
-      Resolve
-    */
-    if (isMandatory) {
-      const promise = loader()
-      this.promises.push(promise)
-      // return promise
-    } else {
-      this.promisesAsync.push(loader)
-    }
-  }
-
-  customFontLoader(_path, _target, _sceneDependencies = false) {
-    /* 
-      Check if mandatory
-    */
-    const isMandatory = this.checkIfMandatory(_sceneDependencies)
-
-    /* 
-      Load
-    */
-    const loader = () =>
-      new Promise((_resolve) => {
-        this.fontLoader.load(
-          _path,
-          (_result) => {
-            _resolve()
-
-            _target(_result)
-
-            if (isMandatory) {
-              this.logProgress(_path)
-            } else {
-              this.logAsyncProgress(_path)
-            }
-          },
-          undefined,
-          (_error) => {
-            console.error(_error)
-          }
-        )
-      })
-
-    /* 
-      Resolve
-    */
-    if (isMandatory) {
-      const promise = loader()
-      this.promises.push(promise)
-      // return promise
-    } else {
-      this.promisesAsync.push(loader)
-    }
-  }
-
-  logProgress(_path) {
+  logProgress(_path: string) {
     this.promisesProgress++
 
     if (this.gl.isDebug) console.info(`[WebGL] [ ${this.promisesProgress}/${this.promises.length} asset loaded ] -`, _path)
   }
 
-  logAsyncProgress(_path) {
+  logAsyncProgress(_path: string) {
     this.promisesAsyncProgress++
 
     if (this.gl.isDebug) console.info(`[WebGL] [ ${this.promisesAsyncProgress}/${this.promisesAsync.length} async asset loaded ] -`, _path)
@@ -348,12 +137,15 @@ export default class Assets {
       /* 
         Textures
       */
-      this.customTextureLoader(
+      this.customLoader(
         '/textures/noise.png',
-        (_result) => {
+        this.textureLoader,
+        (_result: THREE.Texture) => {
           this.textures.noise = _result
           this.textures.noise.wrapS = THREE.RepeatWrapping
           this.textures.noise.wrapT = THREE.RepeatWrapping
+
+          this.gl.renderer.instance.initTexture(this.textures.noise)
         },
         'all'
       )

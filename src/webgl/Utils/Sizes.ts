@@ -1,4 +1,13 @@
 export default class Sizes {
+  breakpoints: {
+    touch: number
+  }
+  width!: number
+  height!: number
+  pixelRatio!: number
+  aspect!: number
+  isTouchDevice!: boolean
+
   constructor() {
     // Breakpoints
     this.breakpoints = {
@@ -19,7 +28,7 @@ export default class Sizes {
     this.isTouchDevice = window.matchMedia('(hover: none)').matches
   }
 
-  setResponsiveFov(_fov, referenceAspect, zoom = 1, aspect = this.aspect) {
+  setResponsiveFov(_fov: number, referenceAspect: number, zoom: number = 1, aspect: number = this.aspect) {
     const fovInRadians = (_fov * Math.PI) / 180
     let tanHalf = Math.tan(fovInRadians / 2) / zoom
 

@@ -1,16 +1,12 @@
 import * as THREE from 'three'
 
 export default class Misc {
-  constructor() {
-
-  }
-
-  createNestedParents(_schema = []) {
+  createNestedParents(_schema: string[] = []) {
     /* 
       Create Nested Parents
     */
     const names = _schema
-    const map = {}
+    const map: Record<string, THREE.Object3D> = {}
     let prev = null
     for (const name of names) {
       const n = new THREE.Object3D()

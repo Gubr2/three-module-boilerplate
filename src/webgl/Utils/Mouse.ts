@@ -2,8 +2,49 @@ import { Vector2, MathUtils } from 'three'
 
 import Gl from '../Gl'
 
+interface Params {
+  limitToBounds: boolean
+}
+
 export default class Mouse {
-  constructor(_dom, _params = {}) {
+  gl: Gl
+
+  dom!: HTMLElement | undefined
+
+  bounds: any
+
+  params: Params
+
+  isMouseHolding: boolean
+  isMouseMoved: boolean
+
+  width: number
+  height: number
+
+  default: Vector2
+  normalized: {
+    current: Vector2
+    previous: Vector2
+  }
+  direction: Vector2
+  pace: {
+    default: number
+    separated: Vector2
+  }
+  drag: {
+    start: Vector2
+    distance: {
+      default: number
+      separated: Vector2
+    }
+    side: 'left' | 'right' | 'top' | 'bottom'
+    pace: {
+      default: number
+      separated: Vector2
+    }
+  }
+
+  constructor(_dom?: HTMLElement, _params?: Params) {
     this.gl = new Gl()
 
     /* 
@@ -17,19 +58,19 @@ export default class Mouse {
     this.bounds = this.dom
       ? this.getPositionOfDom()
       : {
-        left: 0,
-        top: 0,
-        width: window.innerWidth,
-        height: window.innerHeight,
-        right: window.innerWidth,
-        bottom: window.innerHeight,
-      }
+          left: 0,
+          top: 0,
+          width: window.innerWidth,
+          height: window.innerHeight,
+          right: window.innerWidth,
+          bottom: window.innerHeight,
+        }
 
     /* 
       Params
     */
     this.params = {
-      limitToBounds: _params.limitToBounds || false,
+      limitToBounds: _params?.limitToBounds || false,
     }
 
     /* 
@@ -41,8 +82,8 @@ export default class Mouse {
     /* 
       Sizes
     */
-    this.width = this.gl.sizes.width
-    this.height = this.gl.sizes.height
+    this.width = this.bounds.width
+    this.height = this.bounds.height
 
     /* 
       Default
@@ -114,7 +155,7 @@ export default class Mouse {
     this.pace.separated.set(0, 0)
   }
 
-  mousemove(_event) {
+  mousemove(_event: MouseEvent) {
     this.isMouseMoved = true
 
     // Set Default
@@ -151,7 +192,7 @@ export default class Mouse {
     }
   }
 
-  touchmove(_event) {
+  touchmove(_event: TouchEvent) {
     if (_event.touches) {
       this.isMouseMoved = true
 
@@ -186,14 +227,14 @@ export default class Mouse {
     }
   }
 
-  down(_event) {
+  down(_event: MouseEvent | TouchEvent) {
     this.isMouseHolding = true
 
     // Reset Drag Distance
     this.drag.start.copy(this.default)
 
     // Set for mobile
-    if (_event.touches) {
+    if (_event instanceof TouchEvent) {
       // Set Normalized
       this.normalized.current.x = (_event.touches[0].clientX / this.width) * 2 - 1
       this.normalized.current.y = -(_event.touches[0].clientY / this.height) * 2 + 1
@@ -202,7 +243,7 @@ export default class Mouse {
     this.normalized.previous.copy(this.normalized.current)
   }
 
-  up(_event) {
+  up(_event: MouseEvent | TouchEvent) {
     this.isMouseHolding = false
 
     // Reset Drag Distance
@@ -222,22 +263,24 @@ export default class Mouse {
         right: window.innerWidth,
         bottom: window.innerHeight,
       }
-
-      this.width = window.innerWidth
-      this.height = window.innerHeight
     }
+
+    this.width = this.bounds.width
+    this.height = this.bounds.height
   }
 
   getPositionOfDom() {
-    const rect = this.dom.getBoundingClientRect()
+    const rect = this.dom?.getBoundingClientRect()
 
-    return {
-      left: rect.left,
-      top: rect.top + window.scrollY,
-      width: rect.width,
-      height: rect.height,
-      right: rect.right,
-      bottom: rect.bottom,
+    if (rect) {
+      return {
+        left: rect.left,
+        top: rect.top + window.scrollY,
+        width: rect.width,
+        height: rect.height,
+        right: rect.right,
+        bottom: rect.bottom,
+      }
     }
   }
 
@@ -288,7 +331,7 @@ export default class Mouse {
   /* 
     Create Eased Movement
   */
-  createEasedMovement(_amount) {
+  createEasedMovement(_amount: number) {
     /* 
       Variables
     */
@@ -298,7 +341,7 @@ export default class Mouse {
     /* 
       Update
     */
-    const update = (_delta) => {
+    const update = (_delta: number) => {
       value.x = MathUtils.damp(value.x, this.default.x, amount, _delta)
       value.y = MathUtils.damp(value.y, this.default.y, amount, _delta)
     }
@@ -306,7 +349,7 @@ export default class Mouse {
     /* 
       Set Amount
     */
-    const setAmount = (_amount) => {
+    const setAmount = (_amount: number) => {
       amount = _amount
     }
 
@@ -324,7 +367,7 @@ export default class Mouse {
   /* 
     Create Eased Normalized
   */
-  createEasedNormalized(_amount) {
+  createEasedNormalized(_amount: number) {
     /* 
       Variables
     */
@@ -334,7 +377,7 @@ export default class Mouse {
     /* 
       Update
     */
-    const update = (_delta) => {
+    const update = (_delta: number) => {
       value.x = MathUtils.damp(value.x, this.normalized.current.x, amount, _delta)
       value.y = MathUtils.damp(value.y, this.normalized.current.y, amount, _delta)
     }
@@ -342,7 +385,7 @@ export default class Mouse {
     /* 
       Set Amount
     */
-    const setAmount = (_amount) => {
+    const setAmount = (_amount: number) => {
       amount = _amount
     }
 
@@ -359,7 +402,7 @@ export default class Mouse {
   /* 
     Create Direction Pace
   */
-  createEasedDirection(_amount) {
+  createEasedDirection(_amount: number) {
     /* 
       Variables
     */
@@ -369,7 +412,7 @@ export default class Mouse {
     /* 
       Update
     */
-    const update = (_delta) => {
+    const update = (_delta: number) => {
       value.x = MathUtils.damp(value.x, this.direction.x, amount, _delta)
       value.y = MathUtils.damp(value.y, this.direction.y, amount, _delta)
     }
@@ -377,7 +420,7 @@ export default class Mouse {
     /* 
       Set Amount
     */
-    const setAmount = (_amount) => {
+    const setAmount = (_amount: number) => {
       amount = _amount
     }
 
@@ -394,7 +437,7 @@ export default class Mouse {
   /* 
     Create Eased Pace
   */
-  createEasedPace(_amount) {
+  createEasedPace(_amount: number) {
     /* 
       Variables
     */
@@ -407,7 +450,7 @@ export default class Mouse {
     /* 
       Update
     */
-    const update = (_delta) => {
+    const update = (_delta: number) => {
       value.default = MathUtils.damp(value.default, this.pace.default, amount, _delta)
 
       value.separated.x = MathUtils.damp(value.separated.x, this.pace.separated.x, amount, _delta)
@@ -417,7 +460,7 @@ export default class Mouse {
     /* 
       Set Amount
     */
-    const setAmount = (_amount) => {
+    const setAmount = (_amount: number) => {
       amount = _amount
     }
 
@@ -434,7 +477,7 @@ export default class Mouse {
   /* 
     Create Eased Drag
   */
-  createEasedDrag(_amount) {
+  createEasedDrag(_amount: number) {
     /* 
       Variables
     */
@@ -453,7 +496,7 @@ export default class Mouse {
     /* 
       Update
     */
-    const update = (_delta) => {
+    const update = (_delta: number) => {
       value.distance.default = MathUtils.damp(value.distance.default, this.drag.distance.default, amount, _delta)
       value.distance.separated.x = MathUtils.damp(value.distance.separated.x, this.drag.distance.separated.x, amount, _delta)
       value.distance.separated.y = MathUtils.damp(value.distance.separated.y, this.drag.distance.separated.y, amount, _delta)
@@ -468,7 +511,7 @@ export default class Mouse {
     /* 
       Set Amount
     */
-    const setAmount = (_amount) => {
+    const setAmount = (_amount: number) => {
       amount = _amount
     }
 

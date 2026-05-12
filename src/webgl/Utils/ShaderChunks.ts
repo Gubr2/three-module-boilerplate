@@ -1,8 +1,12 @@
 import * as THREE from 'three'
 
 export default class ShaderChunks {
+  shaderChunks: Record<string, string>
+
   constructor() {
-    THREE.ShaderChunk['simplex'] = /* glsl */ `
+    this.shaderChunks = THREE.ShaderChunk
+
+    this.shaderChunks['simplex'] = /* glsl */ `
       //	Simplex 4D Noise 
       //	by Ian McEwan, Ashima Arts
       //
@@ -94,7 +98,6 @@ export default class ShaderChunks {
         m1 = m1 * m1;
         return 49.0 * ( dot(m0*m0, vec3( dot( p0, x0 ), dot( p1, x1 ), dot( p2, x2 )))
                     + dot(m1*m1, vec2( dot( p3, x3 ), dot( p4, x4 ) ) ) ) ;
-
       }
     `
   }

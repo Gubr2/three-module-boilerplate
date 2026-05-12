@@ -128,8 +128,8 @@ export default class Gl {
   load(): Promise<void> {
     return new Promise((_resolve) => {
       if (WebGL.isWebGL2Available()) {
-        this.assets.load().then(() => {
-          this.init()
+        this.assets.load().then(async () => {
+          await this.init()
 
           this.isLoaded = true
 
@@ -156,9 +156,11 @@ export default class Gl {
     }
 
     this.world = new World()
-    gsap.ticker.add(this.update.bind(this))
-
     this.world.add()
+
+    // TODO: Precompile shaders in active scenes
+
+    gsap.ticker.add(this.update.bind(this))
 
     console.log('[WebGL] [ █ █ █ █ █ █ ] -', 'Initialized')
   }

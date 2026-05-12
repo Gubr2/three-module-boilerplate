@@ -167,6 +167,12 @@ export default class SceneBoilerplate extends _Scene {
     this.camera.updateProjectionMatrix()
   }
 
+  precompile() {
+    return new Promise<void>(async (_resolve) => {
+      await this.gl.renderer.instance.compileAsync(this.scene, this.camera)
+    })
+  }
+
   renderPipeline() {
     super.renderPipeline()
 

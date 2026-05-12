@@ -1,6 +1,10 @@
 import { Timer } from 'three'
 
 export default class Time {
+  timer: Timer
+  elapsed: number
+  delta: number
+
   constructor() {
     // Setup
     this.timer = new Timer()

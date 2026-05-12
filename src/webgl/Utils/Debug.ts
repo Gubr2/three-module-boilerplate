@@ -4,6 +4,16 @@ import { ThreePerf } from 'three-perf'
 import Gl from '../Gl'
 
 export default class Debug {
+  gl: Gl
+  gui: any
+  perf: ThreePerf
+  memoryStats: {
+    used: number
+    total: number
+    limit: number
+  }
+  isDebugHidden!: boolean
+
   constructor() {
     this.gl = new Gl()
 
@@ -16,8 +26,8 @@ export default class Debug {
       title: 'Debug Panel',
     })
 
-    this.gui.element.parentElement.style.position = 'fixed'
-    this.gui.element.parentElement.style.zIndex = '1000'
+    this.gui.element.parentElement!.style.position = 'fixed'
+    this.gui.element.parentElement!.style.zIndex = '1000'
 
     // // // // // // // // // // // // // // // // // // // // //
     // Stats
@@ -58,25 +68,25 @@ export default class Debug {
   }
 
   setupMemoryDetection() {
-    if (performance && performance.memory) {
-      const memFolder = this.gui.addFolder({ title: 'Memory (MB)', expanded: false })
+    const memory = (performance as any).memory
 
-      memFolder.addBinding(this.memoryStats, 'used', { readonly: true, interval: 1000, label: 'Used JS Heap' })
-      memFolder.addBinding(this.memoryStats, 'total', { readonly: true, interval: 1000, label: 'Total Allocated' })
-      memFolder.addBinding(this.memoryStats, 'limit', { readonly: true, interval: 1000, label: 'Max Limit' })
+    if (!memory) return
 
-      setInterval(() => {
-        // Convert bytes to MB (1 MB = 1048576 bytes)
-        const toMB = (bytes) => (bytes / 1048576).toFixed(2)
+    const memFolder = this.gui.addFolder({ title: 'Memory (MB)', expanded: false })
 
-        this.memoryStats.used = toMB(performance.memory.usedJSHeapSize)
-        this.memoryStats.total = toMB(performance.memory.totalJSHeapSize)
-        this.memoryStats.limit = toMB(performance.memory.jsHeapSizeLimit)
-      }, 1000)
-    } else {
-      console.warn('performance.memory API not supported in this browser')
-    }
+    memFolder.addBinding(this.memoryStats, 'used', { readonly: true, interval: 1000, label: 'Used JS Heap' })
+    memFolder.addBinding(this.memoryStats, 'total', { readonly: true, interval: 1000, label: 'Total Allocated' })
+    memFolder.addBinding(this.memoryStats, 'limit', { readonly: true, interval: 1000, label: 'Max Limit' })
+
+    setInterval(() => {
+      // Convert bytes to MB (1 MB = 1048576 bytes)
+      const toMB = (bytes: number) => Number((bytes / 1048576).toFixed(2))
+
+      this.memoryStats.used = toMB(memory.usedJSHeapSize)
+      this.memoryStats.total = toMB(memory.totalJSHeapSize)
+      this.memoryStats.limit = toMB(memory.jsHeapSizeLimit)
+    }, 1000)
   }
 
-  update() { }
+  update() {}
 }

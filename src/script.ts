@@ -5,7 +5,7 @@ import Gl from './webgl/Gl'
   Gl
 */
 const gl = new Gl({
-  canvas: document.querySelector('[data-gl-canvas]'),
+  canvas: document.querySelector('[data-gl-canvas]') as HTMLCanvasElement,
 })
 
 gl.load()
