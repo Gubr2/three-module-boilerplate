@@ -158,27 +158,22 @@ export default class Assets {
       _resolve()
 
       console.log('[WebGL] [ █ █ █ █     ] -', 'Assets loaded')
+    })
+  }
 
-      // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
-      // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
-      // --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---
+  loadAsync() {
+    const promisesAsync = this.promisesAsync.map((_fn) => _fn()) // Async promises needs to be called manually, thats why they are placed in arrow functions
 
-      /* 
-        Async
-      */
-      const promisesAsync = this.promisesAsync.map((_fn) => _fn()) // Async promises needs to be called manually, thats why they are placed in arrow functions
+    Promise.all(promisesAsync).then(() => {
+      console.log('[WebGL] [  A S Y N C  ] -', 'Async assets loaded')
+    })
 
-      Promise.all(promisesAsync).then(() => {
-        console.log('[WebGL] [  A S Y N C  ] -', 'Async assets loaded')
-      })
-
-      /* 
-        All
-        ↳ For preloader hiding and transition – to make sure, everything is loaded
-      */
-      Promise.all([...this.promises, ...promisesAsync]).then(() => {
-        console.log('[WebGL] [    A L L    ] -', 'All assets loaded')
-      })
+    /* 
+      All
+      ↳ For preloader hiding and transition – to make sure, everything is loaded
+    */
+    Promise.all([...this.promises, ...promisesAsync]).then(() => {
+      console.log('[WebGL] [    A L L    ] -', 'All assets loaded')
     })
   }
 }

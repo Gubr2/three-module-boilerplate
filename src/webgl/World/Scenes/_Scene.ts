@@ -219,6 +219,12 @@ export default class _Scene {
     })
   }
 
+  async compile() {
+    return new Promise<void>(async (_resolve) => {
+      _resolve() // Placeholder in case the scene will not have a compile step
+    })
+  }
+
   renderPipeline() {
     if (!this.isRendering) return
   }

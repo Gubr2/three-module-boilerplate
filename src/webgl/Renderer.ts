@@ -3,6 +3,9 @@ import * as THREE from 'three'
 import Gl from './Gl'
 
 export default class Rendered {
+  gl: Gl
+  instance: THREE.WebGLRenderer
+
   constructor() {
     this.gl = new Gl()
 

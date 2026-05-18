@@ -39,6 +39,7 @@ export default class Gl {
   assets!: Assets
   debug?: any
   world!: World
+  compilePromises!: Promise<void>[]
 
   constructor(_params?: Params) {
     /*
@@ -158,8 +159,29 @@ export default class Gl {
     this.world = new World()
     this.world.add()
 
-    // TODO: Precompile shaders in active scenes
+    /* 
+      Precompile active scenes
+    */
+    this.compilePromises = []
 
+    for (const key in this.world.scenes) {
+      const promise = this.world.scenes[key]?.compile?.()
+
+      if (promise) this.compilePromises.push(promise)
+    }
+
+    await Promise.all(this.compilePromises)
+
+    console.log('[WebGL] [  W O R L D  ] -', 'Compiled')
+
+    /* 
+      Load async assets after compilation
+    */
+    this.assets.loadAsync()
+
+    /* 
+      Start tick
+    */
     gsap.ticker.add(this.update.bind(this))
 
     console.log('[WebGL] [ █ █ █ █ █ █ ] -', 'Initialized')
