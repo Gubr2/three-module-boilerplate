@@ -6,7 +6,7 @@ export default class ShaderChunks {
   constructor() {
     this.shaderChunks = THREE.ShaderChunk
 
-    this.shaderChunks['simplex'] = /* glsl */ `
+    this.shaderChunks['snoise'] = /* glsl */ `
       //	Simplex 4D Noise 
       //	by Ian McEwan, Ashima Arts
       //
@@ -27,7 +27,7 @@ export default class ShaderChunks {
         return p;
       }
 
-      float simplexNoise4d(vec4 v){
+      float snoise(vec4 v){
         const vec2  C = vec2( 0.138196601125010504,  // (5 - sqrt(5))/20  G4
                               0.309016994374947451); // (sqrt(5) - 1)/4   F4
       // First corner

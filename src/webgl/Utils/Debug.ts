@@ -40,6 +40,8 @@ export default class Debug {
       overClock: false,
     })
 
+    this.perf.ui.wrapper.style.zIndex = '1000'
+
     this.memoryStats = {
       used: 0,
       total: 0,

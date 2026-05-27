@@ -6,13 +6,14 @@ import Gl from '../../Gl'
 
 export interface SceneParams {
   dom: HTMLElement
-  isFollowingDom: boolean
+  isFollowingDom?: boolean
   id: string
 }
 
 interface ScrollParams {
   renderPlane: THREE.Mesh<THREE.PlaneGeometry, THREE.ShaderMaterial>
   trigger: HTMLElement
+  endTrigger?: HTMLElement
   type: 'regular' | 'sticky'
 }
 
@@ -76,11 +77,6 @@ export default class _Scene {
     this.disposableFunctions = {
       // updateScrollUniforms: this.updateScrollUniforms.bind(this),
     }
-
-    /* 
-      Functions
-    */
-    if (this.gl.isDebug) this.setDebug()
   }
 
   resize() {
@@ -195,15 +191,9 @@ export default class _Scene {
             scrollTrigger: {
               invalidateOnRefresh: true,
               scrub: true,
-              trigger: _params.trigger,
-              start: () => `
-                bottom 
-                bottom-=${Math.max((this.gl.sizes.height - this.bounds.height) / 2, 0)}
-              `,
-              end: () => `
-                bottom+=${this.gl.sizes.height} 
-                bottom-=${Math.max((this.gl.sizes.height - this.bounds.height) / 2, 0)}
-              `,
+              trigger: _params.endTrigger ? _params.endTrigger : _params.trigger,
+              start: () => `bottom bottom-=${Math.max((this.gl.sizes.height - this.bounds.height) / 2, 0)}`,
+              end: () => `bottom+=${this.gl.sizes.height} bottom-=${Math.max((this.gl.sizes.height - this.bounds.height) / 2, 0)}`,
               refreshPriority: -99,
               // markers: true,
             },

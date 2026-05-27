@@ -12,6 +12,7 @@ import Sizes from './Utils/Sizes'
 import Mouse from './Utils/Mouse'
 import ShaderChunks from './Utils/ShaderChunks'
 import Dispose from './Utils/Dispose'
+import Misc from './Utils/Misc'
 
 import Assets from './Assets/Assets'
 
@@ -37,6 +38,7 @@ export default class Gl {
   scene!: THREE.Scene
   camera!: THREE.Camera
   assets!: Assets
+  misc!: Misc
   debug?: any
   world!: World
   compilePromises!: Promise<void>[]
@@ -95,6 +97,7 @@ export default class Gl {
     this.mouse = new Mouse()
     this.shaderChunks = new ShaderChunks()
     this.dispose = new Dispose()
+    this.misc = new Misc()
 
     /*
       Renderer

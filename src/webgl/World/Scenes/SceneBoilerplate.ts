@@ -115,6 +115,8 @@ export default class SceneBoilerplate extends _Scene {
         type: 'regular',
       })
     }
+
+    if (this.gl.isDebug) this.setDebug()
   }
 
   setModels() {

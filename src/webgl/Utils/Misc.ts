@@ -1,7 +1,7 @@
 import * as THREE from 'three'
 
 export default class Misc {
-  createNestedParents(_schema: string[] = []) {
+  createNestedParents(_schema: string[] = []): Record<string, THREE.Object3D> {
     /* 
       Create Nested Parents
     */
