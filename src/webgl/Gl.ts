@@ -14,7 +14,8 @@ import ShaderChunks from './Utils/ShaderChunks'
 import Dispose from './Utils/Dispose'
 import Misc from './Utils/Misc'
 
-import Assets from './Assets/Assets'
+import Assets from './World/Assets'
+import SceneManager from './World/SceneManager'
 
 interface Params {
   canvas: HTMLCanvasElement
@@ -37,6 +38,7 @@ export default class Gl {
   renderer!: Renderer
   scene!: THREE.Scene
   camera!: THREE.Camera
+  sceneManager!: SceneManager
   assets!: Assets
   misc!: Misc
   debug?: any
@@ -109,6 +111,11 @@ export default class Gl {
     */
     this.scene = new THREE.Scene()
     this.camera = new THREE.Camera()
+
+    /* 
+      Scene Manager
+    */
+    this.sceneManager = new SceneManager()
 
     /*
       Assets

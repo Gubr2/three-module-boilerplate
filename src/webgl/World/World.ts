@@ -46,14 +46,12 @@ export default class World {
   }
 
   add() {
-    this.selectors = document.querySelectorAll('[data-gl]')
-
-    this.selectors.forEach((_scene, _index) => {
-      if (_scene.dataset.gl === 'boilerplate') {
-        this.scenes['boilerplate'] = new SceneBoilerplate({
-          dom: _scene,
+    this.gl.sceneManager.activeScenes.forEach((_scene, _index) => {
+      if (_scene.name === 'boilerplate') {
+        this.scenes[_scene.id] = new SceneBoilerplate({
+          dom: _scene.dom,
           isFollowingDom: true,
-          id: _scene.dataset.gl,
+          id: _scene.id,
         })
       }
     })

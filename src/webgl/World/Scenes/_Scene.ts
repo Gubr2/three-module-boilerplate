@@ -29,7 +29,7 @@ export default class _Scene {
   }
   renderPlane: THREE.Mesh<THREE.PlaneGeometry, THREE.ShaderMaterial>
   gsapResources: Array<any>
-  disposableFunctions: Object
+  disposableFunctions: Record<string, () => void>
   debugFolder: any
 
   constructor(_params: SceneParams) {
@@ -74,9 +74,7 @@ export default class _Scene {
     /* 
       Disposable functions
     */
-    this.disposableFunctions = {
-      // updateScrollUniforms: this.updateScrollUniforms.bind(this),
-    }
+    this.disposableFunctions = {}
   }
 
   resize() {
@@ -215,13 +213,9 @@ export default class _Scene {
     })
   }
 
-  renderPipeline() {
-    if (!this.isRendering) return
-  }
+  renderPipeline() {}
 
-  update() {
-    if (!this.isRendering) return
-  }
+  update() {}
 
   dispose() {
     /* 

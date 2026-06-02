@@ -6,7 +6,7 @@ export default class SceneBoilerplate extends _Scene {
   scene: THREE.Scene
   renderTarget: THREE.WebGLRenderTarget
   camera: THREE.PerspectiveCamera
-  plane!: THREE.Mesh
+  plane?: THREE.Mesh
 
   constructor(_params: SceneParams) {
     super(_params)
@@ -92,18 +92,6 @@ export default class SceneBoilerplate extends _Scene {
     this.setModels()
 
     /* 
-      Disposable resources
-    */
-    this.gsapResources = []
-
-    /* 
-      Disposable functions
-    */
-    this.disposableFunctions = {
-      // updateScrollUniforms: this.updateScrollUniforms.bind(this),
-    }
-
-    /* 
       Functions
     */
     this.setIsRendering(this.params.dom)
@@ -178,16 +166,16 @@ export default class SceneBoilerplate extends _Scene {
   }
 
   renderPipeline() {
-    super.renderPipeline()
+    if (!this.isRendering) return
 
     this.gl.renderer.instance.setRenderTarget(this.renderTarget)
     this.gl.renderer.instance.render(this.scene, this.camera)
   }
 
   update() {
-    super.update()
+    if (!this.isRendering) return
 
-    this.plane.position.y = Math.sin(this.gl.time.elapsed)
+    if (this.plane) this.plane.position.y = Math.sin(this.gl.time.elapsed)
   }
 
   dispose() {

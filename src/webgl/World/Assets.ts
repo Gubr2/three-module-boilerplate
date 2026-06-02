@@ -16,7 +16,7 @@ export default class Assets {
   // exrLoader: EXRLoader
   // fontLoader: FontLoader
 
-  activeScenes: (string | undefined)[]
+  path: string
 
   models: Record<string, any>
   textures: Record<string, THREE.Texture>
@@ -32,6 +32,11 @@ export default class Assets {
     this.gl = new Gl()
 
     /* 
+      Path
+    */
+    this.path = ''
+
+    /* 
       Loaders
     */
     this.textureLoader = new THREE.TextureLoader()
@@ -40,12 +45,6 @@ export default class Assets {
     // this.hdrLoader = new HDRLoader()
     // this.exrLoader = new EXRLoader()
     // this.fontLoader = new FontLoader()
-
-    /* 
-      Scene Selectors
-    */
-    this.activeScenes = Array.from(document.querySelectorAll<HTMLElement>('[data-gl-scene]')).map((_scene) => _scene.dataset.glScene)
-    // .filter((id): id is string => id !== undefined)
 
     /* 
       Assets
@@ -69,7 +68,7 @@ export default class Assets {
     if (_sceneDependencies === 'all') {
       return true
     } else if (Array.isArray(_sceneDependencies)) {
-      return _sceneDependencies.some((_item) => this.activeScenes.some((_scene) => _scene === _item))
+      return _sceneDependencies.some((_item) => this.gl.sceneManager.activeScenes.some((_scene) => _scene.name === _item))
     } else {
       // By default, every asset is loaded async
       // ↳ This forces me to set assets dependency for each scene
@@ -138,7 +137,7 @@ export default class Assets {
         Textures
       */
       this.customLoader(
-        '/textures/noise.png',
+        this.path + 'textures/noise.png',
         this.textureLoader,
         (_result: THREE.Texture) => {
           this.textures.noise = _result
