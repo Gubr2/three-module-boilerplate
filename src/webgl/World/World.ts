@@ -51,7 +51,7 @@ export default class World {
         this.scenes[_scene.id] = new SceneBoilerplate({
           dom: _scene.dom,
           isFollowingDom: true,
-          id: _scene.id,
+          id: _scene.name,
         })
       }
     })
