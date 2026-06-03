@@ -6,7 +6,9 @@ export default class Sizes {
   height!: number
   pixelRatio!: number
   aspect!: number
+
   isTouchDevice!: boolean
+  isDesktop!: boolean
 
   constructor() {
     // Breakpoints
@@ -23,6 +25,8 @@ export default class Sizes {
     this.height = window.innerHeight
     this.pixelRatio = Math.min(window.devicePixelRatio, 2)
     this.aspect = this.width / this.height
+
+    this.isDesktop = this.width >= this.breakpoints.touch
 
     // Detect if the device is a touch device
     this.isTouchDevice = window.matchMedia('(hover: none)').matches

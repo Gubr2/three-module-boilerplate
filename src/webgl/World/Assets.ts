@@ -64,10 +64,11 @@ export default class Assets {
     this.promisesAsyncProgress = 0
   }
 
-  checkIfMandatory(_sceneDependencies: string | string[]) {
+  checkIfMandatory(_sceneDependencies: 'all' | string[]) {
     if (_sceneDependencies === 'all') {
       return true
     } else if (Array.isArray(_sceneDependencies)) {
+      // Scene dependency must be placed in an array
       return _sceneDependencies.some((_item) => this.gl.sceneManager.activeScenes.some((_scene) => _scene.name === _item))
     } else {
       // By default, every asset is loaded async
@@ -76,7 +77,7 @@ export default class Assets {
     }
   }
 
-  customLoader(_path: string, _loader: any, _target: (result: any) => void, _sceneDependencies: string | string[]) {
+  customLoader(_path: string, _loader: any, _target: (result: any) => void, _sceneDependencies: 'all' | string[]) {
     /* 
       Check if mandatory
     */
@@ -137,7 +138,7 @@ export default class Assets {
         Textures
       */
       this.customLoader(
-        this.path + 'textures/noise.png',
+        this.path + 'textures/noise.webp',
         this.textureLoader,
         (_result: THREE.Texture) => {
           this.textures.noise = _result
