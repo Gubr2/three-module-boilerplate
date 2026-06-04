@@ -122,7 +122,7 @@ export default class Assets {
       return true
       // Scene dependency must be placed in an array
     } else if (Array.isArray(_sceneDependencies)) {
-      return _sceneDependencies.some((_item) => this.gl.sceneManager.activeScenes.some((_scene) => _scene.name === _item))
+      return _sceneDependencies.some((_item) => this.gl.manager.sceneDoms.some((_scene) => _scene.name === _item))
     } else {
       // By default, every asset is loaded async
       // ↳ This forces me to set assets dependency for each scene

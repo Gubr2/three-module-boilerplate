@@ -5,8 +5,6 @@ import ScrollTrigger from 'gsap/ScrollTrigger'
 
 import Renderer from './Renderer'
 
-import World from './World/World'
-
 import Time from './Utils/Time'
 import Sizes from './Utils/Sizes'
 import Mouse from './Utils/Mouse'
@@ -14,8 +12,8 @@ import ShaderChunks from './Utils/ShaderChunks'
 import Dispose from './Utils/Dispose'
 import Misc from './Utils/Misc'
 
-import Assets from './World/Assets'
-import SceneManager from './World/SceneManager'
+import Assets from './Scenes/Assets'
+import Manager from './Scenes/Manager'
 
 interface Params {
   canvas: HTMLCanvasElement
@@ -38,11 +36,10 @@ export default class Gl {
   renderer!: Renderer
   scene!: THREE.Scene
   camera!: THREE.Camera
-  sceneManager!: SceneManager
+  manager!: Manager
   assets!: Assets
   misc!: Misc
   debug?: any
-  world!: World
   compilePromises!: Promise<void>[]
 
   constructor(_params?: Params) {
@@ -115,7 +112,7 @@ export default class Gl {
     /* 
       Scene Manager
     */
-    this.sceneManager = new SceneManager()
+    this.manager = new Manager()
 
     /*
       Assets
@@ -144,6 +141,8 @@ export default class Gl {
 
           this.isLoaded = true
 
+          this.manager.init()
+
           _resolve()
 
           /*
@@ -166,16 +165,13 @@ export default class Gl {
       this.debug = new Debug()
     }
 
-    this.world = new World()
-    this.world.add()
-
     /* 
       Precompile active scenes
     */
     this.compilePromises = []
 
-    for (const key in this.world.scenes) {
-      const promise = this.world.scenes[key]?.compile?.()
+    for (const key in this.manager.sceneInstances) {
+      const promise = this.manager.sceneInstances[key]?.compile?.()
 
       if (promise) this.compilePromises.push(promise)
     }
@@ -202,7 +198,7 @@ export default class Gl {
       if (this.isDebug) this.debug.perf.begin()
 
       this.time.update()
-      this.world.update()
+      this.manager.update()
       this.renderer.update()
       this.mouse.update()
 
@@ -215,7 +211,7 @@ export default class Gl {
 
     if (this.isLoaded) {
       this.renderer.resize()
-      this.world.resize()
+      this.manager.resize()
     }
 
     this.mouse.resize()

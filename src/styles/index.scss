@@ -5,7 +5,7 @@ html {
 }
 
 body {
-  height: 300vh !important;
+  height: 800vh !important;
 }
 
 [data-gl-canvas] {
@@ -16,12 +16,33 @@ body {
   z-index: 9;
 }
 
-[data-gl-scene='boilerplate'] {
+// [data-gl-scene='boilerplate'] {
+//   position: relative;
+//   top: 50vh;
+//   left: 25vh;
+//   width: 50vw;
+//   height: 50vh;
+//   background-color: lightgrey;
+//   // z-index: 10;
+//   // opacity: 0.5;
+// }
+
+[data-gl-scene-start='boilerplate'] {
   position: relative;
-  top: 50vh;
-  left: 25vh;
-  width: 50vw;
-  height: 50vh;
+  margin-top: 200vh;
+  left: 0;
+  width: 100vw;
+  height: 125vh;
+  background-color: lightgrey;
+  // z-index: 10;
+  // opacity: 0.5;
+}
+
+[data-gl-scene-end='boilerplate'] {
+  position: relative;
+  left: 0;
+  width: 100vw;
+  height: 25vh;
   background-color: lightgrey;
   // z-index: 10;
   // opacity: 0.5;

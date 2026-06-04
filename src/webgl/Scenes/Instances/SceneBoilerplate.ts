@@ -20,7 +20,7 @@ export default class SceneBoilerplate extends _Scene {
     /* 
       Render Target
     */
-    this.renderTarget = new THREE.WebGLRenderTarget(this.bounds.width * this.gl.sizes.pixelRatio, this.bounds.height * this.gl.sizes.pixelRatio, {
+    this.renderTarget = new THREE.WebGLRenderTarget(this.bounds.viewWidth * this.gl.sizes.pixelRatio, this.bounds.viewHeight * this.gl.sizes.pixelRatio, {
       // depthBuffer: false,
       // stencilBuffer: false,
     })
@@ -35,7 +35,7 @@ export default class SceneBoilerplate extends _Scene {
       uniforms: {
         tDiffuse: new THREE.Uniform(this.renderTarget.texture),
 
-        uScale: new THREE.Uniform(new THREE.Vector2(this.bounds.width, this.bounds.height)),
+        uScale: new THREE.Uniform(new THREE.Vector2(this.bounds.viewWidth, this.bounds.viewHeight)),
         uPosition: new THREE.Uniform(new THREE.Vector2(this.bounds.left, this.bounds.top)),
         uResolution: new THREE.Uniform(new THREE.Vector2(this.gl.sizes.width, this.gl.sizes.height)),
       },
@@ -51,13 +51,13 @@ export default class SceneBoilerplate extends _Scene {
 
           #if IS_FOLLOWING_DOM
 
-          // Scale
-          pos.x *= uScale.x / uResolution.x;
-          pos.y *= uScale.y / uResolution.y;
+            // Scale
+            pos.x *= uScale.x / uResolution.x;
+            pos.y *= uScale.y / uResolution.y;
 
-          // Position
-          pos.x += - 1.0 + uPosition.x / uResolution.x * 2. + uScale.x / uResolution.x;
-          pos.y -= uPosition.y / uResolution.y * 2.0;
+            // Position
+            pos.x += - 1.0 + uPosition.x / uResolution.x * 2. + uScale.x / uResolution.x;
+            pos.y -= uPosition.y / uResolution.y * 2.0;
 
           #endif
           
@@ -83,7 +83,7 @@ export default class SceneBoilerplate extends _Scene {
     /* 
       Camera
     */
-    this.camera = new THREE.PerspectiveCamera(32, this.bounds.width / this.bounds.height, 0.1, 100)
+    this.camera = new THREE.PerspectiveCamera(32, this.bounds.viewWidth / this.bounds.viewHeight, 0.1, 100)
     this.camera.position.z = 5
 
     /* 
@@ -92,18 +92,21 @@ export default class SceneBoilerplate extends _Scene {
     this.setModels()
 
     /* 
-      Functions
+      Init scroll functions
     */
-    this.setIsRendering(this.params.dom)
-
     if (this.params?.isFollowingDom) {
       this.setDefaultScroll({
         renderPlane: this.renderPlane,
         trigger: this.params.dom,
-        type: 'regular',
+        endTrigger: this.params.endDom,
       })
+
+      this.setIsRendering(this.params.dom)
     }
 
+    /* 
+      Debug
+    */
     if (this.gl.isDebug) this.setDebug()
   }
 
@@ -141,19 +144,19 @@ export default class SceneBoilerplate extends _Scene {
     /* 
       Render Target
     */
-    this.renderTarget.setSize(this.bounds.width * this.gl.sizes.pixelRatio, this.bounds.height * this.gl.sizes.pixelRatio)
+    this.renderTarget.setSize(this.bounds.viewWidth * this.gl.sizes.pixelRatio, this.bounds.viewHeight * this.gl.sizes.pixelRatio)
 
     /* 
       Render Plane
     */
     this.renderPlane.material.uniforms.uResolution.value.set(this.gl.sizes.width, this.gl.sizes.height)
     this.renderPlane.material.uniforms.uPosition.value.x = this.bounds.left
-    this.renderPlane.material.uniforms.uScale.value.set(this.bounds.width, this.bounds.height)
+    this.renderPlane.material.uniforms.uScale.value.set(this.bounds.viewWidth, this.bounds.viewHeight)
 
     /* 
       Camera
     */
-    this.camera.aspect = this.bounds.width / this.bounds.height
+    this.camera.aspect = this.bounds.viewWidth / this.bounds.viewHeight
     this.camera.updateProjectionMatrix()
   }
 
@@ -176,6 +179,8 @@ export default class SceneBoilerplate extends _Scene {
     if (!this.isRendering) return
 
     if (this.plane) this.plane.position.y = Math.sin(this.gl.time.elapsed)
+
+    console.log(this.renderPlane.material.uniforms.uPosition.value.y)
   }
 
   dispose() {

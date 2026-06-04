@@ -24,8 +24,8 @@ export default class Rendered {
   }
 
   update() {
-    for (const key in this.gl.world.scenes) {
-      this.gl.world.scenes[key].renderPipeline()
+    for (const key in this.gl.manager.sceneInstances) {
+      this.gl.manager.sceneInstances[key].renderPipeline()
     }
 
     // // // // // // // // // //
