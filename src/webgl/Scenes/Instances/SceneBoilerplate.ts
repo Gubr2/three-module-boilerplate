@@ -179,8 +179,6 @@ export default class SceneBoilerplate extends _Scene {
     if (!this.isRendering) return
 
     if (this.plane) this.plane.position.y = Math.sin(this.gl.time.elapsed)
-
-    console.log(this.renderPlane.material.uniforms.uPosition.value.y)
   }
 
   dispose() {
