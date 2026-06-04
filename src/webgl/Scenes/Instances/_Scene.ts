@@ -176,7 +176,7 @@ export default class _Scene {
             trigger: _params.endTrigger ? _params.endTrigger : _params.trigger,
             start: () => `bottom bottom-=${Math.max((this.gl.sizes.height - this.bounds.height) / 2, 0)}`,
             end: () => `bottom+=${this.gl.sizes.height} bottom-=${Math.max((this.gl.sizes.height - this.bounds.height) / 2, 0)}`,
-            refreshPriority: -99,
+            refreshPriority: -100,
             // markers: true,
           },
         }
@@ -201,7 +201,7 @@ export default class _Scene {
             trigger: _params.trigger,
             start: () => `top-=${this.gl.sizes.height} top+=${Math.max((this.gl.sizes.height - this.bounds.height) / 2, 0)}`,
             end: () => `top top+=${Math.max((this.gl.sizes.height - this.bounds.height) / 2, 0)}`,
-            refreshPriority: -100,
+            refreshPriority: -99,
             // markers: true,
           },
         }
@@ -227,7 +227,6 @@ export default class _Scene {
             trigger: _params.trigger,
             start: () => 'top top',
             end: () => `top+=${Math.max(this.bounds.height - this.gl.sizes.height, 0)} top`,
-            refreshPriority: -100,
             // markers: true,
           },
         }

@@ -30,8 +30,8 @@ body {
 [data-gl-scene-start='boilerplate'] {
   position: relative;
   margin-top: 200vh;
-  left: 0;
-  width: 100vw;
+  left: 25vw;
+  width: 50vw;
   height: 125vh;
   background-color: lightgrey;
   // z-index: 10;
@@ -40,10 +40,10 @@ body {
 
 [data-gl-scene-end='boilerplate'] {
   position: relative;
-  left: 0;
-  width: 100vw;
+  left: 25vw;
+  width: 50vw;
   height: 25vh;
-  background-color: lightgrey;
+  background-color: darkgrey;
   // z-index: 10;
   // opacity: 0.5;
 }
