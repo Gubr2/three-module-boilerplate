@@ -6,7 +6,7 @@ import Gl from '../../Gl'
 
 export interface SceneParams {
   dom: HTMLElement
-  endDom?: HTMLElement
+  endDom?: HTMLElement | null
   isFollowingDom?: boolean
   id: string
 }
@@ -14,7 +14,7 @@ export interface SceneParams {
 interface ScrollParams {
   renderPlane: THREE.Mesh<THREE.PlaneGeometry, THREE.ShaderMaterial>
   trigger: HTMLElement
-  endTrigger?: HTMLElement
+  endTrigger?: HTMLElement | null
 }
 
 export default class _Scene {

@@ -80,10 +80,12 @@ export default class Assets {
       this.customLoader(
         this.path + 'textures/noise.webp',
         this.textureLoader,
-        (_result: THREE.Texture) => {
+        (_result: THREE.Texture, isMandatory: boolean) => {
           this.textures.noise = _result
           this.textures.noise.wrapS = THREE.RepeatWrapping
           this.textures.noise.wrapT = THREE.RepeatWrapping
+
+          if (isMandatory) this.gl.renderer.instance.initTexture(_result)
         },
         'all'
       )
@@ -181,7 +183,7 @@ export default class Assets {
     ↳ Logs progress
     ↳ Sorts mandatory assets for first load vs async assets based on scene dependencies
   */
-  private customLoader(_path: string, _loader: any, _target: (result: any) => void, _sceneDependencies: Dependencies) {
+  private customLoader(_path: string, _loader: any, _target: (result: any, isMandatory: boolean) => void, _sceneDependencies: Dependencies) {
     /* 
       Check if mandatory
     */
@@ -195,11 +197,8 @@ export default class Assets {
         _loader.load(
           _path,
           async (_result: any) => {
-            // Initialize mandatory texture
-            if (_result instanceof THREE.Texture && isMandatory) this.gl.renderer.instance.initTexture(_result)
-
             // Target
-            _target(_result)
+            _target(_result, isMandatory)
 
             // Log progress
             if (isMandatory) {
