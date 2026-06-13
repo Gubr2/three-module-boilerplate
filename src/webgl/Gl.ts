@@ -99,15 +99,15 @@ export default class Gl {
     this.misc = new Misc()
 
     /*
-      Renderer
-    */
-    this.renderer = new Renderer()
-
-    /*
       Scene & Camera
     */
     this.scene = new THREE.Scene()
     this.camera = new THREE.Camera()
+
+    /*
+      Renderer
+    */
+    this.renderer = new Renderer()
 
     /* 
       Scene Manager
