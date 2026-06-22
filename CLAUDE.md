@@ -11,6 +11,7 @@ This is a Three.js boilerplate where **WebGL scenes are driven by, and visually 
 `Gl` is a singleton — `new Gl()` anywhere returns the same instance, which is how every module (`Renderer`, `Manager`, `Assets`, scenes, utils) gets references to shared state without prop-drilling. It owns the global `THREE.Scene`, the `THREE.Camera`, and all utilities (`time`, `sizes`, `mouse`, `shaderChunks`, `dispose`, `misc`).
 
 Boot sequence (entry point is `src/script.ts`):
+
 1. `new Gl({ canvas })` → `setup()` instantiates utils, the global scene/camera, `Renderer`, `Manager`, `Assets`. Bails out early with a `webgl-not-available` class if WebGL2 is unsupported.
 2. `gl.load()` → `assets.load()` (mandatory assets) → `gl.init()`.
 3. `init()` optionally loads `Debug`, calls `compile()` on every active scene (`compileAsync` shader precompile), then kicks off async asset loading and starts the `gsap.ticker` render loop.
@@ -29,6 +30,7 @@ So: scenes render off-screen → their output is composited as DOM-aligned plane
 ### DOM-driven scene registration (`src/webgl/Scenes/Manager.ts`)
 
 Scenes are declared in HTML, not code. `Manager.getSceneDoms()` scans for:
+
 - `data-gl-scene="name"` — a single-element scene, or
 - `data-gl-scene-start="name"` paired with `data-gl-scene-end="name"` — a scene that spans from a start element to an end element (a start with no matching end is dropped with a warning).
 
@@ -37,6 +39,7 @@ Scenes are declared in HTML, not code. `Manager.getSceneDoms()` scans for:
 ### `_Scene` base class (`src/webgl/Scenes/Instances/_Scene.ts`)
 
 Base for all scenes. Provides:
+
 - `getBounds()` — computes `bounds` from the DOM element's `getBoundingClientRect()` (clamping height to viewport); subclasses size their render target / camera from `bounds`.
 - `setDefaultScroll()` — wires GSAP `ScrollTrigger` to animate the render plane's `uPosition` uniform so the scene scrolls in/out, with compensation for viewports taller than the scene container. `scrollCameraOffset` is a helper for sticky/tall scroll containers, applied manually per-scene.
 - `setIsRendering()` — toggles `isRendering` via ScrollTrigger so off-screen scenes skip rendering/updating.
@@ -51,6 +54,7 @@ GSAP `ScrollTrigger` drives all scroll behavior. Window `resize` (in `Gl.setup()
 ### Assets (`src/webgl/Scenes/Assets.ts`)
 
 Custom loader wrapping any Three.js loader. Assets are split into:
+
 - **Mandatory** (`dependencies: 'all'`, or an array of scene names that are present on the page) — awaited during initial `load()` before init.
 - **Async** — everything else; loaded after compilation via `loadAsync()`, grouped by scene dependency so `checkSceneDependenciesLoaded()` can gate things like page transitions.
 
@@ -65,3 +69,4 @@ Mandatory textures call `renderer.instance.initTexture()` to upload to the GPU u
 - Shaders are written inline as `/* glsl */`-tagged template strings in scene classes.
 - Renderer is intentionally minimal for performance: `antialias: false`, `depth: false`, `stencil: false`, `precision: 'lowp'`. Anti-aliasing/precision is expected to be handled per-scene if needed.
 - Static assets live in `static/` (served at the site root by Vite) — includes `draco/` and `basis/` decoders and `textures/`.
+- If you create modifiable parameters for a scene, put them into `this.interface` object in the scene constructor
