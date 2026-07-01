@@ -2,20 +2,28 @@ import * as THREE from 'three'
 
 import _Scene, { SceneParams } from './_Scene'
 
-export default class SceneBoilerplate extends _Scene {
+export default class extends _Scene {
   scene: THREE.Scene
   renderTarget: THREE.WebGLRenderTarget
   camera: THREE.PerspectiveCamera
   plane?: THREE.Mesh
+  interface: Record<string, any>
 
   constructor(_params: SceneParams) {
     super(_params)
 
     /* 
+      Interface
+    */
+    this.interface = {
+      //
+    }
+
+    /* 
       Scene
     */
     this.scene = new THREE.Scene()
-    this.scene.matrixAutoUpdate = false
+    // this.scene.matrixAutoUpdate = false
 
     /* 
       Render Target

@@ -62,13 +62,19 @@ export default class Manager {
 
   add() {
     this.sceneDoms.forEach((_scene, _index) => {
-      if (_scene.name === 'boilerplate') {
-        this.sceneInstances[_scene.id] = new SceneBoilerplate({
-          dom: _scene.dom,
-          endDom: _scene.endDom,
-          isFollowingDom: true,
-          id: _scene.name,
-        })
+      switch (_scene.name) {
+        case 'boilerplate':
+          this.sceneInstances[_scene.id] = new SceneBoilerplate({
+            dom: _scene.dom,
+            endDom: _scene.endDom,
+            isFollowingDom: true,
+            id: _scene.name,
+          })
+
+          break
+
+        default:
+          break
       }
     })
 

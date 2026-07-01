@@ -70,3 +70,4 @@ Mandatory textures call `renderer.instance.initTexture()` to upload to the GPU u
 - Renderer is intentionally minimal for performance: `antialias: false`, `depth: false`, `stencil: false`, `precision: 'lowp'`. Anti-aliasing/precision is expected to be handled per-scene if needed.
 - Static assets live in `static/` (served at the site root by Vite) — includes `draco/` and `basis/` decoders and `textures/`.
 - If you create modifiable parameters for a scene, put them into `this.interface` object in the scene constructor
+- Arguments in functions and methods should be prefixed with `_` – for example: `this.setModelMaterial(_model: THREE.Mesh)`
