@@ -71,3 +71,9 @@ Mandatory textures call `renderer.instance.initTexture()` to upload to the GPU u
 - Static assets live in `static/` (served at the site root by Vite) — includes `draco/` and `basis/` decoders and `textures/`.
 - If you create modifiable parameters for a scene, put them into `this.interface` object in the scene constructor
 - Arguments in functions and methods should be prefixed with `_` – for example: `this.setModelMaterial(_model: THREE.Mesh)`
+- Avoid adding explanation of the solution in the comments
+
+## Plan mode instructions
+
+- Skip the context at the beginning of the plan
+- Be brief and straightforward as possible when writing the plan

@@ -178,7 +178,7 @@ export default class Gl {
 
     await Promise.all(this.compilePromises)
 
-    console.log('[WebGL] [  W O R L D  ] -', 'Compiled')
+    if (this.isDebug) console.log('[WebGL] [  W O R L D  ] -', 'Compiled')
 
     /* 
       Load async assets after compilation
@@ -190,7 +190,7 @@ export default class Gl {
     */
     gsap.ticker.add(this.update.bind(this))
 
-    console.log('[WebGL] [ █ █ █ █ █ █ ] -', 'Initialized')
+    if (this.isDebug) console.log('[WebGL] [ █ █ █ █ █ █ ] -', 'Initialized')
   }
 
   update(): void {

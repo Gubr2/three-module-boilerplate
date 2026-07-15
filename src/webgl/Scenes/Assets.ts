@@ -97,7 +97,7 @@ export default class Assets {
 
       _resolve()
 
-      console.log('[WebGL] [ █ █ █ █     ] -', 'Assets loaded')
+      if (this.gl.isDebug) console.log('[WebGL] [ █ █ █ █     ] -', 'Assets loaded')
     })
   }
 
@@ -109,13 +109,13 @@ export default class Assets {
 
     // Listen to all async promises
     Promise.all(promisesAsync).then(() => {
-      console.log('[WebGL] [  A S Y N C  ] -', 'Async assets loaded')
+      if (this.gl.isDebug) console.log('[WebGL] [  A S Y N C  ] -', 'Async assets loaded')
     })
 
     // Listen to all promises together
     // ↳ For preloader hiding and transition – to make sure, everything is loaded
     Promise.all([...this.promises, ...promisesAsync]).then(() => {
-      console.log('[WebGL] [    A L L    ] -', 'All assets loaded')
+      if (this.gl.isDebug) console.log('[WebGL] [    A L L    ] -', 'All assets loaded')
     })
   }
 

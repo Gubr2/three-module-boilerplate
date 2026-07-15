@@ -31,7 +31,7 @@ export default class _Scene {
   }
   renderPlane: THREE.Mesh<THREE.PlaneGeometry, THREE.ShaderMaterial>
   gsapResources: Array<any>
-  disposableFunctions: Record<string, () => void>
+  disposableFunctions: Record<string, (...args: any[]) => void>
   debugFolder: any
   scrollCameraOffset: number
 
@@ -57,6 +57,11 @@ export default class _Scene {
       Bounds
     */
     this.getBounds()
+
+    /* 
+      Set is rendering
+    */
+    this.setIsRendering()
 
     /* 
       Render Plane
@@ -92,14 +97,14 @@ export default class _Scene {
     this.getBounds()
   }
 
-  setIsRendering(_dom: HTMLElement, _domEnd?: HTMLElement) {
+  setIsRendering() {
     // Turn of automtic rendering and let it be handled by the scroll trigger
     this.isRendering = false
 
     this.gsapResources.push(
       ScrollTrigger.create({
-        trigger: _dom,
-        endTrigger: _domEnd,
+        trigger: this.params.dom,
+        endTrigger: this.params.endDom,
         start: () => `top-=${this.gl.sizes.height / 2} bottom`,
         end: () => `bottom+=${this.gl.sizes.height / 2} top`,
         invalidateOnRefresh: true,

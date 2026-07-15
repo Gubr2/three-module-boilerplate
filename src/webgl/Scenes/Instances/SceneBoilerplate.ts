@@ -6,7 +6,7 @@ export default class extends _Scene {
   scene: THREE.Scene
   renderTarget: THREE.WebGLRenderTarget
   camera: THREE.PerspectiveCamera
-  plane?: THREE.Mesh
+  model?: THREE.Mesh
   interface: Record<string, any>
 
   constructor(_params: SceneParams) {
@@ -108,8 +108,6 @@ export default class extends _Scene {
         trigger: this.params.dom,
         endTrigger: this.params.endDom,
       })
-
-      this.setIsRendering(this.params.dom)
     }
 
     /* 
@@ -119,7 +117,7 @@ export default class extends _Scene {
   }
 
   setModels() {
-    this.plane = new THREE.Mesh(
+    this.model = new THREE.Mesh(
       new THREE.PlaneGeometry(1, 1),
       new THREE.ShaderMaterial({
         //
@@ -143,7 +141,7 @@ export default class extends _Scene {
       })
     )
 
-    this.scene.add(this.plane)
+    this.scene.add(this.model)
   }
 
   resize() {
@@ -186,7 +184,7 @@ export default class extends _Scene {
   update() {
     if (!this.isRendering) return
 
-    if (this.plane) this.plane.position.y = Math.sin(this.gl.time.elapsed)
+    if (this.model) this.model.position.y = Math.sin(this.gl.time.elapsed)
   }
 
   dispose() {
