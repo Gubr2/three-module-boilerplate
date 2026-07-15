@@ -2,7 +2,7 @@ import * as THREE from 'three'
 
 import Gl from './Gl'
 
-export default class Rendered {
+export default class Renderer {
   gl: Gl
   instance: THREE.WebGLRenderer
 
