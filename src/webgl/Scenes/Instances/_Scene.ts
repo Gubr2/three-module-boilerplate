@@ -20,6 +20,7 @@ interface ScrollParams {
 export default class _Scene {
   params: SceneParams
   isRendering: boolean
+  isScrollBelow!: boolean
   gl: Gl
   bounds!: {
     left: number
@@ -34,6 +35,8 @@ export default class _Scene {
   disposableFunctions: Record<string, (...args: any[]) => void>
   debugFolder: any
   scrollCameraOffset: number
+  enterScroll: any
+  leaveScroll: any
 
   constructor(_params: SceneParams) {
     gsap.registerPlugin(ScrollTrigger)
@@ -59,11 +62,6 @@ export default class _Scene {
     this.getBounds()
 
     /* 
-      Set is rendering
-    */
-    this.setIsRendering()
-
-    /* 
       Render Plane
     */
     this.renderPlane = new THREE.Mesh(
@@ -71,6 +69,7 @@ export default class _Scene {
       new THREE.PlaneGeometry(1, 1)
     )
 
+    this.renderPlane.visible = false // prevent the renderplane to be accidentally visible when not needed
     this.renderPlane.frustumCulled = false
     this.renderPlane.matrixAutoUpdate = false
 
@@ -91,10 +90,18 @@ export default class _Scene {
       Disposable functions
     */
     this.disposableFunctions = {}
+
+    /* 
+      Set is rendering
+    */
+    this.setIsRendering()
   }
 
   resize() {
     this.getBounds()
+
+    this.enterScroll.scrollTrigger.vars.refreshPriority = this.isScrollBelow ? -99 : -100
+    this.leaveScroll.scrollTrigger.vars.refreshPriority = this.isScrollBelow ? -100 : -99
   }
 
   setIsRendering() {
@@ -112,15 +119,19 @@ export default class _Scene {
 
         onEnter: () => {
           this.isRendering = true
+          this.renderPlane.visible = true
         },
         onEnterBack: () => {
           this.isRendering = true
+          this.renderPlane.visible = true
         },
         onLeave: () => {
           this.isRendering = false
+          this.renderPlane.visible = false
         },
         onLeaveBack: () => {
           this.isRendering = false
+          this.renderPlane.visible = false
         },
       })
     )
@@ -146,6 +157,11 @@ export default class _Scene {
         this.bounds.height = bounds.height + endBounds.height
         this.bounds.viewHeight = Math.min(bounds.height + endBounds.height, this.gl.sizes.height)
       }
+
+      /* 
+        Check if the scroll is below the scene
+      */
+      this.isScrollBelow = this.bounds.top + this.bounds.height / 2 - this.gl.sizes.height / 2 < 0 ? true : false
     } else {
       this.bounds = {
         width: this.gl.sizes.width,
@@ -163,55 +179,62 @@ export default class _Scene {
     This can be changed to regular by using the this.scrollCameraOffset variable manually
   */
   setDefaultScroll(_params: ScrollParams) {
-    // Leave
-    // ↳ Move out
-    // ↳ Compensate for tall devices, where the screen height gets greater than the sticky container height
-    this.gsapResources.push(
-      gsap.fromTo(
-        _params.renderPlane.material.uniforms.uPosition.value,
-        {
-          y: 0,
-        },
-        {
-          y: () => -this.gl.sizes.height,
-          ease: 'none',
-          scrollTrigger: {
-            invalidateOnRefresh: true,
-            scrub: true,
-            trigger: _params.endTrigger ? _params.endTrigger : _params.trigger,
-            start: () => `bottom bottom-=${Math.max((this.gl.sizes.height - this.bounds.height) / 2, 0)}`,
-            end: () => `bottom+=${this.gl.sizes.height} bottom-=${Math.max((this.gl.sizes.height - this.bounds.height) / 2, 0)}`,
-            refreshPriority: -100,
-            // markers: true,
-          },
-        }
-      )
-    )
-
     // Enter
     // ↳ Move in
     // ↳ Compensate for tall devices, where the screen height gets greater than the sticky container height
-    this.gsapResources.push(
-      gsap.fromTo(
-        _params.renderPlane.material.uniforms.uPosition.value,
-        {
-          y: () => this.gl.sizes.height,
+    this.enterScroll = gsap.fromTo(
+      _params.renderPlane.material.uniforms.uPosition.value,
+      {
+        y: () => this.gl.sizes.height,
+      },
+      {
+        y: 0,
+        ease: 'none',
+        immediateRender: false,
+        scrollTrigger: {
+          invalidateOnRefresh: true,
+          scrub: true,
+          trigger: _params.trigger,
+          start: () => `top-=${this.gl.sizes.height} top+=${Math.max((this.gl.sizes.height - this.bounds.height) / 2, 0)}`,
+          end: () => `top top+=${Math.max((this.gl.sizes.height - this.bounds.height) / 2, 0)}`,
+          refreshPriority: this.isScrollBelow ? -99 : -100,
+          markers: true,
         },
-        {
-          y: 0,
-          ease: 'none',
-          scrollTrigger: {
-            invalidateOnRefresh: true,
-            scrub: true,
-            trigger: _params.trigger,
-            start: () => `top-=${this.gl.sizes.height} top+=${Math.max((this.gl.sizes.height - this.bounds.height) / 2, 0)}`,
-            end: () => `top top+=${Math.max((this.gl.sizes.height - this.bounds.height) / 2, 0)}`,
-            refreshPriority: -99,
-            // markers: true,
-          },
-        }
-      )
+      }
     )
+
+    this.gsapResources.push(this.enterScroll)
+
+    // Leave
+    // ↳ Move out
+    // ↳ Compensate for tall devices, where the screen height gets greater than the sticky container height
+    this.leaveScroll = gsap.fromTo(
+      _params.renderPlane.material.uniforms.uPosition.value,
+      {
+        y: 0,
+      },
+      {
+        y: () => -this.gl.sizes.height,
+        ease: 'none',
+        immediateRender: false,
+        scrollTrigger: {
+          invalidateOnRefresh: true,
+          scrub: true,
+          trigger: _params.endTrigger ? _params.endTrigger : _params.trigger,
+          start: () => `bottom bottom-=${Math.max((this.gl.sizes.height - this.bounds.height) / 2, 0)}`,
+          end: () => `bottom+=${this.gl.sizes.height} bottom-=${Math.max((this.gl.sizes.height - this.bounds.height) / 2, 0)}`,
+          refreshPriority: this.isScrollBelow ? -100 : -99,
+          markers: true,
+        },
+      }
+    )
+
+    this.gsapResources.push(this.leaveScroll)
+
+    // Set default value
+    gsap.set(_params.renderPlane.material.uniforms.uPosition.value, {
+      y: this.isScrollBelow ? -this.gl.sizes.height : this.gl.sizes.height,
+    })
 
     // Set manual offset outside the screen to prevent gsap rendering to take pla
     // this.renderPlane.material.uniforms.uPosition.value.y = -999999
