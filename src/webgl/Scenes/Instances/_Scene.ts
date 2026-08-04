@@ -66,7 +66,7 @@ export default class _Scene {
     */
     this.renderPlane = new THREE.Mesh(
       //
-      new THREE.PlaneGeometry(1, 1)
+      new THREE.PlaneGeometry(1, 1),
     )
 
     this.renderPlane.visible = false // prevent the renderplane to be accidentally visible when not needed
@@ -133,7 +133,7 @@ export default class _Scene {
           this.isRendering = false
           this.renderPlane.visible = false
         },
-      })
+      }),
     )
   }
 
@@ -198,9 +198,9 @@ export default class _Scene {
           start: () => `top-=${this.gl.sizes.height} top+=${Math.max((this.gl.sizes.height - this.bounds.height) / 2, 0)}`,
           end: () => `top top+=${Math.max((this.gl.sizes.height - this.bounds.height) / 2, 0)}`,
           refreshPriority: this.isScrollBelow ? -99 : -100,
-          markers: true,
+          // markers: true,
         },
-      }
+      },
     )
 
     this.gsapResources.push(this.enterScroll)
@@ -221,21 +221,22 @@ export default class _Scene {
           invalidateOnRefresh: true,
           scrub: true,
           trigger: _params.endTrigger ? _params.endTrigger : _params.trigger,
-          start: () => `bottom bottom-=${Math.max((this.gl.sizes.height - this.bounds.height) / 2, 0)}`,
-          end: () => `bottom+=${this.gl.sizes.height} bottom-=${Math.max((this.gl.sizes.height - this.bounds.height) / 2, 0)}`,
+          start: () => `bottom top+=${this.gl.sizes.height - Math.max((this.gl.sizes.height - this.bounds.height) / 2, 0)}`,
+          end: () => `bottom+=${this.gl.sizes.height} top+=${this.gl.sizes.height - Math.max((this.gl.sizes.height - this.bounds.height) / 2, 0)}`,
           refreshPriority: this.isScrollBelow ? -100 : -99,
           markers: true,
         },
-      }
+      },
     )
 
     this.gsapResources.push(this.leaveScroll)
 
     // Set default value
-    gsap.set(_params.renderPlane.material.uniforms.uPosition.value, {
-      y: this.isScrollBelow ? -this.gl.sizes.height : this.gl.sizes.height,
-    })
-
+    if (!this.isRendering) {
+      gsap.set(_params.renderPlane.material.uniforms.uPosition.value, {
+        y: this.isScrollBelow ? -this.gl.sizes.height : this.gl.sizes.height,
+      })
+    }
     // Set manual offset outside the screen to prevent gsap rendering to take pla
     // this.renderPlane.material.uniforms.uPosition.value.y = -999999
 
@@ -247,8 +248,9 @@ export default class _Scene {
           scrollCameraOffset: 0,
         },
         {
-          scrollCameraOffset: Math.max(this.bounds.height - this.gl.sizes.height, 0),
+          scrollCameraOffset: () => Math.max(this.bounds.height - this.gl.sizes.height, 0),
           ease: 'none',
+          immediateRender: false,
           scrollTrigger: {
             invalidateOnRefresh: true,
             scrub: true,
@@ -257,8 +259,8 @@ export default class _Scene {
             end: () => `top+=${Math.max(this.bounds.height - this.gl.sizes.height, 0)} top`,
             // markers: true,
           },
-        }
-      )
+        },
+      ),
     )
   }
 
