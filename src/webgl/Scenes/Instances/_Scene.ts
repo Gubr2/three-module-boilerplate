@@ -20,6 +20,7 @@ interface ScrollParams {
 export default class _Scene {
   params: SceneParams
   isRendering: boolean
+  isResponsiveVisible: boolean
   isScrollBelow!: boolean
   gl: Gl
   bounds!: {
@@ -27,6 +28,7 @@ export default class _Scene {
     top: number
     width: number
     height: number
+    aspect: number
     viewWidth: number
     viewHeight: number
     viewAspect: number
@@ -47,10 +49,16 @@ export default class _Scene {
     */
     this.params = _params
 
-    /* 
+    /*
       Flags
     */
-    this.isRendering = true
+    this.isRendering = false
+
+    /*
+      Responsive visibility
+      ↳ When set to false, the scene stops rendering and its render plane gets hidden
+    */
+    this.isResponsiveVisible = true
 
     /* 
       GL
@@ -70,7 +78,6 @@ export default class _Scene {
       new THREE.PlaneGeometry(1, 1),
     )
 
-    if (this.params.isFollowingDom) this.renderPlane.visible = false // prevent the renderplane to be accidentally visible when not needed
     this.renderPlane.frustumCulled = false
     this.renderPlane.matrixAutoUpdate = false
 
@@ -95,7 +102,7 @@ export default class _Scene {
     /* 
       Set is rendering
     */
-    this.setIsRendering()
+    this.setRenderingOnScroll()
   }
 
   resize() {
@@ -107,11 +114,16 @@ export default class _Scene {
     }
   }
 
-  setIsRendering() {
+  updateIsRendering(_isRendering?: boolean) {
+    this.isRendering = this.isResponsiveVisible ? (_isRendering ?? false) : false
+    this.renderPlane.visible = this.isResponsiveVisible ? (_isRendering ?? false) : false
+  }
+
+  setRenderingOnScroll() {
     if (!this.params?.isFollowingDom) return
 
     // Turn of automtic rendering and let it be handled by the scroll trigger
-    this.isRendering = false
+    this.updateIsRendering(false)
 
     this.gsapResources.push(
       ScrollTrigger.create({
@@ -123,20 +135,16 @@ export default class _Scene {
         // markers: true,
 
         onEnter: () => {
-          this.isRendering = true
-          this.renderPlane.visible = true
+          this.updateIsRendering(true)
         },
         onEnterBack: () => {
-          this.isRendering = true
-          this.renderPlane.visible = true
+          this.updateIsRendering(true)
         },
         onLeave: () => {
-          this.renderPlane.visible = false
-          this.isRendering = false
+          this.updateIsRendering(false)
         },
         onLeaveBack: () => {
-          this.renderPlane.visible = false
-          this.isRendering = false
+          this.updateIsRendering(false)
         },
       }),
     )
@@ -149,6 +157,7 @@ export default class _Scene {
       this.bounds = {
         width: bounds.width,
         height: bounds.height,
+        aspect: 0,
         viewWidth: bounds.width,
         viewHeight: Math.min(bounds.height, this.gl.sizes.height), // Clamp the scene height to the screen height if the bounds are bigger to prevent rendering content outside the screen
         viewAspect: 0,
@@ -164,6 +173,7 @@ export default class _Scene {
         this.bounds.viewHeight = Math.min(bounds.height + endBounds.height, this.gl.sizes.height)
       }
 
+      this.bounds.aspect = this.bounds.width / this.bounds.height
       this.bounds.viewAspect = this.bounds.viewWidth / this.bounds.viewHeight
 
       /* 
@@ -174,6 +184,7 @@ export default class _Scene {
       this.bounds = {
         width: this.gl.sizes.width,
         height: this.gl.sizes.height,
+        aspect: this.gl.sizes.width / this.gl.sizes.height,
         viewWidth: this.gl.sizes.width,
         viewHeight: this.gl.sizes.height,
         viewAspect: this.gl.sizes.width / this.gl.sizes.height,
@@ -233,7 +244,7 @@ export default class _Scene {
           start: () => `bottom top+=${this.gl.sizes.height - Math.max((this.gl.sizes.height - this.bounds.height) / 2, 0)}`,
           end: () => `bottom+=${this.gl.sizes.height} top+=${this.gl.sizes.height - Math.max((this.gl.sizes.height - this.bounds.height) / 2, 0)}`,
           refreshPriority: this.isScrollBelow ? -100 : -99,
-          markers: true,
+          // markers: true,
         },
       },
     )
