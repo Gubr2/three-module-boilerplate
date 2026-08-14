@@ -24,6 +24,7 @@ export default class Assets {
   textures: Record<string, THREE.Texture>
   hdris: Record<string, THREE.Texture>
   fonts: Record<string, any>
+  videos: Record<string, any>
 
   promises: Promise<void>[]
   promisesProgress: number
@@ -57,6 +58,7 @@ export default class Assets {
     */
     this.models = {}
     this.textures = {}
+    this.videos = {}
     this.hdris = {}
     this.fonts = {}
 
@@ -87,7 +89,7 @@ export default class Assets {
 
           if (isMandatory) this.gl.renderer.instance.initTexture(_result)
         },
-        'all'
+        'all',
       )
 
       /* 
@@ -149,7 +151,7 @@ export default class Assets {
           } else {
             console.warn(`[WebGL] [ Scene: ${_scene} ] - No promises found for this async scene`)
           }
-        })
+        }),
       )
 
       _resolve()
@@ -213,7 +215,7 @@ export default class Assets {
           undefined,
           (_error: any) => {
             console.error(_error)
-          }
+          },
         )
       })
 
@@ -224,6 +226,72 @@ export default class Assets {
       const promise = loader()
       this.promises.push(promise)
       // return promise
+    } else {
+      this.promisesAsync.push({
+        dependencies: _sceneDependencies,
+        loader: loader,
+      })
+    }
+  }
+
+  customVideoLoader(_mandatoryPath: string, _asyncHighQualityPath: string | undefined, _target: (result: THREE.VideoTexture, isMandatory: boolean) => void, _sceneDependencies: Dependencies) {
+    const isMandatory = this.checkIfMandatory(_sceneDependencies)
+
+    const loader = () =>
+      new Promise<void>(async (resolve, reject) => {
+        const mandatoryVideo = document.createElement('video')
+        mandatoryVideo.preload = 'auto'
+        mandatoryVideo.muted = true
+        mandatoryVideo.playsInline = true
+
+        const video = document.createElement('video')
+        video.preload = 'auto'
+        video.muted = true
+        video.playsInline = true
+
+        try {
+          const responseMandatory = await fetch(_mandatoryPath)
+          const blobMandatory = await responseMandatory.blob()
+
+          mandatoryVideo.src = URL.createObjectURL(blobMandatory)
+          video.src = URL.createObjectURL(blobMandatory)
+
+          const texture = new THREE.VideoTexture(video)
+          texture.userData.mandatoryVideo = new THREE.VideoTexture(mandatoryVideo)
+          texture.needsUpdate = true
+
+          _target(texture, isMandatory)
+
+          if (isMandatory) {
+            this.logProgress(_mandatoryPath)
+          } else {
+            this.logAsyncProgress(_mandatoryPath)
+          }
+
+          resolve()
+
+          /*
+            Load Async HQ
+          */
+          if (_asyncHighQualityPath) {
+            const responseHQ = await fetch(_asyncHighQualityPath)
+            const blobHQ = await responseHQ.blob()
+
+            const savedTime = video.currentTime
+
+            video.src = URL.createObjectURL(blobHQ)
+
+            video.currentTime = savedTime
+          }
+        } catch (_error) {
+          console.error(_error)
+          reject(_error)
+          return
+        }
+      })
+
+    if (isMandatory) {
+      this.promises.push(loader())
     } else {
       this.promisesAsync.push({
         dependencies: _sceneDependencies,

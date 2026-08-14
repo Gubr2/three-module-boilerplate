@@ -6,6 +6,37 @@ export default class ShaderChunks {
   constructor() {
     this.shaderChunks = THREE.ShaderChunk
 
+    this.shaderChunks['coverUv'] = /* glsl */ `
+      // background-size: cover — planeAspect / textureAspect are width / height, zoom > 1.0 crops in
+      vec2 coverUv(vec2 uv, float planeAspect, float textureAspect, float zoom) {
+        vec2 ratio = vec2(
+          min(planeAspect / textureAspect, 1.0),
+          min(textureAspect / planeAspect, 1.0)
+        ) / zoom;
+
+        return uv * ratio + (1.0 - ratio) * 0.5;
+      }
+
+      vec2 coverUv(vec2 uv, float planeAspect, float textureAspect) {
+        return coverUv(uv, planeAspect, textureAspect, 1.0);
+      }
+
+      // background-size: contain
+      vec2 containUv(vec2 uv, float planeAspect, float textureAspect, float zoom) {
+        vec2 ratio = vec2(
+          max(planeAspect / textureAspect, 1.0),
+          max(textureAspect / planeAspect, 1.0)
+        ) / zoom;
+
+        return uv * ratio + (1.0 - ratio) * 0.5;
+      }
+
+      vec2 containUv(vec2 uv, float planeAspect, float textureAspect) {
+        return containUv(uv, planeAspect, textureAspect, 1.0);
+      }
+
+    `
+
     this.shaderChunks['snoise'] = /* glsl */ `
       //	Simplex 4D Noise 
       //	by Ian McEwan, Ashima Arts

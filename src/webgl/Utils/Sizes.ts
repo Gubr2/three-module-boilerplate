@@ -1,6 +1,10 @@
+import Gl from '../Gl'
+
 export default class Sizes {
+  gl: Gl
   breakpoints: {
-    touch: number
+    tablet: number
+    mobile: number
   }
   width!: number
   height!: number
@@ -9,11 +13,16 @@ export default class Sizes {
 
   isTouchDevice!: boolean
   isDesktop!: boolean
+  isTablet!: boolean
+  isMobile!: boolean
 
   constructor() {
+    this.gl = new Gl()
+
     // Breakpoints
     this.breakpoints = {
-      touch: 992,
+      tablet: 992,
+      mobile: 768,
     }
 
     // Setup
@@ -26,17 +35,19 @@ export default class Sizes {
     this.pixelRatio = Math.min(window.devicePixelRatio, 2)
     this.aspect = this.width / this.height
 
-    this.isDesktop = this.width >= this.breakpoints.touch
+    this.isDesktop = this.width >= this.breakpoints.tablet
+    this.isTablet = this.width >= this.breakpoints.mobile && this.width < this.breakpoints.tablet
+    this.isMobile = this.width < this.breakpoints.mobile
 
     // Detect if the device is a touch device
     this.isTouchDevice = window.matchMedia('(hover: none)').matches
   }
 
-  setResponsiveFov(_fov: number, referenceAspect: number, zoom: number = 1, aspect: number = this.aspect) {
+  setResponsiveFov(_fov: number, referenceAspect: number, zoom = 1, aspect = this.aspect, _isClamped = true) {
     const fovInRadians = (_fov * Math.PI) / 180
     let tanHalf = Math.tan(fovInRadians / 2) / zoom
 
-    if (aspect < referenceAspect) {
+    if (!_isClamped || aspect < referenceAspect) {
       tanHalf = (tanHalf * referenceAspect) / aspect
     }
 

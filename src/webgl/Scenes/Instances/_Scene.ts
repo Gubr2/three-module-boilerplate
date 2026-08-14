@@ -29,6 +29,7 @@ export default class _Scene {
     height: number
     viewWidth: number
     viewHeight: number
+    viewAspect: number
   }
   renderPlane: THREE.Mesh<THREE.PlaneGeometry, THREE.ShaderMaterial>
   gsapResources: Array<any>
@@ -69,7 +70,7 @@ export default class _Scene {
       new THREE.PlaneGeometry(1, 1),
     )
 
-    this.renderPlane.visible = false // prevent the renderplane to be accidentally visible when not needed
+    if (this.params.isFollowingDom) this.renderPlane.visible = false // prevent the renderplane to be accidentally visible when not needed
     this.renderPlane.frustumCulled = false
     this.renderPlane.matrixAutoUpdate = false
 
@@ -100,11 +101,15 @@ export default class _Scene {
   resize() {
     this.getBounds()
 
-    this.enterScroll.scrollTrigger.vars.refreshPriority = this.isScrollBelow ? -99 : -100
-    this.leaveScroll.scrollTrigger.vars.refreshPriority = this.isScrollBelow ? -100 : -99
+    if (this.params?.isFollowingDom) {
+      this.enterScroll.scrollTrigger.vars.refreshPriority = this.isScrollBelow ? -99 : -100
+      this.leaveScroll.scrollTrigger.vars.refreshPriority = this.isScrollBelow ? -100 : -99
+    }
   }
 
   setIsRendering() {
+    if (!this.params?.isFollowingDom) return
+
     // Turn of automtic rendering and let it be handled by the scroll trigger
     this.isRendering = false
 
@@ -126,12 +131,12 @@ export default class _Scene {
           this.renderPlane.visible = true
         },
         onLeave: () => {
-          this.isRendering = false
           this.renderPlane.visible = false
+          this.isRendering = false
         },
         onLeaveBack: () => {
-          this.isRendering = false
           this.renderPlane.visible = false
+          this.isRendering = false
         },
       }),
     )
@@ -139,13 +144,14 @@ export default class _Scene {
 
   getBounds() {
     if (this.params?.isFollowingDom) {
-      const bounds = this.params.dom.getBoundingClientRect()
+      const bounds = this.params.dom!.getBoundingClientRect()
 
       this.bounds = {
         width: bounds.width,
         height: bounds.height,
         viewWidth: bounds.width,
         viewHeight: Math.min(bounds.height, this.gl.sizes.height), // Clamp the scene height to the screen height if the bounds are bigger to prevent rendering content outside the screen
+        viewAspect: 0,
         left: bounds.left,
         top: bounds.top,
       }
@@ -158,6 +164,8 @@ export default class _Scene {
         this.bounds.viewHeight = Math.min(bounds.height + endBounds.height, this.gl.sizes.height)
       }
 
+      this.bounds.viewAspect = this.bounds.viewWidth / this.bounds.viewHeight
+
       /* 
         Check if the scroll is below the scene
       */
@@ -168,6 +176,7 @@ export default class _Scene {
         height: this.gl.sizes.height,
         viewWidth: this.gl.sizes.width,
         viewHeight: this.gl.sizes.height,
+        viewAspect: this.gl.sizes.width / this.gl.sizes.height,
         left: 0,
         top: 0,
       }

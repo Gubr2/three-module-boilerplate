@@ -128,8 +128,6 @@ export default class Gl {
       if (!this.isLoaded) {
         this.didResizedBeforeWebglLoaded = true
       }
-
-      ScrollTrigger.refresh() // Manual refresh after everyting gets resized to make sure scroll trigger positioning applies
     })
   }
 
@@ -150,6 +148,8 @@ export default class Gl {
           */
           if (this.didResizedBeforeWebglLoaded) {
             this.resize()
+
+            ScrollTrigger.refresh()
           }
         })
       } else {
@@ -215,5 +215,7 @@ export default class Gl {
     }
 
     this.mouse.resize()
+
+    ScrollTrigger.refresh()
   }
 }
