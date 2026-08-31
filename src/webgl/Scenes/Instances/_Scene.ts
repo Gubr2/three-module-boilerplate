@@ -37,7 +37,10 @@ export default class _Scene {
   gsapResources: Array<any>
   disposableFunctions: Record<string, (...args: any[]) => void>
   debugFolder: any
-  scrollCameraOffset: number
+  scrollCameraOffset: {
+    default: number
+    inverted: number
+  }
   enterScroll: any
   leaveScroll: any
 
@@ -87,7 +90,10 @@ export default class _Scene {
         to offset the camera position to simulate scroll-like movement
       ↳ Needs to be used manually in the child scene based on the current needs
     */
-    this.scrollCameraOffset = 0
+    this.scrollCameraOffset = {
+      default: 0,
+      inverted: 0,
+    }
 
     /* 
       Disposable resources
@@ -145,6 +151,10 @@ export default class _Scene {
         },
         onLeaveBack: () => {
           this.updateIsRendering(false)
+        },
+        onRefresh: (_self) => {
+          const scrollState = _self.scroll()
+          this.updateIsRendering(scrollState >= _self.start && scrollState < _self.end)
         },
       }),
     )
@@ -263,12 +273,34 @@ export default class _Scene {
     // Scroll Camera Offset
     this.gsapResources.push(
       gsap.fromTo(
-        this,
+        this.scrollCameraOffset,
         {
-          scrollCameraOffset: 0,
+          default: 0,
         },
         {
-          scrollCameraOffset: () => Math.max(this.bounds.height - this.gl.sizes.height, 0),
+          default: () => Math.max(this.bounds.height - this.gl.sizes.height, 0),
+          ease: 'none',
+          immediateRender: false,
+          scrollTrigger: {
+            invalidateOnRefresh: true,
+            scrub: true,
+            trigger: _params.trigger,
+            start: () => 'top top',
+            end: () => `top+=${Math.max(this.bounds.height - this.gl.sizes.height, 0)} top`,
+            // markers: true,
+          },
+        },
+      ),
+    )
+
+    this.gsapResources.push(
+      gsap.fromTo(
+        this.scrollCameraOffset,
+        {
+          inverted: () => Math.max(this.bounds.height - this.gl.sizes.height, 0),
+        },
+        {
+          inverted: 0,
           ease: 'none',
           immediateRender: false,
           scrollTrigger: {
