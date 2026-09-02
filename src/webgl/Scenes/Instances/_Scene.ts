@@ -215,7 +215,7 @@ export default class _Scene {
     this.enterScroll = gsap.fromTo(
       _params.renderPlane.material.uniforms.uPosition.value,
       {
-        y: () => this.gl.sizes.height,
+        y: () => 1,
       },
       {
         y: 0,
@@ -244,7 +244,7 @@ export default class _Scene {
         y: 0,
       },
       {
-        y: () => -this.gl.sizes.height,
+        y: () => -1,
         ease: 'none',
         immediateRender: false,
         scrollTrigger: {
