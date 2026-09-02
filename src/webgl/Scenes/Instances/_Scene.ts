@@ -1,4 +1,4 @@
-import * as THREE from 'three'
+import * as THREE from 'three/webgpu'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
@@ -12,7 +12,8 @@ export interface SceneParams {
 }
 
 interface ScrollParams {
-  renderPlane: THREE.Mesh<THREE.PlaneGeometry, THREE.ShaderMaterial>
+  renderPlane: THREE.Mesh<THREE.PlaneGeometry, THREE.NodeMaterial>
+  uniformsRenderPlane: Record<string, any>
   trigger: HTMLElement
   endTrigger?: HTMLElement | null
 }
@@ -33,7 +34,7 @@ export default class _Scene {
     viewHeight: number
     viewAspect: number
   }
-  renderPlane: THREE.Mesh<THREE.PlaneGeometry, THREE.ShaderMaterial>
+  renderPlane: THREE.Mesh<THREE.PlaneGeometry, THREE.NodeMaterial>
   gsapResources: Array<any>
   disposableFunctions: Record<string, (...args: any[]) => void>
   debugFolder: any
@@ -213,7 +214,7 @@ export default class _Scene {
     // ↳ Move in
     // ↳ Compensate for tall devices, where the screen height gets greater than the sticky container height
     this.enterScroll = gsap.fromTo(
-      _params.renderPlane.material.uniforms.uPosition.value,
+      _params.uniformsRenderPlane.uPosition.value,
       {
         y: () => 1,
       },
@@ -239,7 +240,7 @@ export default class _Scene {
     // ↳ Move out
     // ↳ Compensate for tall devices, where the screen height gets greater than the sticky container height
     this.leaveScroll = gsap.fromTo(
-      _params.renderPlane.material.uniforms.uPosition.value,
+      _params.uniformsRenderPlane.uPosition.value,
       {
         y: 0,
       },
@@ -263,7 +264,7 @@ export default class _Scene {
 
     // Set default value
     if (!this.isRendering) {
-      gsap.set(_params.renderPlane.material.uniforms.uPosition.value, {
+      gsap.set(_params.uniformsRenderPlane.uPosition.value, {
         y: this.isScrollBelow ? -this.gl.sizes.height : this.gl.sizes.height,
       })
     }
@@ -317,9 +318,7 @@ export default class _Scene {
   }
 
   setDebug() {
-    // this.debugFolder = this.gl.manager.debugFolder.addFolder({
-    //   title: 'Scene: ' + this.params.id.charAt(0).toUpperCase() + this.params.id.slice(1),
-    // })
+    this.debugFolder = this.gl.manager.debugFolder.addFolder('Scene: ' + this.params.id.charAt(0).toUpperCase() + this.params.id.slice(1))
   }
 
   async compile() {
@@ -350,7 +349,7 @@ export default class _Scene {
       Remove debug folder
     */
     if (this.debugFolder) {
-      this.debugFolder.dispose()
+      this.debugFolder.hide() // TODO: Remove, when destroy API will be added to inspector
     }
   }
 }

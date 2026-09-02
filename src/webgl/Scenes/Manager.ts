@@ -39,23 +39,10 @@ export default class Manager {
   }
 
   setDebug() {
-    // this.debugFolder = this.gl.debug.gui.addFolder({
-    //   title: 'Scenes',
-    // })
-    // this.debugFolder
-    //   .addButton({
-    //     title: 'Add All',
-    //   })
-    //   .on('click', () => {
-    //     this.add()
-    //   })
-    // this.debugFolder
-    //   .addButton({
-    //     title: 'Dispose All',
-    //   })
-    //   .on('click', () => {
-    //     this.dispose()
-    //   })
+    this.debugFolder = this.gl.renderer.inspector?.createParameters('Scenes').close()
+
+    this.debugFolder.addButton({ add: () => this.add() }, 'add').name('Add All')
+    this.debugFolder.addButton({ dispose: () => this.dispose() }, 'dispose').name('Dispose All')
   }
 
   add() {

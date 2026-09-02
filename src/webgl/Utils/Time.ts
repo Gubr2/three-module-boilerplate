@@ -1,4 +1,4 @@
-import { Timer } from 'three'
+import { Timer } from 'three/webgpu'
 
 export default class Time {
   timer: Timer

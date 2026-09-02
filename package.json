@@ -15,7 +15,7 @@
     "vite-plugin-glsl": "^1.2.1"
   },
   "dependencies": {
-    "@types/three": "^0.183.1",
+    "@types/three": "^0.185.4",
     "gsap": "^3.12.7",
     "stats-gl": "^3.6.0",
     "three": "^0.185.1",

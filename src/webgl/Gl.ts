@@ -1,5 +1,5 @@
 import WebGL from 'three/addons/capabilities/WebGL.js'
-import * as THREE from 'three'
+import * as THREE from 'three/webgpu'
 import gsap from 'gsap'
 import ScrollTrigger from 'gsap/ScrollTrigger'
 
@@ -102,7 +102,7 @@ export default class Gl {
       Scene & Camera
     */
     this.scene = new THREE.Scene()
-    this.camera = new THREE.Camera()
+    this.camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1)
 
     /*
       Renderer
@@ -160,6 +160,8 @@ export default class Gl {
   }
 
   async init(): Promise<void> {
+    await this.renderer.instance.init()
+
     /* 
       Precompile active scenes
     */

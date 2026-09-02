@@ -1,6 +1,7 @@
-import * as THREE from 'three'
+import * as THREE from 'three/webgpu'
 
 import _Scene, { SceneParams } from './_Scene'
+import { Fn, float, vec2, vec3, vec4, uv, texture, uniform, uniformTexture, positionLocal, mul } from 'three/tsl'
 
 export default class extends _Scene {
   scene: THREE.Scene
@@ -8,6 +9,7 @@ export default class extends _Scene {
   camera: THREE.PerspectiveCamera
   model?: THREE.Mesh
   interface: Record<string, any>
+  uniformsRenderPlane: Record<string, any>
 
   constructor(_params: SceneParams) {
     super(_params)
@@ -36,56 +38,32 @@ export default class extends _Scene {
     /* 
       Render Plane
     */
-    this.renderPlane.material = new THREE.ShaderMaterial({
-      defines: {
-        IS_FOLLOWING_DOM: this.params?.isFollowingDom ? 1 : 0,
-      },
-      uniforms: {
-        tDiffuse: new THREE.Uniform(this.renderTarget.texture),
+    this.uniformsRenderPlane = {
+      uScale: uniform(vec2(this.bounds.viewWidth / this.gl.sizes.width, this.bounds.viewHeight / this.gl.sizes.height)),
+      uPosition: uniform(vec2(this.bounds.left / this.gl.sizes.width, this.bounds.top / this.gl.sizes.height)),
+    }
 
-        uScale: new THREE.Uniform(new THREE.Vector2(this.bounds.viewWidth / this.gl.sizes.width, this.bounds.viewHeight / this.gl.sizes.height)),
-        uPosition: new THREE.Uniform(new THREE.Vector2(this.bounds.left / this.gl.sizes.width, this.bounds.top / this.gl.sizes.height)),
-      },
-      vertexShader: /* glsl */ `
-        uniform vec2 uPosition;
-        uniform vec2 uScale;
-        uniform vec2 uResolution;
+    this.renderPlane.material = new THREE.NodeMaterial()
+    this.renderPlane.material.transparent = true
 
-        varying vec2 vUv;
+    this.renderPlane.material.vertexNode = Fn(() => {
+      const pos = positionLocal.xy.mul(2.0)
 
-        void main() {
-          vec2 pos = position.xy * 2.0;
+      // Skip if not needed on compile step
+      if (this.params?.isFollowingDom) {
+        // Scale
+        pos.x.mulAssign(this.uniformsRenderPlane.uScale.x)
+        pos.y.mulAssign(this.uniformsRenderPlane.uScale.y)
 
-          #if IS_FOLLOWING_DOM
+        // Position
+        pos.x.addAssign(float(-1.0).add(this.uniformsRenderPlane.uPosition.x.mul(2)).add(this.uniformsRenderPlane.uScale.x))
+        pos.y.subAssign(this.uniformsRenderPlane.uPosition.y.mul(2.0))
+      }
 
-            // Scale
-            pos.x *= uScale.x;
-            pos.y *= uScale.y;
+      return vec4(pos, 0.0, 1.0)
+    })()
 
-            // Position
-            pos.x += - 1.0 + uPosition.x * 2. + uScale.x;
-            pos.y -= uPosition.y * 2.0;
-
-          #endif
-          
-          gl_Position = vec4(pos.xy, 0.0, 1.0);
-        
-          // Varyings
-          vUv = uv;
-        }
-      `,
-      fragmentShader: /* glsl */ `
-        varying vec2 vUv;
-
-        uniform sampler2D tDiffuse;
-        
-        void main() {
-          vec4 textureDiffuse = texture2D(tDiffuse, vUv);
-        
-          gl_FragColor = textureDiffuse;
-        }
-      `,
-    })
+    this.renderPlane.material.colorNode = texture(this.renderTarget.texture, uv())
 
     /* 
       Camera
@@ -104,6 +82,7 @@ export default class extends _Scene {
     if (this.params?.isFollowingDom) {
       this.setDefaultScroll({
         renderPlane: this.renderPlane,
+        uniformsRenderPlane: this.uniformsRenderPlane,
         trigger: this.params.dom,
         endTrigger: this.params.endDom,
       })
@@ -116,29 +95,10 @@ export default class extends _Scene {
   }
 
   setModels() {
-    this.model = new THREE.Mesh(
-      new THREE.PlaneGeometry(1, 1),
-      new THREE.ShaderMaterial({
-        //
-        vertexShader: /* glsl */ `
-          varying vec2 vUv;
+    const material = new THREE.MeshBasicNodeMaterial()
+    material.colorNode = vec3(uv(), 0.0)
 
-          void main() {
-            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-          
-            vUv = uv;
-          }
-        `,
-        fragmentShader: /* glsl */ `
-        varying vec2 vUv;
-        
-        void main() {        
-          gl_FragColor = vec4(vec3(vUv.x, vUv.y, 0.0), 1.0);
-        }
-      `,
-        side: THREE.DoubleSide,
-      }),
-    )
+    this.model = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), material)
 
     this.scene.add(this.model)
   }
@@ -154,8 +114,8 @@ export default class extends _Scene {
     /* 
       Render Plane
     */
-    this.renderPlane.material.uniforms.uPosition.value.x = this.bounds.left / this.gl.sizes.width
-    this.renderPlane.material.uniforms.uScale.value.set(this.bounds.viewWidth / this.gl.sizes.width, this.bounds.viewHeight / this.gl.sizes.height)
+    this.uniformsRenderPlane.uPosition.value.x = this.bounds.left / this.gl.sizes.width
+    this.uniformsRenderPlane.uScale.value.set(this.bounds.viewWidth / this.gl.sizes.width, this.bounds.viewHeight / this.gl.sizes.height)
 
     /* 
       Camera
