@@ -43,9 +43,8 @@ export default class extends _Scene {
       uniforms: {
         tDiffuse: new THREE.Uniform(this.renderTarget.texture),
 
-        uScale: new THREE.Uniform(new THREE.Vector2(this.bounds.viewWidth, this.bounds.viewHeight)),
-        uPosition: new THREE.Uniform(new THREE.Vector2(this.bounds.left, this.bounds.top)),
-        uResolution: new THREE.Uniform(new THREE.Vector2(this.gl.sizes.width, this.gl.sizes.height)),
+        uScale: new THREE.Uniform(new THREE.Vector2(this.bounds.viewWidth / this.gl.sizes.width, this.bounds.viewHeight / this.gl.sizes.height)),
+        uPosition: new THREE.Uniform(new THREE.Vector2(this.bounds.left / this.gl.sizes.width, this.bounds.top / this.gl.sizes.height)),
       },
       vertexShader: /* glsl */ `
         uniform vec2 uPosition;
@@ -60,12 +59,12 @@ export default class extends _Scene {
           #if IS_FOLLOWING_DOM
 
             // Scale
-            pos.x *= uScale.x / uResolution.x;
-            pos.y *= uScale.y / uResolution.y;
+            pos.x *= uScale.x;
+            pos.y *= uScale.y;
 
             // Position
-            pos.x += - 1.0 + uPosition.x / uResolution.x * 2. + uScale.x / uResolution.x;
-            pos.y -= uPosition.y / uResolution.y * 2.0;
+            pos.x += - 1.0 + uPosition.x * 2. + uScale.x;
+            pos.y -= uPosition.y * 2.0;
 
           #endif
           
@@ -138,7 +137,7 @@ export default class extends _Scene {
         }
       `,
         side: THREE.DoubleSide,
-      })
+      }),
     )
 
     this.scene.add(this.model)
@@ -155,9 +154,8 @@ export default class extends _Scene {
     /* 
       Render Plane
     */
-    this.renderPlane.material.uniforms.uResolution.value.set(this.gl.sizes.width, this.gl.sizes.height)
-    this.renderPlane.material.uniforms.uPosition.value.x = this.bounds.left
-    this.renderPlane.material.uniforms.uScale.value.set(this.bounds.viewWidth, this.bounds.viewHeight)
+    this.renderPlane.material.uniforms.uPosition.value.x = this.bounds.left / this.gl.sizes.width
+    this.renderPlane.material.uniforms.uScale.value.set(this.bounds.viewWidth / this.gl.sizes.width, this.bounds.viewHeight / this.gl.sizes.height)
 
     /* 
       Camera

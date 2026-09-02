@@ -86,8 +86,6 @@ export default class Assets {
           this.textures.noise = _result
           this.textures.noise.wrapS = THREE.RepeatWrapping
           this.textures.noise.wrapT = THREE.RepeatWrapping
-
-          if (isMandatory) this.gl.renderer.instance.initTexture(_result)
         },
         'all',
       )
@@ -99,7 +97,7 @@ export default class Assets {
 
       _resolve()
 
-      if (this.gl.isDebug) console.log('[WebGL] [ █ █ █ █     ] -', 'Assets loaded')
+      if (this.gl.isDebug) console.log('[WebGPU] [ █ █ █ █     ] -', 'Assets loaded')
     })
   }
 
@@ -111,13 +109,13 @@ export default class Assets {
 
     // Listen to all async promises
     Promise.all(promisesAsync).then(() => {
-      if (this.gl.isDebug) console.log('[WebGL] [  A S Y N C  ] -', 'Async assets loaded')
+      if (this.gl.isDebug) console.log('[WebGPU] [  A S Y N C  ] -', 'Async assets loaded')
     })
 
     // Listen to all promises together
     // ↳ For preloader hiding and transition – to make sure, everything is loaded
     Promise.all([...this.promises, ...promisesAsync]).then(() => {
-      if (this.gl.isDebug) console.log('[WebGL] [    A L L    ] -', 'All assets loaded')
+      if (this.gl.isDebug) console.log('[WebGPU] [    A L L    ] -', 'All assets loaded')
     })
   }
 
@@ -149,7 +147,7 @@ export default class Assets {
           if (promises) {
             await Promise.all(promises)
           } else {
-            console.warn(`[WebGL] [ Scene: ${_scene} ] - No promises found for this async scene`)
+            console.warn(`[WebGPU] [ Scene: ${_scene} ] - No promises found for this async scene`)
           }
         }),
       )
@@ -303,12 +301,12 @@ export default class Assets {
   private logProgress(_path: string) {
     this.promisesProgress++
 
-    if (this.gl.isDebug) console.info(`[WebGL] [ ${this.promisesProgress}/${this.promises.length} asset loaded ] -`, _path)
+    if (this.gl.isDebug) console.info(`[WebGPU] [ ${this.promisesProgress}/${this.promises.length} asset loaded ] -`, _path)
   }
 
   private logAsyncProgress(_path: string) {
     this.promisesAsyncProgress++
 
-    if (this.gl.isDebug) console.info(`[WebGL] [ ${this.promisesAsyncProgress}/${this.promisesAsync.length} async asset loaded ] -`, _path)
+    if (this.gl.isDebug) console.info(`[WebGPU] [ ${this.promisesAsyncProgress}/${this.promisesAsync.length} async asset loaded ] -`, _path)
   }
 }

@@ -39,25 +39,23 @@ export default class Manager {
   }
 
   setDebug() {
-    this.debugFolder = this.gl.debug.gui.addFolder({
-      title: 'Scenes',
-    })
-
-    this.debugFolder
-      .addButton({
-        title: 'Add All',
-      })
-      .on('click', () => {
-        this.add()
-      })
-
-    this.debugFolder
-      .addButton({
-        title: 'Dispose All',
-      })
-      .on('click', () => {
-        this.dispose()
-      })
+    // this.debugFolder = this.gl.debug.gui.addFolder({
+    //   title: 'Scenes',
+    // })
+    // this.debugFolder
+    //   .addButton({
+    //     title: 'Add All',
+    //   })
+    //   .on('click', () => {
+    //     this.add()
+    //   })
+    // this.debugFolder
+    //   .addButton({
+    //     title: 'Dispose All',
+    //   })
+    //   .on('click', () => {
+    //     this.dispose()
+    //   })
   }
 
   add() {
@@ -97,7 +95,7 @@ export default class Manager {
 
           // If no end scene found, warn
           if (!end) {
-            console.warn(`[WebGL] [Scene: ${_scene.dataset.glSceneStart}] - No end scene found for start scene`)
+            console.warn(`[WebGPU] [Scene: ${_scene.dataset.glSceneStart}] - No end scene found for start scene`)
 
             return null
           }

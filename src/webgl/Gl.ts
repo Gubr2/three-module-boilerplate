@@ -160,11 +160,6 @@ export default class Gl {
   }
 
   async init(): Promise<void> {
-    if (this.isDebug) {
-      const Debug = (await import('./Utils/Debug')).default
-      this.debug = new Debug()
-    }
-
     /* 
       Precompile active scenes
     */
@@ -195,14 +190,10 @@ export default class Gl {
 
   update(): void {
     if (this.isLoaded) {
-      if (this.isDebug) this.debug.perf.begin()
-
       this.time.update()
       this.manager.update()
       this.renderer.update()
       this.mouse.update()
-
-      if (this.isDebug) this.debug.perf.end()
     }
   }
 

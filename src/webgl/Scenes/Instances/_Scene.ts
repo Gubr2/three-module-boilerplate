@@ -215,7 +215,7 @@ export default class _Scene {
     this.enterScroll = gsap.fromTo(
       _params.renderPlane.material.uniforms.uPosition.value,
       {
-        y: () => this.gl.sizes.height,
+        y: () => 1,
       },
       {
         y: 0,
@@ -244,7 +244,7 @@ export default class _Scene {
         y: 0,
       },
       {
-        y: () => -this.gl.sizes.height,
+        y: () => -1,
         ease: 'none',
         immediateRender: false,
         scrollTrigger: {
@@ -317,9 +317,9 @@ export default class _Scene {
   }
 
   setDebug() {
-    this.debugFolder = this.gl.manager.debugFolder.addFolder({
-      title: 'Scene: ' + this.params.id.charAt(0).toUpperCase() + this.params.id.slice(1),
-    })
+    // this.debugFolder = this.gl.manager.debugFolder.addFolder({
+    //   title: 'Scene: ' + this.params.id.charAt(0).toUpperCase() + this.params.id.slice(1),
+    // })
   }
 
   async compile() {
