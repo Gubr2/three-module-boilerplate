@@ -42,6 +42,9 @@ export default class Gl {
   debug?: any
   compilePromises!: Promise<void>[]
 
+  // Change before production to remove debug and all its dependencies from being imported
+  private isProd: boolean = false
+
   constructor(_params?: Params) {
     /*
       Singleton
@@ -75,7 +78,7 @@ export default class Gl {
       Get Debug
     */
     this.urlParams = new URLSearchParams(window.location.search)
-    this.isDebug = this.urlParams.has('debug') && import.meta.env.DEV
+    this.isDebug = this.urlParams.has('debug') && !this.isProd
 
     /*
       Flags
