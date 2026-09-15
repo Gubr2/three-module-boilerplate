@@ -102,6 +102,7 @@ export default class Gl {
       Scene & Camera
     */
     this.scene = new THREE.Scene()
+    this.scene.name = 'Main Scenes Composer (this.gl.scene)'
     this.camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1)
 
     /*

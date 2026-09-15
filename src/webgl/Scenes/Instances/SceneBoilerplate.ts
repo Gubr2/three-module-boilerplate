@@ -25,7 +25,7 @@ export default class extends _Scene {
       Scene
     */
     this.scene = new THREE.Scene()
-    this.scene.name = this.params.id.charAt(0).toUpperCase() + this.params.id.slice(1)
+    this.scene.name = 'Scene: ' + this.params.id.charAt(0).toUpperCase() + this.params.id.slice(1)
     // this.scene.matrixAutoUpdate = false
 
     /* 
