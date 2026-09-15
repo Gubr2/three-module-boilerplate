@@ -71,8 +71,12 @@ Append `?debug` to the URL in a dev build: it sets `gl.isDebug`, attaches three'
 - `isRendering` starts `false` and is only ever set by the scroll trigger, so a scene created with `isFollowingDom: false` must call `updateIsRendering(true)` itself or it renders nothing.
 - `Gl` falls back to a `webgl-not-available` class on `<html>` when WebGL2 is missing, and `load()` resolves without building anything.
 
-## Style
+## Coding Style
 
 – No semicolons, single quotes, 2-space indent, long lines (~200 cols); no formatter config is committed. Parameters and callback arguments are `_`-prefixed (`_params`, `_scene`, `_event`). Sections inside a class are separated by `/* Title */` block comments — follow that when adding code.
 – Stop commenting your generated code. If necessary, be super brief
 – Avoid destructuring objects when accessing a variable from it – instead reference it directly
+
+## Others
+
+– At the end of each task, prompt me if I want to commit the changes so I don't forget to save the progress
