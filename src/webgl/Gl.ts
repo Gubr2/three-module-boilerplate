@@ -143,17 +143,14 @@ export default class Gl {
 
           this.isLoaded = true
 
-          this.manager.init()
-
           _resolve()
 
           /*
             Fix accidental rescale before webgl is loaded
+            ↳ resize() already refreshes ScrollTrigger
           */
           if (this.didResizedBeforeWebglLoaded) {
             this.resize()
-
-            ScrollTrigger.refresh()
           }
         })
       } else {
@@ -165,6 +162,12 @@ export default class Gl {
 
   async init(): Promise<void> {
     await this.renderer.instance.init()
+
+    /* 
+      Add scenes
+      ↳ Before compilation, so every active scene has a pipeline to compile
+    */
+    this.manager.init()
 
     /* 
       Precompile active scenes

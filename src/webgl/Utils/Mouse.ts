@@ -43,6 +43,7 @@ export default class Mouse {
       separated: Vector2
     }
   }
+  events!: Record<string, (_event: any) => void>
 
   constructor(_dom?: HTMLElement, _params?: Params) {
     this.gl = new Gl()
@@ -130,21 +131,29 @@ export default class Mouse {
     // // // // // // // // // // // // // // // //
     // EVENTS
 
+    // Bound once, so dispose removes the same references
+    this.events = {
+      mousemove: this.mousemove.bind(this),
+      touchmove: this.touchmove.bind(this),
+      down: this.down.bind(this),
+      up: this.up.bind(this),
+      mouseleave: this.mouseleave.bind(this),
+    }
+
     // Move
-    document.addEventListener('mousemove', this.mousemove.bind(this))
-    document.addEventListener('touchmove', this.touchmove.bind(this))
+    document.addEventListener('mousemove', this.events.mousemove)
+    document.addEventListener('touchmove', this.events.touchmove)
 
     // Down
-    document.addEventListener('mousedown', this.down.bind(this))
-    document.addEventListener('touchstart', this.down.bind(this))
+    document.addEventListener('mousedown', this.events.down)
+    document.addEventListener('touchstart', this.events.down)
 
     // Up
-    document.addEventListener('mouseup', this.up.bind(this))
-    document.addEventListener('touchend', this.up.bind(this))
+    document.addEventListener('mouseup', this.events.up)
+    document.addEventListener('touchend', this.events.up)
 
     // Leave
-    document.addEventListener('mouseleave', this.mouseleave.bind(this))
-    document.addEventListener('touchleave', this.mouseleave.bind(this))
+    document.addEventListener('mouseleave', this.events.mouseleave)
   }
 
   mouseleave() {
@@ -312,20 +321,19 @@ export default class Mouse {
 
   dispose() {
     // Move
-    document.removeEventListener('mousemove', this.mousemove.bind(this))
-    document.removeEventListener('touchmove', this.touchmove.bind(this))
+    document.removeEventListener('mousemove', this.events.mousemove)
+    document.removeEventListener('touchmove', this.events.touchmove)
 
     // Down
-    document.removeEventListener('mousedown', this.down.bind(this))
-    document.removeEventListener('touchstart', this.down.bind(this))
+    document.removeEventListener('mousedown', this.events.down)
+    document.removeEventListener('touchstart', this.events.down)
 
     // Up
-    document.removeEventListener('mouseup', this.up.bind(this))
-    document.removeEventListener('touchend', this.up.bind(this))
+    document.removeEventListener('mouseup', this.events.up)
+    document.removeEventListener('touchend', this.events.up)
 
     // Leave
-    document.removeEventListener('mouseleave', this.mouseleave.bind(this))
-    document.removeEventListener('touchleave', this.mouseleave.bind(this))
+    document.removeEventListener('mouseleave', this.events.mouseleave)
   }
 
   /* 

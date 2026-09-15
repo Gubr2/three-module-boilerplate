@@ -42,8 +42,8 @@ export default class _Scene {
     default: number
     inverted: number
   }
-  enterScroll: any
-  leaveScroll: any
+  enterScroll?: gsap.core.Tween
+  leaveScroll?: gsap.core.Tween
 
   constructor(_params: SceneParams) {
     gsap.registerPlugin(ScrollTrigger)
@@ -115,10 +115,9 @@ export default class _Scene {
   resize() {
     this.getBounds()
 
-    if (this.params?.isFollowingDom) {
-      this.enterScroll.scrollTrigger.vars.refreshPriority = this.isScrollBelow ? -99 : -100
-      this.leaveScroll.scrollTrigger.vars.refreshPriority = this.isScrollBelow ? -100 : -99
-    }
+    // Only set when the scene opted into setDefaultScroll
+    if (this.enterScroll?.scrollTrigger) this.enterScroll.scrollTrigger.vars.refreshPriority = this.isScrollBelow ? -99 : -100
+    if (this.leaveScroll?.scrollTrigger) this.leaveScroll.scrollTrigger.vars.refreshPriority = this.isScrollBelow ? -100 : -99
   }
 
   updateIsRendering(_isRendering?: boolean) {
@@ -177,11 +176,12 @@ export default class _Scene {
       }
 
       // Handle end bounds if exits
+      // ↳ Spans from the top of the start element to the bottom of the end one, including anything between them
       if (this.params.endDom) {
         const endBounds = this.params.endDom.getBoundingClientRect()
 
-        this.bounds.height = bounds.height + endBounds.height
-        this.bounds.viewHeight = Math.min(bounds.height + endBounds.height, this.gl.sizes.height)
+        this.bounds.height = endBounds.bottom - bounds.top
+        this.bounds.viewHeight = Math.min(this.bounds.height, this.gl.sizes.height)
       }
 
       this.bounds.aspect = this.bounds.width / this.bounds.height
