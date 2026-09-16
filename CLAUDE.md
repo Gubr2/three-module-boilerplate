@@ -38,6 +38,12 @@ With `isFollowingDom: true` a scene renders only while scrolled near the viewpor
 
 Anything gsap creates — tweens, ScrollTriggers — belongs in `this.gsapResources`; `_Scene.dispose()` kills that array. A tween left out of it survives disposal and keeps writing into dead uniforms.
 
+### Gotchas
+
+- Main `resize()` method call `ScrollTrigger.refresh()`. Scroll values must therefore be written in function form (`start: () => …`) with `invalidateOnRefresh: true` to survive a refresh.
+- `isRendering` starts `false` and is only ever set by the scroll trigger, so a scene created with `isFollowingDom: false` must call `updateIsRendering(true)` itself or it renders nothing.
+- `Gl` falls back to a `webgl-not-available` class on `<html>` when WebGL2 is missing, and `load()` resolves without building anything.
+
 ## Materials
 
 Import three as `three/webgpu` and nodes from `three/tsl`. Use new `Node` materials. Uniforms are TSL `uniform(...)` objects held in a plain record on the scene (`uniformsRenderPlane`), not in `material.uniforms`; animate them by writing `u.value` (gsap tweens `u.value` directly).
@@ -60,19 +66,12 @@ Paths are built from `this.path` (empty by default) and are relative to the host
 
 Append `?debug` to the URL in a dev build: it sets `gl.isDebug`, attaches three's `Inspector` to the renderer, and enables the `[WebGPU] [ █ █ █ ]` progress logs. Scene panels hang off `gl.manager.debugFolder` (created in `Manager.setDebug()`) via `_Scene.setDebug()`. The Inspector has no destroy API yet, so `dispose()` only hides a scene's folder.
 
-## Gotchas
-
-- The main renderer is built with `depth: false, stencil: false, antialias: false`. Depth belongs to each scene's own render target, and the composite pass has none.
-- `resize()` and post-load both call `ScrollTrigger.refresh()`. Scroll values must therefore be written in function form (`start: () => …`) with `invalidateOnRefresh: true` to survive a refresh.
-- `isRendering` starts `false` and is only ever set by the scroll trigger, so a scene created with `isFollowingDom: false` must call `updateIsRendering(true)` itself or it renders nothing.
-- `Gl` falls back to a `webgl-not-available` class on `<html>` when WebGL2 is missing, and `load()` resolves without building anything.
-
-## Coding Style
+## Styling conventions
 
 – No semicolons, single quotes, 2-space indent, long lines (~200 cols); no formatter config is committed. Parameters and callback arguments are `_`-prefixed (`_params`, `_scene`, `_event`). Sections inside a class are separated by `/* Title */` block comments — follow that when adding code.
 – Stop commenting your generated code. If necessary, be super brief
 – Avoid destructuring objects when accessing a variable from it – instead reference it directly
 
-## Others
+## Agent rules
 
 – At the end of each task, prompt me if I want to commit and push all the existing changes so I don't forget to save the progress
