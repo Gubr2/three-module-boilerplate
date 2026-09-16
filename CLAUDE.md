@@ -2,10 +2,6 @@
 
 A portable TypeScript module for DOM-driven Three.js **WebGPU** scenes. Each scene renders offscreen, then gets composited onto one fullscreen canvas at the position of its own HTML element.
 
-`src/webgl/` is the boilerplate; it gets dropped into different host projects, so build tooling, bundler config and package scripts are the host's concern — leave them out of changes here. Everything below is about the WebGL module itself.
-
-There is no typecheck, lint or test step here, and types are never checked at build. Verify changes visually: run the host project's dev server and read the page plus the console.
-
 ## Architecture
 
 `src/script.ts` constructs one `Gl` and calls `gl.load()`. Every other module reaches it with `new Gl()` — `Gl` is a singleton whose constructor returns the existing instance, so `this.gl = new Gl()` means "get the app", never "make one". The construction order inside `Gl.setup()` is a dependency order: utils → composite scene + camera → `Renderer` → `Manager` → `Assets`.
@@ -42,13 +38,13 @@ With `isFollowingDom: true` a scene renders only while scrolled near the viewpor
 
 Anything gsap creates — tweens, ScrollTriggers — belongs in `this.gsapResources`; `_Scene.dispose()` kills that array. A tween left out of it survives disposal and keeps writing into dead uniforms.
 
-## Materials are TSL, not GLSL
+## Materials
 
-Import three as `three/webgpu` and nodes from `three/tsl`. Materials are `NodeMaterial` / `MeshBasicNodeMaterial` with `vertexNode` and `colorNode` built inside `Fn(() => …)()`. Uniforms are TSL `uniform(...)` objects held in a plain record on the scene (`uniformsRenderPlane`), not in `material.uniforms`; animate them by writing `u.value` (gsap tweens `u.value` directly).
+Import three as `three/webgpu` and nodes from `three/tsl`. Use new `Node` materials. Uniforms are TSL `uniform(...)` objects held in a plain record on the scene (`uniformsRenderPlane`), not in `material.uniforms`; animate them by writing `u.value` (gsap tweens `u.value` directly).
 
 There are no `.glsl` files and no shader-string materials anywhere in the module — write node graphs, not GLSL.
 
-If you ever write a new shaderchunk (Fn), always check if there is not a native TSL node available before writing your own one.
+If you ever write a new shaderchunk (`Fn`), always check if there is not a native TSL node available before writing your own one.
 
 ## Assets
 
@@ -79,4 +75,4 @@ Append `?debug` to the URL in a dev build: it sets `gl.isDebug`, attaches three'
 
 ## Others
 
-– At the end of each task, prompt me if I want to commit the changes so I don't forget to save the progress
+– At the end of each task, prompt me if I want to commit and push all the existing changes so I don't forget to save the progress
