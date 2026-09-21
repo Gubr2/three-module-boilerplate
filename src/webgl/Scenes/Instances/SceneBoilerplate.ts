@@ -5,7 +5,7 @@ import { Fn, float, vec2, vec3, vec4, uv, texture, uniform, uniformTexture, posi
 
 export default class extends _Scene {
   scene: THREE.Scene
-  renderTarget: THREE.WebGLRenderTarget
+  renderTarget: THREE.RenderTarget
   camera: THREE.PerspectiveCamera
   model?: THREE.Mesh
   interface: Record<string, any>
@@ -31,7 +31,7 @@ export default class extends _Scene {
     /* 
       Render Target
     */
-    this.renderTarget = new THREE.WebGLRenderTarget(this.bounds.viewWidth * this.gl.sizes.pixelRatio, this.bounds.viewHeight * this.gl.sizes.pixelRatio, {
+    this.renderTarget = new THREE.RenderTarget(this.bounds.viewWidth * this.gl.sizes.pixelRatio, this.bounds.viewHeight * this.gl.sizes.pixelRatio, {
       // depthBuffer: false,
       // stencilBuffer: false,
     })
