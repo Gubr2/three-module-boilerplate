@@ -64,7 +64,7 @@ export default class extends _Scene {
       return vec4(pos, 0.0, 1.0)
     })()
 
-    this.renderPlane.material.colorNode = texture(this.renderTarget.texture, uv())
+    this.renderPlane.material.fragmentNode = texture(this.renderTarget.texture, uv())
 
     /* 
       Camera
@@ -127,6 +127,8 @@ export default class extends _Scene {
 
   async compile() {
     return new Promise<void>(async (_resolve) => {
+      this.gl.renderer.instance.setRenderTarget(this.renderTarget)
+
       await this.gl.renderer.instance.compileAsync(this.scene, this.camera)
 
       _resolve()
