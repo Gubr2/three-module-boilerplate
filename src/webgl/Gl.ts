@@ -40,7 +40,6 @@ export default class Gl {
   assets!: Assets
   misc!: Misc
   debug?: any
-  compilePromises!: Promise<void>[]
 
   // Change before production to remove debug and all its dependencies from being imported
   private isProd: boolean = false
@@ -151,6 +150,8 @@ export default class Gl {
           */
           if (this.didResizedBeforeWebglLoaded) {
             this.resize()
+          } else {
+            ScrollTrigger.refresh()
           }
         })
       } else {
@@ -172,15 +173,11 @@ export default class Gl {
     /* 
       Precompile active scenes
     */
-    this.compilePromises = []
-
     for (const key in this.manager.sceneInstances) {
-      const promise = this.manager.sceneInstances[key]?.compile?.()
-
-      if (promise) this.compilePromises.push(promise)
+      await this.manager.sceneInstances[key]?.compile?.()
     }
 
-    await Promise.all(this.compilePromises)
+    await this.renderer.instance.compileAsync(this.scene, this.camera)
 
     if (this.isDebug) console.log('[WebGL] [  W O R L D  ] -', 'Compiled')
 
