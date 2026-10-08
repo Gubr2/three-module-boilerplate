@@ -43,12 +43,12 @@ export default class Sizes {
     this.isTouchDevice = window.matchMedia('(hover: none)').matches
   }
 
-  setResponsiveFov(_fov: number, referenceAspect: number, zoom = 1, aspect = this.aspect, _isClamped = true) {
+  setResponsiveFov(_fov: number, _referenceAspect: number, _zoom = 1, _aspect = this.aspect, _isClamped = true) {
     const fovInRadians = (_fov * Math.PI) / 180
-    let tanHalf = Math.tan(fovInRadians / 2) / zoom
+    let tanHalf = Math.tan(fovInRadians / 2) / _zoom
 
-    if (!_isClamped || aspect < referenceAspect) {
-      tanHalf = (tanHalf * referenceAspect) / aspect
+    if (!_isClamped || _aspect < _referenceAspect) {
+      tanHalf = (tanHalf * _referenceAspect) / _aspect
     }
 
     return 2 * Math.atan(tanHalf) * (180 / Math.PI)

@@ -20,9 +20,11 @@ interface ScrollParams {
 
 export default class _Scene {
   params: SceneParams
-  isRendering: boolean
-  isResponsiveVisible: boolean
-  isScrollBelow!: boolean
+  state: {
+    isRendering: boolean
+    isResponsiveVisible: boolean
+    isScrollBelow: boolean
+  }
   gl: Gl
   bounds!: {
     left: number
@@ -54,15 +56,13 @@ export default class _Scene {
     this.params = _params
 
     /*
-      Flags
+      State
     */
-    this.isRendering = false
-
-    /*
-      Responsive visibility
-      ↳ When set to false, the scene stops rendering and its render plane gets hidden
-    */
-    this.isResponsiveVisible = true
+    this.state = {
+      isRendering: false,
+      isResponsiveVisible: true,
+      isScrollBelow: false,
+    }
 
     /* 
       GL
@@ -116,13 +116,13 @@ export default class _Scene {
     this.getBounds()
 
     // Only set when the scene opted into setDefaultScroll
-    if (this.enterScroll?.scrollTrigger) this.enterScroll.scrollTrigger.vars.refreshPriority = this.isScrollBelow ? -99 : -100
-    if (this.leaveScroll?.scrollTrigger) this.leaveScroll.scrollTrigger.vars.refreshPriority = this.isScrollBelow ? -100 : -99
+    if (this.enterScroll?.scrollTrigger) this.enterScroll.scrollTrigger.vars.refreshPriority = this.state.isScrollBelow ? -99 : -100
+    if (this.leaveScroll?.scrollTrigger) this.leaveScroll.scrollTrigger.vars.refreshPriority = this.state.isScrollBelow ? -100 : -99
   }
 
   updateIsRendering(_isRendering?: boolean) {
-    this.isRendering = this.isResponsiveVisible ? (_isRendering ?? false) : false
-    this.renderPlane.visible = this.isResponsiveVisible ? (_isRendering ?? false) : false
+    this.state.isRendering = this.state.isResponsiveVisible ? (_isRendering ?? false) : false
+    this.renderPlane.visible = this.state.isResponsiveVisible ? (_isRendering ?? false) : false
   }
 
   setRenderingOnScroll() {
@@ -190,7 +190,7 @@ export default class _Scene {
       /* 
         Check if the scroll is below the scene
       */
-      this.isScrollBelow = this.bounds.top + this.bounds.height / 2 - this.gl.sizes.height / 2 < 0 ? true : false
+      this.state.isScrollBelow = this.bounds.top + this.bounds.height / 2 - this.gl.sizes.height / 2 < 0 ? true : false
     } else {
       this.bounds = {
         width: this.gl.sizes.width,
@@ -228,7 +228,7 @@ export default class _Scene {
           trigger: _params.trigger,
           start: () => `top-=${this.gl.sizes.height} top+=${Math.max((this.gl.sizes.height - this.bounds.height) / 2, 0)}`,
           end: () => `top top+=${Math.max((this.gl.sizes.height - this.bounds.height) / 2, 0)}`,
-          refreshPriority: this.isScrollBelow ? -99 : -100,
+          refreshPriority: this.state.isScrollBelow ? -99 : -100,
           // markers: true,
         },
       },
@@ -254,7 +254,7 @@ export default class _Scene {
           trigger: _params.endTrigger ? _params.endTrigger : _params.trigger,
           start: () => `bottom top+=${this.gl.sizes.height - Math.max((this.gl.sizes.height - this.bounds.height) / 2, 0)}`,
           end: () => `bottom+=${this.gl.sizes.height} top+=${this.gl.sizes.height - Math.max((this.gl.sizes.height - this.bounds.height) / 2, 0)}`,
-          refreshPriority: this.isScrollBelow ? -100 : -99,
+          refreshPriority: this.state.isScrollBelow ? -100 : -99,
           // markers: true,
         },
       },
@@ -263,9 +263,9 @@ export default class _Scene {
     this.gsapResources.push(this.leaveScroll)
 
     // Set default value
-    if (!this.isRendering) {
+    if (!this.state.isRendering) {
       gsap.set(_params.uniformsRenderPlane.uPosition.value, {
-        y: this.isScrollBelow ? -this.gl.sizes.height : this.gl.sizes.height,
+        y: this.state.isScrollBelow ? -this.gl.sizes.height : this.gl.sizes.height,
       })
     }
     // Set manual offset outside the screen to prevent gsap rendering to take pla

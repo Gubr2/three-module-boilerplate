@@ -1,7 +1,7 @@
 import * as THREE from 'three/webgpu'
 
 import _Scene, { SceneParams } from './_Scene'
-import { Fn, float, vec2, vec3, vec4, uv, texture, uniform, uniformTexture, positionLocal, mul } from 'three/tsl'
+import { Fn, float, vec2, vec3, vec4, uv, texture, uniform, positionLocal } from 'three/tsl'
 
 export default class extends _Scene {
   scene: THREE.Scene
@@ -136,14 +136,14 @@ export default class extends _Scene {
   }
 
   renderPipeline() {
-    if (!this.isRendering) return
+    if (!this.state.isRendering) return
 
     this.gl.renderer.instance.setRenderTarget(this.renderTarget)
     this.gl.renderer.instance.render(this.scene, this.camera)
   }
 
   update() {
-    if (!this.isRendering) return
+    if (!this.state.isRendering) return
 
     if (this.model) this.model.position.y = Math.sin(this.gl.time.elapsed)
   }

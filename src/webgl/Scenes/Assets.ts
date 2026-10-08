@@ -1,5 +1,5 @@
 import * as THREE from 'three/webgpu'
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
+// import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 // import { HDRLoader } from 'three/examples/jsm/loaders/HDRLoader.js'
 // import { KTX2Loader } from 'three/examples/jsm/loaders/KTX2Loader.js'
 // import { EXRLoader } from 'three/examples/jsm/loaders/EXRLoader.js'
@@ -82,7 +82,7 @@ export default class Assets {
       this.customLoader(
         this.path + 'textures/noise.webp',
         this.textureLoader,
-        (_result: THREE.Texture, isMandatory: boolean) => {
+        (_result: THREE.Texture) => {
           this.textures.noise = _result
           this.textures.noise.wrapS = THREE.RepeatWrapping
           this.textures.noise.wrapT = THREE.RepeatWrapping
@@ -236,7 +236,7 @@ export default class Assets {
     const isMandatory = this.checkIfMandatory(_sceneDependencies)
 
     const loader = () =>
-      new Promise<void>(async (resolve, reject) => {
+      new Promise<void>(async (_resolve, _reject) => {
         const mandatoryVideo = document.createElement('video')
         mandatoryVideo.preload = 'auto'
         mandatoryVideo.muted = true
@@ -266,7 +266,7 @@ export default class Assets {
             this.logAsyncProgress(_mandatoryPath)
           }
 
-          resolve()
+          _resolve()
 
           /*
             Load Async HQ
@@ -283,7 +283,7 @@ export default class Assets {
           }
         } catch (_error) {
           console.error(_error)
-          reject(_error)
+          _reject(_error)
           return
         }
       })

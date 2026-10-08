@@ -40,6 +40,7 @@ export default class Gl {
   assets!: Assets
   misc!: Misc
   debug?: any
+  events!: Record<string, () => void>
 
   // Change before production to remove debug and all its dependencies from being imported
   private isProd: boolean = false
@@ -66,7 +67,7 @@ export default class Gl {
       this.setup()
     } else {
       // Fallback
-      console.log('[WebGL] [   (╯︵╰,)   ] -', 'WebGL 2.0 is not available - initializing fallback.')
+      console.log('[WebGPU] [   (╯︵╰,)   ] -', 'WebGL 2.0 is not available - initializing fallback.')
 
       document.documentElement.classList.add('webgl-not-available')
     }
@@ -125,13 +126,17 @@ export default class Gl {
     /*
       Functions
     */
-    window.addEventListener('resize', () => {
-      this.resize()
+    this.events = {
+      resize: () => {
+        this.resize()
 
-      if (!this.isLoaded) {
-        this.didResizedBeforeWebglLoaded = true
-      }
-    })
+        if (!this.isLoaded) {
+          this.didResizedBeforeWebglLoaded = true
+        }
+      },
+    }
+
+    window.addEventListener('resize', this.events.resize)
   }
 
   load(): Promise<void> {
@@ -179,7 +184,7 @@ export default class Gl {
 
     await this.renderer.instance.compileAsync(this.scene, this.camera)
 
-    if (this.isDebug) console.log('[WebGL] [  W O R L D  ] -', 'Compiled')
+    if (this.isDebug) console.log('[WebGPU] [  W O R L D  ] -', 'Compiled')
 
     /* 
       Load async assets after compilation
@@ -191,7 +196,7 @@ export default class Gl {
     */
     gsap.ticker.add(this.update.bind(this))
 
-    if (this.isDebug) console.log('[WebGL] [ █ █ █ █ █ █ ] -', 'Initialized')
+    if (this.isDebug) console.log('[WebGPU] [ █ █ █ █ █ █ ] -', 'Initialized')
   }
 
   update(): void {

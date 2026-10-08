@@ -1,9 +1,17 @@
 {
-  "jsPlugins": ["./lint/no-object-destructuring.js"],
+  "jsPlugins": ["./lint/rules.js"],
   "categories": { "correctness": "off" },
   "rules": {
+    "no-unused-vars": "error",
     "local/no-object-destructuring": "error",
-    "local/no-interface-alias": "error"
+    "local/no-interface-alias": "error",
+    "local/scene-super-call": "error",
+    "local/scene-rendering-guard": "error",
+    "local/gsap-tracked": "error",
+    "local/param-prefix": "error",
+    "local/no-inline-listener": "error",
+    "local/uniform-prefix": "error",
+    "local/base-class-prefix": "error"
   },
   "ignorePatterns": ["dist", "static", "node_modules"]
 }

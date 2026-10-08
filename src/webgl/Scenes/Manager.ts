@@ -97,7 +97,7 @@ export default class Manager {
         }
       })
       // Filter out scenes with start but no end
-      .filter((scene) => scene !== null)
+      .filter((_scene) => _scene !== null)
   }
 
   dispose() {

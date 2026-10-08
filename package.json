@@ -7,11 +7,13 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
+    "typecheck": "tsc",
     "lint": "oxlint"
   },
   "devDependencies": {
     "oxlint": "^1.86.0",
     "sass": "^1.62.1",
+    "typescript": "^7.0.2",
     "vite": "^4.0.4",
     "vite-plugin-glsl": "^1.2.1"
   },

@@ -17,7 +17,7 @@ A `renderPlane` is a unit plane whose `vertexNode` maps it into clip space from 
 
 `Manager.getSceneDoms()` collects `[data-gl-scene="name"]` (single element) and `[data-gl-scene-start="name"]` + matching `[data-gl-scene-end="name"]` (a range whose bounds span both elements — the nested-scene setup this branch demos). A start with no matching end is dropped with a console warning. `Manager.add()` then maps `name` → class through a `switch`; a name with no `case` produces no scene and no warning.
 
-With `isFollowingDom: true` a scene renders only while scrolled near the viewport: a ScrollTrigger in `_Scene.setRenderingOnScroll()` toggles `isRendering` and `renderPlane.visible`, while `setDefaultScroll()` scrubs `uPosition.value.y` so the plane slides through the viewport. Hence every `update()` and `renderPipeline()` opens with `if (!this.isRendering) return`. `scrollCameraOffset.default` / `.inverted` are scrubbed 0 → overflow height for scenes taller than the screen; a scene uses them manually to fake scroll inside its own camera.
+With `isFollowingDom: true` a scene renders only while scrolled near the viewport: a ScrollTrigger in `_Scene.setRenderingOnScroll()` toggles `state.isRendering` and `renderPlane.visible`, while `setDefaultScroll()` scrubs `uPosition.value.y` so the plane slides through the viewport. Hence every `update()` and `renderPipeline()` opens with `if (!this.state.isRendering) return`. `scrollCameraOffset.default` / `.inverted` are scrubbed 0 → overflow height for scenes taller than the screen; a scene uses them manually to fake scroll inside its own camera.
 
 ## Scene lifecycle
 
@@ -48,8 +48,16 @@ document.removeEventListener('mousemove', this.disposableFunctions.move)
 
 When setting variables that are used by the scene, always use `this.interface` variable in the constructor. Avoid creating variables outside the class or private variables.
 
+## State
+
+`_Scene` keeps its flags in `this.state`, set in its constructor:
+
+- `isRendering`: toggled by the scroll trigger through `updateIsRendering()`, read by the guard at the top of `update()` and `renderPipeline()`
+- `isResponsiveVisible`: set it to `false` to stop the scene rendering and hide its render plane
+- `isScrollBelow`: written by `getBounds()`, sets the refresh priority of the default scroll tweens
+
 ## Gotchas
 
 - Main `resize()` method call `ScrollTrigger.refresh()`. Scroll values must therefore be written in function form (`start: () => …`) with `invalidateOnRefresh: true` to survive a refresh.
-- `isRendering` starts `false` and is only ever set by the scroll trigger, so a scene created with `isFollowingDom: false` must call `updateIsRendering(true)` itself or it renders nothing.
+- `state.isRendering` starts `false` and is only ever set by the scroll trigger, so a scene created with `isFollowingDom: false` must call `updateIsRendering(true)` itself or it renders nothing.
 - `Gl` falls back to a `webgl-not-available` class on `<html>` when WebGL2 is missing, and `load()` resolves without building anything.
