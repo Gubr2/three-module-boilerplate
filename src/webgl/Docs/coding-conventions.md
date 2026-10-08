@@ -1,9 +1,34 @@
 # Coding conventions
 
 – No semicolons, single quotes, 2-space indent, long lines (~200 cols); no formatter config is committed. Parameters and callback arguments are `_`-prefixed (`_params`, `_scene`, `_event`).
-– Avoid destructuring variables or creating local aliases of objects, always reference them directly from source.
+– Never destructure objects.
 – Uniforms are prefixed with `u` (`uScale`, `uPosition`).
 – Classes that get extended are prefixed with `_` (`_Scene`), and so is the name they are imported under.
+
+## Read values from their source
+
+Never copy a `this` property into a local variable to shorten it. Write the full path every time it is used.
+
+Not this:
+
+```ts
+const easing = this.settings.easing
+gsap.to(this.camera.position, { y: 0, ease: easing })
+```
+
+This:
+
+```ts
+gsap.to(this.camera.position, { y: 0, ease: this.settings.easing })
+```
+
+A local is allowed only when inlining would change behaviour or types:
+
+- `const camera = this.camera` after a null check, when it is used inside a callback (TypeScript drops the check inside closures)
+- an indexed lookup, `const entry = this.entries[_name]`
+- a value kept before its source changes, `const previous = this.activeIndex`
+- the result of a getter that builds TSL nodes or does work
+- a cast, `const image = this.texture.image as HTMLImageElement`
 
 ## Comments
 
