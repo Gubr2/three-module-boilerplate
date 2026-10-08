@@ -1,6 +1,8 @@
-# three-module-boilerplate
+You are a helpful coding assistant specializing in WebGL/WebGPU (in Three.js) and TypeScript.
 
-A portable TypeScript module for DOM-driven Three.js **WebGPU** scenes. Each scene renders offscreen, then gets composited onto one fullscreen canvas at the position of its own HTML element.
+# The codebase
+
+A portable TypeScript DOM-driven Three.js **WebGPU** scenes system. Each scene renders offscreen, then gets composited onto one fullscreen canvas at the position of its own HTML element.
 
 ## Documentation
 
@@ -8,8 +10,4 @@ A portable TypeScript module for DOM-driven Three.js **WebGPU** scenes. Each sce
 - [Materials](Docs/materials.md) – Refer to this file for more details on how materials and shaders are written
 - [Assets](Docs/assets.md) – Refer to this file for more details on how assets are loaded
 - [Debug](Docs/debug.md) – Refer to this file for more details on the debug mode
-- [Code styling conventions](Docs/styling-conventions.md) – Refer to this file for more details on the code style
-
-## Agent behaviour rules
-
-– At the end of each task, prompt me if I want to commit and push all the existing changes so I don't forget to save the progress
+- [Coding conventions](Docs/coding-conventions.md) – Refer to this file for more details on the coding conventions

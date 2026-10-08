@@ -34,6 +34,20 @@ With `isFollowingDom: true` a scene renders only while scrolled near the viewpor
 
 Anything gsap creates — tweens, ScrollTriggers — belongs in `this.gsapResources`; `_Scene.dispose()` kills that array. A tween left out of it survives disposal and keeps writing into dead uniforms.
 
+Event handlers go in `this.disposableFunctions` (initialised to `{}` by `_Scene`), keyed by name. Register the stored reference, then remove that same reference in the scene's `dispose()`. An inline arrow can't be removed, and a listener that outlives the scene keeps calling into it. `_Scene.dispose()` does not iterate this map for you.
+
+```ts
+this.disposableFunctions.move = (_event: MouseEvent) => { ... }
+document.addEventListener('mousemove', this.disposableFunctions.move)
+
+// dispose()
+document.removeEventListener('mousemove', this.disposableFunctions.move)
+```
+
+## Interface
+
+When setting variables that are used by the scene, always use `this.interface` variable in the constructor. Avoid creating variables outside the class or private variables.
+
 ## Gotchas
 
 - Main `resize()` method call `ScrollTrigger.refresh()`. Scroll values must therefore be written in function form (`start: () => …`) with `invalidateOnRefresh: true` to survive a refresh.

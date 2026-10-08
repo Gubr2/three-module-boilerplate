@@ -1,0 +1,9 @@
+{
+  "jsPlugins": ["./lint/no-object-destructuring.js"],
+  "categories": { "correctness": "off" },
+  "rules": {
+    "local/no-object-destructuring": "error",
+    "local/no-interface-alias": "error"
+  },
+  "ignorePatterns": ["dist", "static", "node_modules"]
+}
