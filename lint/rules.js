@@ -95,7 +95,7 @@ const isRenderingGuard = (_context, _statement) => {
 const sceneRenderingGuard = {
   meta: {
     type: 'problem',
-    docs: { description: 'Require update() and renderPipeline() in classes extending a base class to open with the isRendering guard' },
+    docs: { description: 'Require update() and renderPipeline() in classes extending a base class to open with the this.state.isRendering guard' },
     messages: { renderingGuard: '{{name}}() must start with if (!this.state.isRendering) return' },
     schema: [],
   },

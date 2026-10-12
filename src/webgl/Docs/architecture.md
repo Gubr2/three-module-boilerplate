@@ -52,9 +52,9 @@ When setting variables that are used by the scene, always use `this.interface` v
 
 `_Scene` keeps its flags in `this.state`, set in its constructor:
 
-- `isRendering`: toggled by the scroll trigger through `updateIsRendering()`, read by the guard at the top of `update()` and `renderPipeline()`
-- `isResponsiveVisible`: set it to `false` to stop the scene rendering and hide its render plane
-- `isScrollBelow`: written by `getBounds()`, sets the refresh priority of the default scroll tweens
+- `this.state.isRendering`: toggled by the scroll trigger through `updateIsRendering()`, read by the guard at the top of `update()` and `renderPipeline()`
+- `this.state.isResponsiveVisible`: set it to `false` to stop the scene rendering and hide its render plane
+- `this.state.isScrollBelow`: written by `getBounds()`, sets the refresh priority of the default scroll tweens
 
 ## Gotchas
 
